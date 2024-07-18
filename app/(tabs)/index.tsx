@@ -1,70 +1,69 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions, Button } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
 export default function HomeScreen() {
+
+  const screenHeight = Dimensions.get('window').height;
+  const imageHeight = screenHeight * 0.6; // 60% of the screen height
+  const containerHeight = screenHeight * 0.6; // 60% of the screen height
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
+    <View style={styles.container}>
+      <View style={[styles.imageContainer, { height: containerHeight }]}>
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+          source={require('@/assets/images/food-calendar.png')}
+          style={styles.image}
+          resizeMode="contain" // Ensures the image maintains its aspect ratio
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </View>
+      <View  style={styles.lowerContainer}>
+        <Text style={styles.textHeader}>Food Track</Text>
+        <Text style={styles.textSubtitle}>Track your food intake easily</Text>
+      </View>
+
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    height: '100%', // Container takes up 100% of the height
+    width: '100%', // Container takes up 100% of the width
+    alignItems: 'center', // Center the image horizontally
+    justifyContent: 'center', // Center the image vertically
+    backgroundColor: 'white',
+  },
+  imageContainer: {
+    width: '100%', // Container takes up 100% of the width
+    alignItems: 'center', // Center the image horizontally
+    justifyContent: 'center', // Center the image vertically
+    backgroundColor: 'white',
+  },
+  lowerContainer: {
+    width: '100%', // Container takes up 100% of the width
+    alignItems: 'center', // Center the image horizontally
+    justifyContent: 'center', // Center the image vertically
+    backgroundColor: 'white',
+  },
+  image: {
+    width: '100%', // Image takes up 100% of the container's width
+    height: '100%', // Image height adjusted to maintain aspect ratio automatically
+  },
+  textHeader: {
+    fontSize: 32,
+    marginVertical: 10,
+    emphasis: 'bold',
+  },
+  textSubtitle: {
+    fontSize: 24,
+    marginVertical: 10,
+  },
+  buttonContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+    justifyContent: 'space-around',
+    width: '100%',
   },
 });
