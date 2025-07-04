@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { styles } from "./layout.styles";
 
 export default function TabLayout() {
   return (
@@ -53,19 +54,3 @@ export default function TabLayout() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  banner: {
-    height: 60,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#eee",
-  },
-  bannerText: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-});
