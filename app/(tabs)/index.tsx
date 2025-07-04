@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, Dimensions, Button } from 'react-native'
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import React from 'react';
 
 export default function HomeScreen() {
 
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
   textHeader: {
     fontSize: 32,
     marginVertical: 10,
-    emphasis: 'bold',
+    fontWeight: 'bold',
   },
   textSubtitle: {
     fontSize: 24,
