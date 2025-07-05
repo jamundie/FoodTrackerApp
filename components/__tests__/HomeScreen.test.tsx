@@ -63,6 +63,6 @@ describe("HomeScreen", () => {
       </TrackingProvider>
     );
 
-    expect(getByText(/Recent Activites/i)).toBeTruthy();
+    expect(getByText(/Recent Activities/i)).toBeTruthy();
   });
 });
