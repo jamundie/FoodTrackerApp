@@ -39,6 +39,10 @@ export default function HomeScreen() {
           </Pressable>
         </View>
       </View>
+      <View style={styles.progressSnapshot}>
+        <Text style={styles.header}>Progress Snapshot</Text>
+        <Text>Graph goes here</Text>
+      </View>
     </View>
   );
 }

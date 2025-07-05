@@ -43,4 +43,15 @@ describe("HomeScreen", () => {
 
     expect(mockPush).toHaveBeenCalledWith("/food");
   });
+
+  it("renders the progress snapshot section", () => {
+    const { getByText } = render(
+      <TrackingProvider>
+        <HomeScreen />
+      </TrackingProvider>
+    );
+
+    expect(getByText(/Progress Snapshot/i)).toBeTruthy();
+    expect(getByText(/Dail Activity Distribution/i)).toBeTruthy();
+  });
 });
