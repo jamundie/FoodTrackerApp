@@ -1,6 +1,5 @@
 # Welcome to your Food tracker App
 
-
 ## Get started
 
 1. Install dependencies
@@ -12,15 +11,11 @@
 2. Start the app
 
    ```bash
-    npx expo start
-   ```
-or
-   ```bash
-    npx expo start --tunnel
+    npm run build
    ```
 
-3. If there are any issue with the build try 
+3. If there are any issue with the build try
 
    ```
-   npx expo-doctor    
-   ```                                             
+   npx expo-doctor
+   ```
