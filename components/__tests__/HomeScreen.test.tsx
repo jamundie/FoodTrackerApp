@@ -56,4 +56,13 @@ describe("HomeScreen", () => {
 
     expect(getByText(/Progress Snapshot/i)).toBeTruthy();
   });
+  it("renders the recent activities section", () => {
+    const { getByText } = render(
+      <TrackingProvider>
+        <HomeScreen />
+      </TrackingProvider>
+    );
+
+    expect(getByText(/Recent Activites/i)).toBeTruthy();
+  });
 });

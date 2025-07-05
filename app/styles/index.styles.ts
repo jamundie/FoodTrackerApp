@@ -38,4 +38,39 @@ export const styles = StyleSheet.create({
     color: "#007bff",
   },
   progressSnapshot: {},
+  recentActivities: {
+    marginTop: 30,
+  },
+
+  activityRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+
+  activityIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+
+  activityDetails: {
+    flex: 1,
+  },
+
+  activityTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  activitySubtitle: {
+    fontSize: 14,
+    color: "#666",
+  },
+
+  activityTime: {
+    fontSize: 12,
+    color: "#999",
+  },
 });

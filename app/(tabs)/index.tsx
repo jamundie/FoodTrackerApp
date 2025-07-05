@@ -61,11 +61,43 @@ export default function HomeScreen() {
                   width={barWidth}
                   height={barHeight}
                   color="#007bff"
-                  r={4}
                 />
               );
             })}
           </Canvas>
+        </View>
+      </View>
+      <View style={styles.recentActivities}>
+        <Text style={styles.header}>Recent Activities</Text>
+
+        {/* Activity 1 */}
+        <View style={styles.activityRow}>
+          <Text style={styles.activityIcon}>🍳</Text>
+          <View style={styles.activityDetails}>
+            <Text style={styles.activityTitle}>Logged Breakfast</Text>
+            <Text style={styles.activitySubtitle}>Oatmeal with berries</Text>
+          </View>
+          <Text style={styles.activityTime}>8:30 AM</Text>
+        </View>
+
+        {/* Activity 2 */}
+        <View style={styles.activityRow}>
+          <Text style={styles.activityIcon}>💧</Text>
+          <View style={styles.activityDetails}>
+            <Text style={styles.activityTitle}>Drank Water</Text>
+            <Text style={styles.activitySubtitle}>500ml glass</Text>
+          </View>
+          <Text style={styles.activityTime}>10:15 AM</Text>
+        </View>
+
+        {/* Activity 3 */}
+        <View style={styles.activityRow}>
+          <Text style={styles.activityIcon}>🏃‍♂️</Text>
+          <View style={styles.activityDetails}>
+            <Text style={styles.activityTitle}>Morning Run</Text>
+            <Text style={styles.activitySubtitle}>30 min brisk walk</Text>
+          </View>
+          <Text style={styles.activityTime}>7:00 AM</Text>
         </View>
       </View>
     </View>
