@@ -1,16 +1,19 @@
 import { render, fireEvent } from "@testing-library/react-native";
+import React from "react";
 import HomeScreen from "../../app/(tabs)/index";
 import { TrackingProvider } from "../../hooks/TrackingContext";
-import React from "react";
 
-// Declare mockPush at the top
 const mockPush = jest.fn();
 
-jest.mock("expo-router", () => {
+jest.mock("expo-router", () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}));
+jest.mock("@shopify/react-native-skia", () => {
   return {
-    useRouter: () => ({
-      push: mockPush,
-    }),
+    Canvas: ({ children }: { children: React.ReactNode }) => children,
+    Rect: () => null,
   };
 });
 
@@ -52,6 +55,5 @@ describe("HomeScreen", () => {
     );
 
     expect(getByText(/Progress Snapshot/i)).toBeTruthy();
-    // expect(getByText(/Dail Activity Distribution/i)).toBeTruthy();
   });
 });
