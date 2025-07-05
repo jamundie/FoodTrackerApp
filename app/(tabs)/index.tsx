@@ -2,8 +2,7 @@ import { View, Text, Pressable, Image } from "react-native";
 import { useTracking } from "../../hooks/TrackingContext";
 import { useRouter } from "expo-router";
 import React from "react";
-import { styles } from "./index.styles";
-import { Place } from "@mui/icons-material";
+import { styles } from "../styles/index.styles";
 import PlaceholderCircle from "@/components/PlaceholderCircle";
 
 export default function HomeScreen() {

@@ -25,12 +25,9 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 2,
+    boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
   },
+
   cardTitle: {
     fontSize: 16,
     fontWeight: "bold",
