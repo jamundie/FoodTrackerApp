@@ -26,12 +26,11 @@ describe("FoodScreen", () => {
 
       expect(getByText("Meal Name")).toBeTruthy();
       expect(getByText("Category")).toBeTruthy();
-      expect(getByText("Custom Date/Time (optional)")).toBeTruthy();
+      expect(getByText("Date & Time")).toBeTruthy();
       expect(getByText("Ingredients")).toBeTruthy();
       
       expect(getByPlaceholderText("e.g., Lasagne, Chicken Salad")).toBeTruthy();
       expect(getByText("Select a category")).toBeTruthy();
-      expect(getByPlaceholderText("Leave empty for current time")).toBeTruthy();
     });
 
     it("renders initial ingredient form", () => {
@@ -63,12 +62,35 @@ describe("FoodScreen", () => {
       expect(mealNameInput.props.value).toBe("Spaghetti Bolognese");
     });
 
-    it("allows typing in custom timestamp field", () => {
-      const { getByPlaceholderText } = renderFoodScreen();
-      const timestampInput = getByPlaceholderText("Leave empty for current time");
+    it("allows selecting date and time through pickers", () => {
+      const { getByTestId } = renderFoodScreen();
+      
+      // Test date picker button exists
+      const datePickerButton = getByTestId("date-picker-button");
+      expect(datePickerButton).toBeTruthy();
+      
+      // Test time picker button exists
+      const timePickerButton = getByTestId("time-picker-button");
+      expect(timePickerButton).toBeTruthy();
+      
+      // Test that buttons can be pressed (opens modals)
+      fireEvent.press(datePickerButton);
+      fireEvent.press(timePickerButton);
+    });
 
-      fireEvent.changeText(timestampInput, "2025-08-04T12:00:00.000Z");
-      expect(timestampInput.props.value).toBe("2025-08-04T12:00:00.000Z");
+    it("allows toggling calendar view in date picker", () => {
+      const { getByTestId } = renderFoodScreen();
+      
+      // Open date picker
+      const datePickerButton = getByTestId("date-picker-button");
+      fireEvent.press(datePickerButton);
+      
+      // Find and press calendar toggle button
+      const calendarToggle = getByTestId("calendar-toggle-button");
+      expect(calendarToggle).toBeTruthy();
+      
+      // Test that toggle can be pressed
+      fireEvent.press(calendarToggle);
     });
 
     it("allows typing in ingredient fields", () => {

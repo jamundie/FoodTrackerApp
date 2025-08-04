@@ -26,7 +26,11 @@ export default function FoodScreen() {
   const [mealName, setMealName] = useState("");
   const [category, setCategory] = useState<FoodCategory | "">("");
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const [customTimestamp, setCustomTimestamp] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState({ hours: new Date().getHours(), minutes: 0 });
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [ingredients, setIngredients] = useState<IngredientForm[]>([
     { name: "", amount: "", unit: "g", caloriesPer100g: "" },
   ]);
@@ -54,6 +58,76 @@ export default function FoodScreen() {
     setCategory(selectedCategory);
     setShowCategoryDropdown(false);
   };
+
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    setShowDatePicker(false);
+  };
+
+  const handleTimeSelect = (hours: number, minutes: number) => {
+    setSelectedTime({ hours, minutes });
+    setShowTimePicker(false);
+  };
+
+  const createTimestamp = (): string => {
+    const combinedDateTime = new Date(selectedDate);
+    combinedDateTime.setHours(selectedTime.hours, selectedTime.minutes, 0, 0);
+    return combinedDateTime.toISOString();
+  };
+
+  const formatDisplayDate = (date: Date): string => {
+    const today = new Date();
+    const isToday = date.toDateString() === today.toDateString();
+    
+    if (isToday) {
+      return "Today";
+    }
+    
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  const formatDisplayTime = (hours: number, minutes: number): string => {
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    const paddedMinutes = minutes.toString().padStart(2, '0');
+    return `${displayHours}:${paddedMinutes} ${period}`;
+  };
+
+  const generateCalendarDays = (year: number, month: number) => {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay()); // Start from Sunday
+    
+    const days = [];
+    const today = new Date();
+    
+    for (let i = 0; i < 42; i++) { // 6 weeks × 7 days
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      
+      const isCurrentMonth = date.getMonth() === month;
+      const isToday = date.toDateString() === today.toDateString();
+      const isPast = date <= today;
+      
+      days.push({
+        date: new Date(date),
+        day: date.getDate(),
+        isCurrentMonth,
+        isToday,
+        isPast,
+        isSelectable: isPast && isCurrentMonth
+      });
+    }
+    
+    return days;
+  };
+
+  const [calendarDate, setCalendarDate] = useState(new Date());
 
   const calculateTotalCalories = (processedIngredients: Ingredient[]): number => {
     return processedIngredients.reduce((total, ingredient) => {
@@ -113,7 +187,7 @@ export default function FoodScreen() {
       id: Date.now().toString(),
       mealName: mealName.trim(),
       category: category as FoodCategory, // Safe to cast since we validate it above
-      timestamp: customTimestamp || new Date().toISOString(),
+      timestamp: createTimestamp(),
       ingredients: processedIngredients,
       totalCalories: totalCalories > 0 ? totalCalories : undefined,
     };
@@ -124,7 +198,8 @@ export default function FoodScreen() {
     setMealName("");
     setCategory("");
     setShowCategoryDropdown(false);
-    setCustomTimestamp("");
+    setSelectedDate(new Date());
+    setSelectedTime({ hours: new Date().getHours(), minutes: 0 });
     setIngredients([{ name: "", amount: "", unit: "g", caloriesPer100g: "" }]);
 
     Alert.alert("Success", "Food entry added successfully!");
@@ -163,18 +238,32 @@ export default function FoodScreen() {
 
         <View style={styles.inputGroup}>
           <ThemedText type="defaultSemiBold">
-            Custom Date/Time (optional)
+            Date & Time
           </ThemedText>
-          <TextInput
-            style={styles.input}
-            value={customTimestamp}
-            onChangeText={setCustomTimestamp}
-            placeholder="Leave empty for current time"
-            placeholderTextColor="#999"
-          />
-          <ThemedText type="default" style={styles.hint}>
-            Format: YYYY-MM-DDTHH:mm:ss.sssZ (ISO format)
-          </ThemedText>
+          
+          {/* Date Picker */}
+          <TouchableOpacity
+            style={styles.dropdownButton}
+            onPress={() => setShowDatePicker(true)}
+            testID="date-picker-button"
+          >
+            <Text style={styles.dropdownButtonText}>
+              {formatDisplayDate(selectedDate)}
+            </Text>
+            <Text style={styles.dropdownArrow}>📅</Text>
+          </TouchableOpacity>
+
+          {/* Time Picker */}
+          <TouchableOpacity
+            style={styles.dropdownButton}
+            onPress={() => setShowTimePicker(true)}
+            testID="time-picker-button"
+          >
+            <Text style={styles.dropdownButtonText}>
+              {formatDisplayTime(selectedTime.hours, selectedTime.minutes)}
+            </Text>
+            <Text style={styles.dropdownArrow}>🕒</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.ingredientsSection}>
@@ -328,6 +417,192 @@ export default function FoodScreen() {
           </View>
         )}
       </ThemedView>
+
+      {/* Date Picker Modal */}
+      <Modal
+        visible={showDatePicker}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowDatePicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.dropdownModal}>
+            <Text style={styles.dropdownHeader}>Select Date</Text>
+            <ScrollView>
+              {/* Quick Options */}
+              <TouchableOpacity
+                style={styles.categoryOption}
+                onPress={() => handleDateSelect(new Date())}
+                testID="date-today"
+              >
+                <Text style={styles.categoryOptionText}>Today</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.categoryOption}
+                onPress={() => {
+                  const yesterday = new Date();
+                  yesterday.setDate(yesterday.getDate() - 1);
+                  handleDateSelect(yesterday);
+                }}
+                testID="date-yesterday"
+              >
+                <Text style={styles.categoryOptionText}>Yesterday</Text>
+              </TouchableOpacity>
+
+              {/* Separator / Calendar Toggle */}
+              <TouchableOpacity 
+                style={styles.dateSeparator}
+                onPress={() => setShowCalendar(!showCalendar)}
+                testID="calendar-toggle-button"
+              >
+                <Text style={styles.dateSeparatorText}>
+                  Or choose a specific date {showCalendar ? '▲' : '▼'}
+                </Text>
+              </TouchableOpacity>
+
+              {showCalendar && (
+                <View style={styles.calendarContainer}>
+                  {/* Calendar Header */}
+                  <View style={styles.calendarHeader}>
+                    <TouchableOpacity
+                      style={styles.calendarNavButton}
+                      onPress={() => {
+                        const newDate = new Date(calendarDate);
+                        newDate.setMonth(newDate.getMonth() - 1);
+                        setCalendarDate(newDate);
+                      }}
+                      testID="calendar-prev-month"
+                    >
+                      <Text style={styles.calendarNavText}>◀</Text>
+                    </TouchableOpacity>
+                    
+                    <Text style={styles.calendarHeaderText}>
+                      {calendarDate.toLocaleDateString('en-US', { 
+                        month: 'long', 
+                        year: 'numeric' 
+                      })}
+                    </Text>
+                    
+                    <TouchableOpacity
+                      style={[
+                        styles.calendarNavButton,
+                        calendarDate.getMonth() === new Date().getMonth() && 
+                        calendarDate.getFullYear() === new Date().getFullYear() && 
+                        styles.calendarNavButtonDisabled
+                      ]}
+                      onPress={() => {
+                        const newDate = new Date(calendarDate);
+                        newDate.setMonth(newDate.getMonth() + 1);
+                        const today = new Date();
+                        if (newDate <= today) {
+                          setCalendarDate(newDate);
+                        }
+                      }}
+                      disabled={
+                        calendarDate.getMonth() === new Date().getMonth() && 
+                        calendarDate.getFullYear() === new Date().getFullYear()
+                      }
+                      testID="calendar-next-month"
+                    >
+                      <Text style={[
+                        styles.calendarNavText,
+                        calendarDate.getMonth() === new Date().getMonth() && 
+                        calendarDate.getFullYear() === new Date().getFullYear() && 
+                        styles.calendarNavTextDisabled
+                      ]}>▶</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Calendar Days of Week */}
+                  <View style={styles.calendarDaysHeader}>
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                      <Text key={day} style={styles.calendarDayHeaderText}>
+                        {day}
+                      </Text>
+                    ))}
+                  </View>
+
+                  {/* Calendar Grid */}
+                  <View style={styles.calendarGrid}>
+                    {generateCalendarDays(calendarDate.getFullYear(), calendarDate.getMonth()).map((dayInfo, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.calendarDay,
+                          !dayInfo.isCurrentMonth && styles.calendarDayOtherMonth,
+                          dayInfo.isToday && styles.calendarDayToday,
+                          !dayInfo.isSelectable && styles.calendarDayDisabled,
+                          dayInfo.date.toDateString() === selectedDate.toDateString() && styles.calendarDaySelected
+                        ]}
+                        onPress={() => {
+                          if (dayInfo.isSelectable) {
+                            handleDateSelect(dayInfo.date);
+                          }
+                        }}
+                        disabled={!dayInfo.isSelectable}
+                        testID={`calendar-day-${dayInfo.date.toISOString().split('T')[0]}`}
+                      >
+                        <Text style={[
+                          styles.calendarDayText,
+                          !dayInfo.isCurrentMonth && styles.calendarDayTextOtherMonth,
+                          dayInfo.isToday && styles.calendarDayTextToday,
+                          !dayInfo.isSelectable && styles.calendarDayTextDisabled,
+                          dayInfo.date.toDateString() === selectedDate.toDateString() && styles.calendarDayTextSelected
+                        ]}>
+                          {dayInfo.day}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+         
+            </ScrollView>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowDatePicker(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Time Picker Modal */}
+      <Modal
+        visible={showTimePicker}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowTimePicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.dropdownModal}>
+            <Text style={styles.dropdownHeader}>Select Time</Text>
+            <ScrollView>
+              {Array.from({ length: 24 }, (_, hour) =>
+                [0, 15, 30, 45].map((minute) => (
+                  <TouchableOpacity
+                    key={`${hour}-${minute}`}
+                    style={styles.categoryOption}
+                    onPress={() => handleTimeSelect(hour, minute)}
+                    testID={`time-${hour}-${minute}`}
+                  >
+                    <Text style={styles.categoryOptionText}>
+                      {String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}
+                    </Text>
+                  </TouchableOpacity>
+                ))
+              )}
+            </ScrollView>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowTimePicker(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }

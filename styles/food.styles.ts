@@ -78,6 +78,113 @@ export const styles = StyleSheet.create({
   selectedCategoryOption: {
     backgroundColor: "#f0f8ff",
   },
+  dateSeparator: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: "#f8f8f8",
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
+    marginVertical: 8,
+  },
+  dateSeparatorText: {
+    fontSize: 14,
+    color: "#666",
+    fontWeight: "500",
+    textAlign: "center",
+  },
+  calendarContainer: {
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    padding: 16,
+    marginVertical: 8,
+  },
+  calendarHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  calendarNavButton: {
+    padding: 8,
+    borderRadius: 4,
+    backgroundColor: "#007AFF",
+    minWidth: 32,
+    alignItems: "center",
+  },
+  calendarNavButtonDisabled: {
+    backgroundColor: "#ccc",
+  },
+  calendarNavText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  calendarNavTextDisabled: {
+    color: "#999",
+  },
+  calendarHeaderText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+  },
+  calendarDaysHeader: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 8,
+  },
+  calendarDayHeaderText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#666",
+    textAlign: "center",
+    flex: 1,
+  },
+  calendarGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  calendarDay: {
+    width: "14.28%", // 100% / 7 days
+    aspectRatio: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+    marginBottom: 2,
+  },
+  calendarDayOtherMonth: {
+    opacity: 0.3,
+  },
+  calendarDayToday: {
+    backgroundColor: "#e3f2fd",
+    borderWidth: 2,
+    borderColor: "#2196f3",
+  },
+  calendarDaySelected: {
+    backgroundColor: "#007AFF",
+  },
+  calendarDayDisabled: {
+    opacity: 0.3,
+  },
+  calendarDayText: {
+    fontSize: 14,
+    color: "#333",
+    fontWeight: "500",
+  },
+  calendarDayTextOtherMonth: {
+    color: "#999",
+  },
+  calendarDayTextToday: {
+    color: "#2196f3",
+    fontWeight: "600",
+  },
+  calendarDayTextSelected: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  calendarDayTextDisabled: {
+    color: "#ccc",
+  },
   closeButton: {
     backgroundColor: "#007AFF",
     borderRadius: 8,
