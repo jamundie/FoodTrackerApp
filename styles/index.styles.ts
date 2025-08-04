@@ -28,6 +28,12 @@ export const styles = StyleSheet.create({
     boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
   },
 
+  cardCount: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 4,
+  },
+
   cardTitle: {
     fontSize: 16,
     fontWeight: "bold",

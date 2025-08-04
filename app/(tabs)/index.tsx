@@ -8,13 +8,14 @@ import { Canvas, Rect } from "@shopify/react-native-skia";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { data } = useTracking();
   const { width } = Dimensions.get("window");
 
-  const data = [3, 5, 2, 4, 6, 1, 4]; // Example y-values
+  const chartData = [3, 5, 2, 4, 6, 1, 4]; // Example y-values
   const chartHeight = 200;
   const chartWidth = width - 40;
-  const barWidth = chartWidth / data.length - 10;
-  const maxDataValue = Math.max(...data);
+  const barWidth = chartWidth / chartData.length - 10;
+  const maxDataValue = Math.max(...chartData);
 
   return (
     <View style={styles.container}>
@@ -25,10 +26,12 @@ export default function HomeScreen() {
           <Pressable style={styles.card} onPress={() => router.push("/food")}>
             <PlaceholderCircle backgroundColor="#F9A8D4FF"></PlaceholderCircle>
             <Text>Food Intake</Text>
+            <Text style={styles.cardCount}>{data.foodEntries.length} entries</Text>
           </Pressable>
           <Pressable style={styles.card} onPress={() => router.push("/water")}>
             <PlaceholderCircle backgroundColor="#93C5FDFF"></PlaceholderCircle>
             <Text>Water Intake</Text>
+            <Text style={styles.cardCount}>{data.waterIntake} glasses</Text>
           </Pressable>
           <Pressable
             style={styles.card}
@@ -36,6 +39,7 @@ export default function HomeScreen() {
           >
             <PlaceholderCircle backgroundColor="#D8B4FEFF"></PlaceholderCircle>
             <Text>Sleep</Text>
+            <Text style={styles.cardCount}>Coming Soon</Text>
           </Pressable>
           <Pressable
             style={styles.card}
@@ -43,6 +47,7 @@ export default function HomeScreen() {
           >
             <PlaceholderCircle backgroundColor="#86EFACFF"></PlaceholderCircle>
             <Text>Stress</Text>
+            <Text style={styles.cardCount}>Coming Soon</Text>
           </Pressable>
         </View>
       </View>
@@ -51,7 +56,7 @@ export default function HomeScreen() {
         <Text>Graph goes here</Text>
         <View>
           <Canvas style={{ width: chartWidth, height: chartHeight }}>
-            {data.map((value, index) => {
+            {chartData.map((value, index) => {
               const barHeight = (value / maxDataValue) * chartHeight;
               return (
                 <Rect
@@ -70,35 +75,49 @@ export default function HomeScreen() {
       <View style={styles.recentActivities}>
         <Text style={styles.header}>Recent Activities</Text>
 
-        {/* Activity 1 */}
-        <View style={styles.activityRow}>
-          <Text style={styles.activityIcon}>🍳</Text>
-          <View style={styles.activityDetails}>
-            <Text style={styles.activityTitle}>Logged Breakfast</Text>
-            <Text style={styles.activitySubtitle}>Oatmeal with berries</Text>
+        {/* Show recent food entries */}
+        {data.foodEntries.slice(-3).reverse().map((entry, index) => (
+          <View key={entry.id} style={styles.activityRow}>
+            <Text style={styles.activityIcon}>🍳</Text>
+            <View style={styles.activityDetails}>
+              <Text style={styles.activityTitle}>Logged {entry.mealName}</Text>
+              <Text style={styles.activitySubtitle}>
+                {entry.category} • {entry.ingredients.length} ingredients
+                {entry.totalCalories && ` • ${Math.round(entry.totalCalories)} cal`}
+              </Text>
+            </View>
+            <Text style={styles.activityTime}>
+              {new Date(entry.timestamp).toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}
+            </Text>
           </View>
-          <Text style={styles.activityTime}>8:30 AM</Text>
-        </View>
+        ))}
 
-        {/* Activity 2 */}
-        <View style={styles.activityRow}>
-          <Text style={styles.activityIcon}>💧</Text>
-          <View style={styles.activityDetails}>
-            <Text style={styles.activityTitle}>Drank Water</Text>
-            <Text style={styles.activitySubtitle}>500ml glass</Text>
+        {/* Show water intake if any */}
+        {data.waterIntake > 0 && (
+          <View style={styles.activityRow}>
+            <Text style={styles.activityIcon}>💧</Text>
+            <View style={styles.activityDetails}>
+              <Text style={styles.activityTitle}>Water Intake</Text>
+              <Text style={styles.activitySubtitle}>{data.waterIntake} glasses total</Text>
+            </View>
+            <Text style={styles.activityTime}>Today</Text>
           </View>
-          <Text style={styles.activityTime}>10:15 AM</Text>
-        </View>
+        )}
 
-        {/* Activity 3 */}
-        <View style={styles.activityRow}>
-          <Text style={styles.activityIcon}>🏃‍♂️</Text>
-          <View style={styles.activityDetails}>
-            <Text style={styles.activityTitle}>Morning Run</Text>
-            <Text style={styles.activitySubtitle}>30 min brisk walk</Text>
+        {/* Show placeholder if no activities */}
+        {data.foodEntries.length === 0 && data.waterIntake === 0 && (
+          <View style={styles.activityRow}>
+            <Text style={styles.activityIcon}>📝</Text>
+            <View style={styles.activityDetails}>
+              <Text style={styles.activityTitle}>No activities yet</Text>
+              <Text style={styles.activitySubtitle}>Start tracking your food and water intake!</Text>
+            </View>
+            <Text style={styles.activityTime}>--</Text>
           </View>
-          <Text style={styles.activityTime}>7:00 AM</Text>
-        </View>
+        )}
       </View>
     </View>
   );

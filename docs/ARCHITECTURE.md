@@ -1,6 +1,3 @@
----
-id: f10260f8-8437-4f23-9788-c808862eb427
----
 # Architecture Documentation
 
 ## Overview

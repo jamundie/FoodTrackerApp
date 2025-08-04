@@ -1,14 +1,10 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-
-interface TrackingData {
-  waterIntake: number;
-  foodEntries: string[];
-}
+import { TrackingData, FoodEntry } from '../types/tracking';
 
 const TrackingContext = createContext<{
   data: TrackingData;
   addWater: () => void;
-  addFood: (food: string) => void;
+  addFoodEntry: (foodEntry: FoodEntry) => void;
 } | undefined>(undefined);
 
 export const TrackingProvider = ({ children }: { children: ReactNode }) => {
@@ -21,15 +17,15 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
     setData((prev) => ({ ...prev, waterIntake: prev.waterIntake + 1 }));
   };
 
-  const addFood = (food: string) => {
+  const addFoodEntry = (foodEntry: FoodEntry) => {
     setData((prev) => ({
       ...prev,
-      foodEntries: [...prev.foodEntries, food],
+      foodEntries: [...prev.foodEntries, foodEntry],
     }));
   };
 
   return (
-    <TrackingContext.Provider value={{ data, addWater, addFood }}>
+    <TrackingContext.Provider value={{ data, addWater, addFoodEntry }}>
       {children}
     </TrackingContext.Provider>
   );
