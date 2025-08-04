@@ -6,11 +6,12 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Modal,
 } from "react-native";
 import { ThemedView } from "../../components/ThemedView";
 import { ThemedText } from "../../components/ThemedText";
 import { useTracking } from "../../hooks/TrackingContext";
-import { FoodEntry, Ingredient, Unit } from "../../types/tracking";
+import { FoodEntry, Ingredient, Unit, FoodCategory, FOOD_CATEGORIES } from "../../types/tracking";
 import { styles } from "../../styles/food.styles";
 
 interface IngredientForm {
@@ -23,7 +24,8 @@ interface IngredientForm {
 export default function FoodScreen() {
   const { addFoodEntry, data } = useTracking();
   const [mealName, setMealName] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<FoodCategory | "">("");
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [customTimestamp, setCustomTimestamp] = useState("");
   const [ingredients, setIngredients] = useState<IngredientForm[]>([
     { name: "", amount: "", unit: "g", caloriesPer100g: "" },
@@ -48,6 +50,11 @@ export default function FoodScreen() {
     }
   };
 
+  const handleCategorySelect = (selectedCategory: FoodCategory) => {
+    setCategory(selectedCategory);
+    setShowCategoryDropdown(false);
+  };
+
   const calculateTotalCalories = (processedIngredients: Ingredient[]): number => {
     return processedIngredients.reduce((total, ingredient) => {
       return total + (ingredient.calculatedCalories || 0);
@@ -60,8 +67,8 @@ export default function FoodScreen() {
       return;
     }
 
-    if (!category.trim()) {
-      Alert.alert("Error", "Please enter a category");
+    if (!category) {
+      Alert.alert("Error", "Please select a category");
       return;
     }
 
@@ -105,7 +112,7 @@ export default function FoodScreen() {
     const foodEntry: FoodEntry = {
       id: Date.now().toString(),
       mealName: mealName.trim(),
-      category: category.trim(),
+      category: category as FoodCategory, // Safe to cast since we validate it above
       timestamp: customTimestamp || new Date().toISOString(),
       ingredients: processedIngredients,
       totalCalories: totalCalories > 0 ? totalCalories : undefined,
@@ -116,6 +123,7 @@ export default function FoodScreen() {
     // Reset form
     setMealName("");
     setCategory("");
+    setShowCategoryDropdown(false);
     setCustomTimestamp("");
     setIngredients([{ name: "", amount: "", unit: "g", caloriesPer100g: "" }]);
 
@@ -142,13 +150,15 @@ export default function FoodScreen() {
 
         <View style={styles.inputGroup}>
           <ThemedText type="defaultSemiBold">Category</ThemedText>
-          <TextInput
-            style={styles.input}
-            value={category}
-            onChangeText={setCategory}
-            placeholder="e.g., Main Dish, Snack, Pasta"
-            placeholderTextColor="#999"
-          />
+          <TouchableOpacity
+            style={styles.dropdownButton}
+            onPress={() => setShowCategoryDropdown(true)}
+          >
+            <Text style={[styles.dropdownButtonText, !category && styles.placeholderText]}>
+              {category || "Select a category"}
+            </Text>
+            <Text style={styles.dropdownArrow}>▼</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.inputGroup}>
@@ -248,6 +258,46 @@ export default function FoodScreen() {
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.submitButtonText}>Add Food Entry</Text>
         </TouchableOpacity>
+
+        <Modal
+          visible={showCategoryDropdown}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowCategoryDropdown(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.dropdownModal}>
+              <Text style={styles.dropdownHeader}>Select Category</Text>
+              <ScrollView>
+                {FOOD_CATEGORIES.map((categoryOption) => (
+                  <TouchableOpacity
+                    key={categoryOption}
+                    style={[
+                      styles.categoryOption,
+                      category === categoryOption && styles.selectedCategoryOption,
+                    ]}
+                    onPress={() => handleCategorySelect(categoryOption)}
+                  >
+                    <Text
+                      style={[
+                        styles.categoryOptionText,
+                        category === categoryOption && { fontWeight: "600" },
+                      ]}
+                    >
+                      {categoryOption}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setShowCategoryDropdown(false)}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         {data.foodEntries.length > 0 && (
           <View style={styles.recentSection}>

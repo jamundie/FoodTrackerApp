@@ -25,6 +25,71 @@ export const styles = StyleSheet.create({
     backgroundColor: "#fff",
     marginTop: 4,
   },
+  dropdownButton: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: "#fff",
+    marginTop: 4,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  dropdownButtonText: {
+    fontSize: 16,
+    color: "#000",
+  },
+  placeholderText: {
+    color: "#999",
+  },
+  dropdownArrow: {
+    fontSize: 12,
+    color: "#666",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dropdownModal: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 16,
+    width: "80%",
+    maxHeight: "60%",
+  },
+  dropdownHeader: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  categoryOption: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  categoryOptionText: {
+    fontSize: 16,
+  },
+  selectedCategoryOption: {
+    backgroundColor: "#f0f8ff",
+  },
+  closeButton: {
+    backgroundColor: "#007AFF",
+    borderRadius: 8,
+    padding: 12,
+    alignItems: "center",
+    marginTop: 16,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   hint: {
     marginTop: 4,
     color: "#666",

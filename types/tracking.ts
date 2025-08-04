@@ -1,7 +1,7 @@
 export type FoodEntry = {
   id: string;
   mealName: string;          // "Lasagne"
-  category: string;          // "Pasta", "Main Dish", etc.
+  category: FoodCategory;    // Use the FoodCategory type instead of string
   timestamp: string;         // ISO date-time
   ingredients: Ingredient[]; // list of manually entered ingredients
   totalCalories?: number;    // optional: computed based on ingredients
@@ -17,6 +17,29 @@ export type Ingredient = {
 };
 
 export type Unit = "g" | "ml" | "piece";
+
+export type FoodCategory = 
+  | "Breakfast"
+  | "Lunch"
+  | "Dinner"
+  | "Snack"
+  | "Main Dish"
+  | "Side Dish"
+  | "Appetizer"
+  | "Dessert"
+  | "Other";
+
+export const FOOD_CATEGORIES: readonly FoodCategory[] = [
+  "Breakfast",
+  "Lunch", 
+  "Dinner",
+  "Snack",
+  "Main Dish",
+  "Side Dish",
+  "Appetizer",
+  "Dessert",
+  "Other"
+] as const;
 
 export type TrackingData = {
   waterIntake: number;
