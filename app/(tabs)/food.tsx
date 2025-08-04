@@ -11,17 +11,20 @@ import {
 import { ThemedView } from "../../components/ThemedView";
 import { ThemedText } from "../../components/ThemedText";
 import IngredientForm, { IngredientFormData } from "../../components/IngredientForm";
+import MealInfoForm, { MealInfoData } from "../../components/MealInfoForm";
 import { useTracking } from "../../hooks/TrackingContext";
 import { FoodEntry, Ingredient, Unit, FoodCategory, FOOD_CATEGORIES } from "../../types/tracking";
 import { styles } from "../../styles/food.styles";
 
 export default function FoodScreen() {
   const { addFoodEntry, data } = useTracking();
-  const [mealName, setMealName] = useState("");
-  const [category, setCategory] = useState<FoodCategory | "">("");
+  const [mealInfo, setMealInfo] = useState<MealInfoData>({
+    mealName: "",
+    category: "",
+    selectedDate: new Date(),
+    selectedTime: { hours: new Date().getHours(), minutes: 0 },
+  });
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedTime, setSelectedTime] = useState({ hours: new Date().getHours(), minutes: 0 });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -49,23 +52,32 @@ export default function FoodScreen() {
   };
 
   const handleCategorySelect = (selectedCategory: FoodCategory) => {
-    setCategory(selectedCategory);
+    setMealInfo(prev => ({
+      ...prev,
+      category: selectedCategory,
+    }));
     setShowCategoryDropdown(false);
   };
 
   const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
+    setMealInfo(prev => ({
+      ...prev,
+      selectedDate: date,
+    }));
     setShowDatePicker(false);
   };
 
   const handleTimeSelect = (hours: number, minutes: number) => {
-    setSelectedTime({ hours, minutes });
+    setMealInfo(prev => ({
+      ...prev,
+      selectedTime: { hours, minutes },
+    }));
     setShowTimePicker(false);
   };
 
   const createTimestamp = (): string => {
-    const combinedDateTime = new Date(selectedDate);
-    combinedDateTime.setHours(selectedTime.hours, selectedTime.minutes, 0, 0);
+    const combinedDateTime = new Date(mealInfo.selectedDate);
+    combinedDateTime.setHours(mealInfo.selectedTime.hours, mealInfo.selectedTime.minutes, 0, 0);
     return combinedDateTime.toISOString();
   };
 
@@ -130,12 +142,12 @@ export default function FoodScreen() {
   };
 
   const handleSubmit = () => {
-    if (!mealName.trim()) {
+    if (!mealInfo.mealName.trim()) {
       Alert.alert("Error", "Please enter a meal name");
       return;
     }
 
-    if (!category) {
+    if (!mealInfo.category) {
       Alert.alert("Error", "Please select a category");
       return;
     }
@@ -179,8 +191,8 @@ export default function FoodScreen() {
 
     const foodEntry: FoodEntry = {
       id: Date.now().toString(),
-      mealName: mealName.trim(),
-      category: category as FoodCategory, // Safe to cast since we validate it above
+      mealName: mealInfo.mealName.trim(),
+      category: mealInfo.category as FoodCategory, // Safe to cast since we validate it above
       timestamp: createTimestamp(),
       ingredients: processedIngredients,
       totalCalories: totalCalories > 0 ? totalCalories : undefined,
@@ -189,14 +201,23 @@ export default function FoodScreen() {
     addFoodEntry(foodEntry);
 
     // Reset form
-    setMealName("");
-    setCategory("");
+    setMealInfo({
+      mealName: "",
+      category: "",
+      selectedDate: new Date(),
+      selectedTime: { hours: new Date().getHours(), minutes: 0 },
+    });
     setShowCategoryDropdown(false);
-    setSelectedDate(new Date());
-    setSelectedTime({ hours: new Date().getHours(), minutes: 0 });
     setIngredients([{ name: "", amount: "", unit: "g", caloriesPer100g: "" }]);
 
     Alert.alert("Success", "Food entry added successfully!");
+  };
+
+  const handleMealNameUpdate = (name: string) => {
+    setMealInfo(prev => ({
+      ...prev,
+      mealName: name,
+    }));
   };
 
   return (
@@ -206,59 +227,15 @@ export default function FoodScreen() {
           Add Food Entry
         </ThemedText>
 
-        <View style={styles.inputGroup}>
-          <ThemedText type="defaultSemiBold">Meal Name</ThemedText>
-          <TextInput
-            style={styles.input}
-            value={mealName}
-            onChangeText={setMealName}
-            placeholder="e.g., Lasagne, Chicken Salad"
-            placeholderTextColor="#999"
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <ThemedText type="defaultSemiBold">Category</ThemedText>
-          <TouchableOpacity
-            style={styles.dropdownButton}
-            onPress={() => setShowCategoryDropdown(true)}
-          >
-            <Text style={[styles.dropdownButtonText, !category && styles.placeholderText]}>
-              {category || "Select a category"}
-            </Text>
-            <Text style={styles.dropdownArrow}>▼</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.inputGroup}>
-          <ThemedText type="defaultSemiBold">
-            Date & Time
-          </ThemedText>
-          
-          {/* Date Picker */}
-          <TouchableOpacity
-            style={styles.dropdownButton}
-            onPress={() => setShowDatePicker(true)}
-            testID="date-picker-button"
-          >
-            <Text style={styles.dropdownButtonText}>
-              {formatDisplayDate(selectedDate)}
-            </Text>
-            <Text style={styles.dropdownArrow}>📅</Text>
-          </TouchableOpacity>
-
-          {/* Time Picker */}
-          <TouchableOpacity
-            style={styles.dropdownButton}
-            onPress={() => setShowTimePicker(true)}
-            testID="time-picker-button"
-          >
-            <Text style={styles.dropdownButtonText}>
-              {formatDisplayTime(selectedTime.hours, selectedTime.minutes)}
-            </Text>
-            <Text style={styles.dropdownArrow}>🕒</Text>
-          </TouchableOpacity>
-        </View>
+        <MealInfoForm
+          mealInfo={mealInfo}
+          onUpdateMealName={handleMealNameUpdate}
+          onShowCategoryDropdown={() => setShowCategoryDropdown(true)}
+          onShowDatePicker={() => setShowDatePicker(true)}
+          onShowTimePicker={() => setShowTimePicker(true)}
+          formatDisplayDate={formatDisplayDate}
+          formatDisplayTime={formatDisplayTime}
+        />
 
         <IngredientForm
           ingredients={ingredients}
@@ -290,14 +267,14 @@ export default function FoodScreen() {
                     key={categoryOption}
                     style={[
                       styles.categoryOption,
-                      category === categoryOption && styles.selectedCategoryOption,
+                      mealInfo.category === categoryOption && styles.selectedCategoryOption,
                     ]}
                     onPress={() => handleCategorySelect(categoryOption)}
                   >
                     <Text
                       style={[
                         styles.categoryOptionText,
-                        category === categoryOption && { fontWeight: "600" },
+                        mealInfo.category === categoryOption && { fontWeight: "600" },
                       ]}
                     >
                       {categoryOption}
@@ -451,7 +428,7 @@ export default function FoodScreen() {
                           !dayInfo.isCurrentMonth && styles.calendarDayOtherMonth,
                           dayInfo.isToday && styles.calendarDayToday,
                           !dayInfo.isSelectable && styles.calendarDayDisabled,
-                          dayInfo.date.toDateString() === selectedDate.toDateString() && styles.calendarDaySelected
+                          dayInfo.date.toDateString() === mealInfo.selectedDate.toDateString() && styles.calendarDaySelected
                         ]}
                         onPress={() => {
                           if (dayInfo.isSelectable) {
@@ -466,7 +443,7 @@ export default function FoodScreen() {
                           !dayInfo.isCurrentMonth && styles.calendarDayTextOtherMonth,
                           dayInfo.isToday && styles.calendarDayTextToday,
                           !dayInfo.isSelectable && styles.calendarDayTextDisabled,
-                          dayInfo.date.toDateString() === selectedDate.toDateString() && styles.calendarDayTextSelected
+                          dayInfo.date.toDateString() === mealInfo.selectedDate.toDateString() && styles.calendarDayTextSelected
                         ]}>
                           {dayInfo.day}
                         </Text>
