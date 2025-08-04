@@ -1,3 +1,6 @@
+---
+id: f10260f8-8437-4f23-9788-c808862eb427
+---
 # Architecture Documentation
 
 ## Overview
@@ -22,6 +25,27 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 - **Local Component State**: For UI-specific state
 
 ## Architecture Patterns
+
+### System Overview
+
+📊 **[View System Overview Diagram](./diagrams/system-overview.mmd)**
+
+This diagram shows the complete application architecture including:
+- App Layer with Expo Router file-based routing
+- State Management Layer with Context API
+- UI Component Layer with themed components
+- Visualization Layer with Skia graphics
+- Data Layer with TypeScript definitions
+
+### Component Hierarchy
+
+📊 **[View Component Hierarchy Diagram](./diagrams/component-hierarchy.mmd)**
+
+This diagram illustrates the component structure showing:
+- Root layout with TrackingProvider
+- Tab navigation structure
+- Screen components and their containers
+- UI component relationships
 
 ### 1. File-Based Routing
 ```
@@ -101,6 +125,10 @@ types/
 
 ## Performance Considerations
 
+### User Interaction Flow
+
+### Performance Architecture
+
 ### 1. React Native Skia for Charts
 - **Why**: 60fps animations, complex graphics capability
 - **Alternative considered**: Victory Native (chose Skia for performance)
@@ -117,6 +145,12 @@ types/
 - Lazy loading for heavy screens
 
 ## Development Workflow
+
+## Development Workflow
+
+### Build and Deployment Pipeline
+
+### Technology Decision Tree
 
 ### Testing Strategy
 - **Unit Tests**: Jest with React Native Testing Library

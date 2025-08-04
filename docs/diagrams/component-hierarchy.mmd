@@ -1,0 +1,24 @@
+graph TD
+    A["App _layout.tsx"] --> B["TrackingProvider"]
+    B --> C["Tab Navigation"]
+    
+    C --> D["Home Screen"]
+    C --> E["Food Screen"]
+    C --> F["Water Screen"]
+    C --> G["Stats Screen"]
+    
+    D --> H["ThemedView Container"]
+    H --> I["ThemedText Header"]
+    H --> J["Overview Grid"]
+    J --> K["Progress Cards"]
+    J --> L["Recent Activities"]
+    
+    G --> M["ThemedView Container"]
+    M --> N["Skia Canvas"]
+    N --> O["Chart Components"]
+    N --> P["Progress Indicators"]
+    
+    style A fill:#ffcdd2
+    style B fill:#f8bbd9
+    style D fill:#c8e6c9
+    style G fill:#bbdefb

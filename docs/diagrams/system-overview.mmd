@@ -1,0 +1,56 @@
+graph TB
+    subgraph "React Native App"
+        subgraph "App Layer (Expo Router)"
+            A["_layout.tsx<br/>Root Layout"] --> B["tabs Group"]
+            B --> C["index.tsx<br/>Dashboard"]
+            B --> D["food.tsx<br/>Food Logger"]
+            B --> E["water.tsx<br/>Water Logger"]  
+            B --> F["stats.tsx<br/>Statistics"]
+        end
+        
+        subgraph "State Management Layer"
+            G["TrackingContext<br/>Global State"] --> H["useTracking Hook"]
+            I["useColorScheme<br/>Theme Hook"]
+            J["useThemeColor<br/>Color Hook"]
+        end
+        
+        subgraph "UI Component Layer"
+            K[ThemedText] --> L["Typography System"]
+            M[ThemedView] --> N["Layout System"]
+            O[PlaceholderCircle] --> P["Custom Graphics"]
+            Q[TabBarIcon] --> R["Navigation System"]
+        end
+        
+        subgraph "Visualization Layer"
+            S["@shopify/react-native-skia"] --> T["High Performance Charts"]
+            S --> U["Custom Animations"]
+            S --> V["Data Visualizations"]
+        end
+        
+        subgraph "Data Layer"
+            W["types/tracking.ts<br/>Type Definitions"]
+            X["constants/Colors.ts<br/>Design Tokens"]
+        end
+    end
+    
+    C --> G
+    D --> G
+    E --> G
+    F --> G
+    F --> S
+    
+    C --> K
+    C --> M
+    D --> K
+    E --> K
+    F --> K
+    
+    H --> W
+    G --> W
+    I --> X
+    J --> X
+    
+    style A fill:#e3f2fd
+    style G fill:#f3e5f5
+    style S fill:#e8f5e8
+    style W fill:#fff3e0
