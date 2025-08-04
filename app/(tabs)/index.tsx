@@ -2,7 +2,7 @@ import { View, Text, Pressable, Dimensions } from "react-native";
 import { useTracking } from "../../hooks/TrackingContext";
 import { useRouter } from "expo-router";
 import React from "react";
-import { styles } from "../styles/index.styles";
+import { styles } from "../../styles/index.styles";
 import PlaceholderCircle from "@/components/PlaceholderCircle";
 import { Canvas, Rect } from "@shopify/react-native-skia";
 
