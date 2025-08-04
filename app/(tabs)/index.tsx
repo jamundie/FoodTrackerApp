@@ -23,12 +23,20 @@ export default function HomeScreen() {
       <View style={styles.overview}>
         <Text style={styles.header}>Overview</Text>
         <View style={styles.overviewGrid}>
-          <Pressable style={styles.card} onPress={() => router.push("/food")}>
+          <Pressable 
+            style={styles.card} 
+            onPress={() => router.push("/food")}
+            testID="food-intake-button"
+          >
             <PlaceholderCircle backgroundColor="#F9A8D4FF"></PlaceholderCircle>
             <Text>Food Intake</Text>
             <Text style={styles.cardCount}>{data.foodEntries.length} entries</Text>
           </Pressable>
-          <Pressable style={styles.card} onPress={() => router.push("/water")}>
+          <Pressable 
+            style={styles.card} 
+            onPress={() => router.push("/water")}
+            testID="water-intake-button"
+          >
             <PlaceholderCircle backgroundColor="#93C5FDFF"></PlaceholderCircle>
             <Text>Water Intake</Text>
             <Text style={styles.cardCount}>{data.waterIntake} glasses</Text>
@@ -36,6 +44,7 @@ export default function HomeScreen() {
           <Pressable
             style={styles.card}
             onPress={() => console.log("Sleep pressed")}
+            testID="sleep-button"
           >
             <PlaceholderCircle backgroundColor="#D8B4FEFF"></PlaceholderCircle>
             <Text>Sleep</Text>
@@ -44,6 +53,7 @@ export default function HomeScreen() {
           <Pressable
             style={styles.card}
             onPress={() => console.log("Stress pressed")}
+            testID="stress-button"
           >
             <PlaceholderCircle backgroundColor="#86EFACFF"></PlaceholderCircle>
             <Text>Stress</Text>

@@ -23,28 +23,41 @@ describe("HomeScreen", () => {
   });
 
   it("renders the overview buttons", () => {
-    const { getByText } = render(
+    const { getByText, getByTestId } = render(
       <TrackingProvider>
         <HomeScreen />
       </TrackingProvider>
     );
 
     expect(getByText(/Food Intake/i)).toBeTruthy();
-    expect(getByText(/Water Intake/i)).toBeTruthy();
+    // Use getAllByText for Water Intake since it might appear multiple times
+    expect(getByTestId("water-intake-button")).toBeTruthy();
     expect(getByText(/Sleep/i)).toBeTruthy();
     expect(getByText(/Stress/i)).toBeTruthy();
   });
 
   it("calls router.push when Food Intake is pressed", () => {
-    const { getByText } = render(
+    const { getByTestId } = render(
       <TrackingProvider>
         <HomeScreen />
       </TrackingProvider>
     );
 
-    fireEvent.press(getByText(/Food Intake/i));
+    fireEvent.press(getByTestId("food-intake-button"));
 
     expect(mockPush).toHaveBeenCalledWith("/food");
+  });
+
+  it("calls router.push when Water Intake button is pressed", () => {
+    const { getByTestId } = render(
+      <TrackingProvider>
+        <HomeScreen />
+      </TrackingProvider>
+    );
+
+    fireEvent.press(getByTestId("water-intake-button"));
+
+    expect(mockPush).toHaveBeenCalledWith("/water");
   });
 
   it("renders the progress snapshot section", () => {
