@@ -15,6 +15,7 @@ import MealInfoForm, { MealInfoData } from "../../components/MealInfoForm";
 import DatePickerModal from "../../components/DatePickerModal";
 import TimePickerModal from "../../components/TimePickerModal";
 import CategoryModal from "../../components/CategoryModal";
+import FoodEntriesList from "../../components/FoodEntriesList";
 import { useTracking } from "../../hooks/TrackingContext";
 import { FoodEntry, Ingredient, Unit, FoodCategory, FOOD_CATEGORIES } from "../../types/tracking";
 import { styles } from "../../styles/food.styles";
@@ -229,26 +230,7 @@ export default function FoodScreen() {
           onClose={() => setShowCategoryDropdown(false)}
         />
 
-        {data.foodEntries.length > 0 && (
-          <View style={styles.recentSection}>
-            <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>
-              Recent Entries ({data.foodEntries.length})
-            </ThemedText>
-            {data.foodEntries.slice(-3).reverse().map((entry) => (
-              <View key={entry.id} style={styles.entryCard}>
-                <ThemedText type="defaultSemiBold">{entry.mealName}</ThemedText>
-                <ThemedText type="default" style={styles.hint}>{entry.category}</ThemedText>
-                <ThemedText type="default" style={styles.hint}>
-                  {entry.ingredients.length} ingredients
-                  {entry.totalCalories && ` • ${Math.round(entry.totalCalories)} cal`}
-                </ThemedText>
-                <ThemedText type="default" style={styles.hint}>
-                  {new Date(entry.timestamp).toLocaleString()}
-                </ThemedText>
-              </View>
-            ))}
-          </View>
-        )}
+        <FoodEntriesList foodEntries={data.foodEntries} />
       </ThemedView>
 
       <DatePickerModal
