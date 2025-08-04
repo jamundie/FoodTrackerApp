@@ -14,6 +14,7 @@ import IngredientForm, { IngredientFormData } from "../../components/IngredientF
 import MealInfoForm, { MealInfoData } from "../../components/MealInfoForm";
 import DatePickerModal from "../../components/DatePickerModal";
 import TimePickerModal from "../../components/TimePickerModal";
+import CategoryModal from "../../components/CategoryModal";
 import { useTracking } from "../../hooks/TrackingContext";
 import { FoodEntry, Ingredient, Unit, FoodCategory, FOOD_CATEGORIES } from "../../types/tracking";
 import { styles } from "../../styles/food.styles";
@@ -221,45 +222,12 @@ export default function FoodScreen() {
           <Text style={styles.submitButtonText}>Add Food Entry</Text>
         </TouchableOpacity>
 
-        <Modal
+        <CategoryModal
           visible={showCategoryDropdown}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setShowCategoryDropdown(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.dropdownModal}>
-              <Text style={styles.dropdownHeader}>Select Category</Text>
-              <ScrollView>
-                {FOOD_CATEGORIES.map((categoryOption) => (
-                  <TouchableOpacity
-                    key={categoryOption}
-                    style={[
-                      styles.categoryOption,
-                      mealInfo.category === categoryOption && styles.selectedCategoryOption,
-                    ]}
-                    onPress={() => handleCategorySelect(categoryOption)}
-                  >
-                    <Text
-                      style={[
-                        styles.categoryOptionText,
-                        mealInfo.category === categoryOption && { fontWeight: "600" },
-                      ]}
-                    >
-                      {categoryOption}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setShowCategoryDropdown(false)}
-              >
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+          selectedCategory={mealInfo.category}
+          onCategorySelect={handleCategorySelect}
+          onClose={() => setShowCategoryDropdown(false)}
+        />
 
         {data.foodEntries.length > 0 && (
           <View style={styles.recentSection}>
