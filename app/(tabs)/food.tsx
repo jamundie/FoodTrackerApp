@@ -13,6 +13,7 @@ import { ThemedText } from "../../components/ThemedText";
 import IngredientForm, { IngredientFormData } from "../../components/IngredientForm";
 import MealInfoForm, { MealInfoData } from "../../components/MealInfoForm";
 import DatePickerModal from "../../components/DatePickerModal";
+import TimePickerModal from "../../components/TimePickerModal";
 import { useTracking } from "../../hooks/TrackingContext";
 import { FoodEntry, Ingredient, Unit, FoodCategory, FOOD_CATEGORIES } from "../../types/tracking";
 import { styles } from "../../styles/food.styles";
@@ -289,41 +290,11 @@ export default function FoodScreen() {
         onClose={() => setShowDatePicker(false)}
       />
 
-      {/* Time Picker Modal */}
-      <Modal
+      <TimePickerModal
         visible={showTimePicker}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowTimePicker(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.dropdownModal}>
-            <Text style={styles.dropdownHeader}>Select Time</Text>
-            <ScrollView>
-              {Array.from({ length: 24 }, (_, hour) =>
-                [0, 15, 30, 45].map((minute) => (
-                  <TouchableOpacity
-                    key={`${hour}-${minute}`}
-                    style={styles.categoryOption}
-                    onPress={() => handleTimeSelect(hour, minute)}
-                    testID={`time-${hour}-${minute}`}
-                  >
-                    <Text style={styles.categoryOptionText}>
-                      {String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}
-                    </Text>
-                  </TouchableOpacity>
-                ))
-              )}
-            </ScrollView>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setShowTimePicker(false)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+        onTimeSelect={handleTimeSelect}
+        onClose={() => setShowTimePicker(false)}
+      />
     </ScrollView>
   );
 }
