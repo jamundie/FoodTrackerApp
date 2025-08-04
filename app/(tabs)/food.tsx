@@ -250,12 +250,20 @@ export default function FoodScreen() {
             </View>
           ))}
 
-          <TouchableOpacity style={styles.addIngredientButton} onPress={addIngredient}>
+          <TouchableOpacity 
+            style={styles.addIngredientButton} 
+            onPress={addIngredient}
+            testID="add-ingredient-button"
+          >
             <Text style={styles.addIngredientButtonText}>+ Add Ingredient</Text>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+        <TouchableOpacity 
+          style={styles.submitButton} 
+          onPress={handleSubmit}
+          testID="submit-food-entry-button"
+        >
           <Text style={styles.submitButtonText}>Add Food Entry</Text>
         </TouchableOpacity>
 
