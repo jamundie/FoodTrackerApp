@@ -11,6 +11,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "expo lint",
+    "typecheck": "tsc --noEmit",
     "build": "expo run:android",
     "prepare": "husky"
   },
