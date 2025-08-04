@@ -10,16 +10,10 @@ import {
 } from "react-native";
 import { ThemedView } from "../../components/ThemedView";
 import { ThemedText } from "../../components/ThemedText";
+import IngredientForm, { IngredientFormData } from "../../components/IngredientForm";
 import { useTracking } from "../../hooks/TrackingContext";
 import { FoodEntry, Ingredient, Unit, FoodCategory, FOOD_CATEGORIES } from "../../types/tracking";
 import { styles } from "../../styles/food.styles";
-
-interface IngredientForm {
-  name: string;
-  amount: string;
-  unit: Unit;
-  caloriesPer100g: string;
-}
 
 export default function FoodScreen() {
   const { addFoodEntry, data } = useTracking();
@@ -31,7 +25,7 @@ export default function FoodScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [ingredients, setIngredients] = useState<IngredientForm[]>([
+  const [ingredients, setIngredients] = useState<IngredientFormData[]>([
     { name: "", amount: "", unit: "g", caloriesPer100g: "" },
   ]);
 
@@ -42,7 +36,7 @@ export default function FoodScreen() {
     ]);
   };
 
-  const updateIngredient = (index: number, field: keyof IngredientForm, value: string) => {
+  const updateIngredient = (index: number, field: keyof IngredientFormData, value: string) => {
     const updated = [...ingredients];
     updated[index] = { ...updated[index], [field]: value };
     setIngredients(updated);
@@ -266,87 +260,12 @@ export default function FoodScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.ingredientsSection}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>
-            Ingredients
-          </ThemedText>
-
-          {ingredients.map((ingredient, index) => (
-            <View key={index} style={styles.ingredientCard}>
-              <View style={styles.ingredientHeader}>
-                <ThemedText type="default">Ingredient {index + 1}</ThemedText>
-                {ingredients.length > 1 && (
-                  <TouchableOpacity
-                    style={styles.removeButton}
-                    onPress={() => removeIngredient(index)}
-                  >
-                    <Text style={styles.removeButtonText}>Remove</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-
-              <TextInput
-                style={styles.input}
-                value={ingredient.name}
-                onChangeText={(value) => updateIngredient(index, "name", value)}
-                placeholder="Ingredient name"
-                placeholderTextColor="#999"
-              />
-
-              <View style={styles.row}>
-                <TextInput
-                  style={[styles.input, styles.amountInput]}
-                  value={ingredient.amount}
-                  onChangeText={(value) => updateIngredient(index, "amount", value)}
-                  placeholder="Amount"
-                  placeholderTextColor="#999"
-                  keyboardType="numeric"
-                />
-
-                <View style={styles.unitPicker}>
-                  {(["g", "ml", "piece"] as Unit[]).map((unit) => (
-                    <TouchableOpacity
-                      key={unit}
-                      style={[
-                        styles.unitButton,
-                        ingredient.unit === unit && styles.unitButtonSelected,
-                      ]}
-                      onPress={() => updateIngredient(index, "unit", unit)}
-                    >
-                      <Text
-                        style={[
-                          styles.unitButtonText,
-                          ingredient.unit === unit && styles.unitButtonTextSelected,
-                        ]}
-                      >
-                        {unit}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              <TextInput
-                style={styles.input}
-                value={ingredient.caloriesPer100g}
-                onChangeText={(value) =>
-                  updateIngredient(index, "caloriesPer100g", value)
-                }
-                placeholder="Calories per 100g (optional)"
-                placeholderTextColor="#999"
-                keyboardType="numeric"
-              />
-            </View>
-          ))}
-
-          <TouchableOpacity 
-            style={styles.addIngredientButton} 
-            onPress={addIngredient}
-            testID="add-ingredient-button"
-          >
-            <Text style={styles.addIngredientButtonText}>+ Add Ingredient</Text>
-          </TouchableOpacity>
-        </View>
+        <IngredientForm
+          ingredients={ingredients}
+          onUpdateIngredient={updateIngredient}
+          onAddIngredient={addIngredient}
+          onRemoveIngredient={removeIngredient}
+        />
 
         <TouchableOpacity 
           style={styles.submitButton} 
