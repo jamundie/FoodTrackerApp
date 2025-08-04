@@ -2,6 +2,31 @@
 
 A mobile-first app for tracking food and water intake, with progress snapshots and future AI-driven insights.
 
+## ✨ Key Features
+
+### 🍽️ Advanced Food Entry System
+- **Smart Date/Time Selection**: Intuitive dual-picker with expandable calendar interface
+- **Quick Access**: "Today" and "Yesterday" shortcuts for rapid meal logging
+- **Precise Calendar Control**: Navigate any past date with visual indicators
+- **Structured Time Slots**: 15-minute intervals for accurate meal timing
+- **Dynamic Ingredient Management**: Add/remove ingredients with unit selection (g, ml, pieces)
+- **Automatic Calorie Calculation**: Real-time computation based on nutritional data
+- **Category Classification**: Pre-defined meal categories with type safety
+- **Form Validation**: Comprehensive input validation with user-friendly error messages
+
+### 🧭 Navigation & UX
+- **Tab-Based Navigation**: Intuitive access to Food, Water, Stats, and Dashboard
+- **Themed Components**: Consistent design system across the app
+- **Recent Entries**: Quick overview of latest meal logs
+- **Form Reset**: Clean slate after each successful entry
+
+### 🏗️ Technical Excellence
+- **Full TypeScript**: Complete type safety with strict compilation
+- **Context API State**: Efficient global state management
+- **Custom Hooks**: Reusable business logic encapsulation
+- **Comprehensive Testing**: Unit and integration test coverage
+- **Performance Optimized**: Native builds with Skia graphics
+
 ## 🏗️ Architecture Overview
 
 ### Tech Stack
@@ -25,6 +50,7 @@ A mobile-first app for tracking food and water intake, with progress snapshots a
 ## 📚 Documentation
 
 - **[Architecture Overview](./docs/ARCHITECTURE.md)** - Complete technical architecture with diagrams
+- **[Feature Documentation](./docs/FEATURES.md)** - Comprehensive user-facing feature guide
 - **[Technical Decisions](./docs/TECHNICAL_DECISIONS.md)** - Decision records and rationale  
 - **[Component Diagrams](./docs/COMPONENT_DIAGRAMS.md)** - Visual component structure and roadmap
 - **[Documentation Index](./docs/README.md)** - Navigation guide for all docs
