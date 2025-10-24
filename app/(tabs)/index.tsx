@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Dimensions } from "react-native";
+import { View, Text, Pressable, Dimensions, ScrollView } from "react-native";
 import { useTracking } from "../../hooks/TrackingContext";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -19,7 +19,15 @@ export default function HomeScreen() {
   const maxDataValue = Math.max(...chartData);
 
   return (
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.container} 
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={true}
+      bounces={true}
+      scrollEventThrottle={16}
+      decelerationRate="normal"
+      pagingEnabled={false}
+    >
       {/* Overview Section */}
       <View style={styles.overview}>
         <Text style={styles.header}>Overview</Text>
@@ -86,8 +94,10 @@ export default function HomeScreen() {
       <RecentActivities 
         foodEntries={data.foodEntries} 
         waterEntries={data.waterEntries} 
-        maxEntries={10} 
+        maxEntries={20} 
       />
-    </View>
+      {/* Add some extra space at the bottom for testing */}
+      <View style={{ height: 200 }} />
+    </ScrollView>
   );
 }

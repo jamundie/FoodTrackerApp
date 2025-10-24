@@ -3,8 +3,12 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: "#fff",
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 100,
+    flexGrow: 1,
   },
   overview: {},
   header: {
