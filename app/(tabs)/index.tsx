@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { styles } from "../../styles/index.styles";
 import PlaceholderCircle from "@/components/PlaceholderCircle";
+import RecentActivities from "@/components/RecentActivities";
 import { Canvas, Rect } from "@shopify/react-native-skia";
 
 export default function HomeScreen() {
@@ -82,53 +83,11 @@ export default function HomeScreen() {
           </Canvas>
         </View>
       </View>
-      <View style={styles.recentActivities}>
-        <Text style={styles.header}>Recent Activities</Text>
-
-        {/* Show recent food entries */}
-        {data.foodEntries.slice(-3).reverse().map((entry, index) => (
-          <View key={entry.id} style={styles.activityRow}>
-            <Text style={styles.activityIcon}>🍳</Text>
-            <View style={styles.activityDetails}>
-              <Text style={styles.activityTitle}>Logged {entry.mealName}</Text>
-              <Text style={styles.activitySubtitle}>
-                {entry.category} • {entry.ingredients.length} ingredients
-                {entry.totalCalories && ` • ${Math.round(entry.totalCalories)} cal`}
-              </Text>
-            </View>
-            <Text style={styles.activityTime}>
-              {new Date(entry.timestamp).toLocaleTimeString([], { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}
-            </Text>
-          </View>
-        ))}
-
-        {/* Show water intake if any */}
-        {data.waterIntake > 0 && (
-          <View style={styles.activityRow}>
-            <Text style={styles.activityIcon}>💧</Text>
-            <View style={styles.activityDetails}>
-              <Text style={styles.activityTitle}>Water Intake</Text>
-              <Text style={styles.activitySubtitle}>{data.waterIntake} glasses total</Text>
-            </View>
-            <Text style={styles.activityTime}>Today</Text>
-          </View>
-        )}
-
-        {/* Show placeholder if no activities */}
-        {data.foodEntries.length === 0 && data.waterIntake === 0 && (
-          <View style={styles.activityRow}>
-            <Text style={styles.activityIcon}>📝</Text>
-            <View style={styles.activityDetails}>
-              <Text style={styles.activityTitle}>No activities yet</Text>
-              <Text style={styles.activitySubtitle}>Start tracking your food and water intake!</Text>
-            </View>
-            <Text style={styles.activityTime}>--</Text>
-          </View>
-        )}
-      </View>
+      <RecentActivities 
+        foodEntries={data.foodEntries} 
+        waterEntries={data.waterEntries} 
+        maxEntries={10} 
+      />
     </View>
   );
 }
