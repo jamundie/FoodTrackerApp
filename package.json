@@ -17,13 +17,15 @@
   },
   "jest": {
     "preset": "jest-expo",
-    "setupFilesAfterEnv": ["<rootDir>/jest.setup.ts"]
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.ts"
+    ]
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
     "@react-navigation/native": "^7.1.6",
     "@shopify/react-native-skia": "v2.0.0-next.4",
-    "expo": "^53.0.0",
+    "expo": "~53.0.23",
     "expo-constants": "~17.1.7",
     "expo-font": "~13.3.2",
     "expo-linking": "~7.1.7",
