@@ -41,7 +41,16 @@ export const FOOD_CATEGORIES: readonly FoodCategory[] = [
   "Other"
 ] as const;
 
+export type WaterEntry = {
+  id: string;
+  entryName: string;         // "Morning hydration", "Post-workout drink", etc.
+  timestamp: string;         // ISO date-time
+  ingredients: Ingredient[]; // optional: flavoring, supplements, etc.
+  totalVolume?: number;      // optional: computed based on ingredients in ml
+};
+
 export type TrackingData = {
   waterIntake: number;
   foodEntries: FoodEntry[];
+  waterEntries: WaterEntry[];
 };
