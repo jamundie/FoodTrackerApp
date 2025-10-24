@@ -79,7 +79,25 @@ Alternatively to open the project in development mode
 npm run start
 ```
 
-### 3. Troubleshooting
+### 3. Mock Data for Development
+
+The app includes permanent mock data (3 food entries, 2 water entries) that loads automatically in development mode to help with testing and feature development.
+
+**Mock data behavior:**
+- **Development mode** (`npm start`): Mock data loads automatically
+- **Production builds**: No mock data (clean slate)
+- **Tests**: No mock data (isolated test environment)
+
+**To control mock data:**
+```bash
+# Force enable mock data in any environment
+EXPO_PUBLIC_USE_MOCK_DATA=true npm start
+
+# Development mode always includes mock data unless explicitly disabled
+npm start  # includes mock data
+```
+
+### 4. Troubleshooting
 
 If you hit environment or dependency issues:
 
