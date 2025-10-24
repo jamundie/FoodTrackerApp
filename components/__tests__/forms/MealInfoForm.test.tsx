@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import MealInfoForm, { MealInfoData } from '../MealInfoForm';
-import { FoodCategory } from '../../types/tracking';
+import MealInfoForm, { MealInfoData } from '../../MealInfoForm';
+import { FoodCategory } from '../../../types/tracking';
 
 const mockMealInfo: MealInfoData = {
   mealName: 'Test Meal',

@@ -1,7 +1,7 @@
 import { render, fireEvent } from "@testing-library/react-native";
 import React from "react";
-import HomeScreen from "../../app/(tabs)/index";
-import { TrackingProvider } from "../../hooks/TrackingContext";
+import HomeScreen from "../../../app/(tabs)/index";
+import { TrackingProvider } from "../../../hooks/TrackingContext";
 
 const mockPush = jest.fn();
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import WaterInfoForm, { WaterInfoData } from '../WaterInfoForm';
+import WaterInfoForm, { WaterInfoData } from '../../WaterInfoForm';
 
 const mockWaterInfo: WaterInfoData = {
   entryName: 'Test Water Entry',

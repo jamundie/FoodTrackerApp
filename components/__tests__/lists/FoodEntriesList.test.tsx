@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import FoodEntriesList from '../FoodEntriesList';
-import { FoodEntry } from '../../types/tracking';
+import FoodEntriesList from '../../FoodEntriesList';
+import { FoodEntry } from '../../../types/tracking';
 
 const mockFoodEntries: FoodEntry[] = [
   {

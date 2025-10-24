@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import WaterEntriesList from '../WaterEntriesList';
-import { WaterEntry } from '../../types/tracking';
+import WaterEntriesList from '../../WaterEntriesList';
+import { WaterEntry } from '../../../types/tracking';
 
 const mockWaterEntries: WaterEntry[] = [
   {

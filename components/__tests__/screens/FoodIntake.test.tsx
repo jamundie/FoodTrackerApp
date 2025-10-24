@@ -1,7 +1,7 @@
 import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import React from "react";
-import FoodScreen from "../../app/(tabs)/food";
-import { TrackingProvider } from "../../hooks/TrackingContext";
+import FoodScreen from "../../../app/(tabs)/food";
+import { TrackingProvider } from "../../../hooks/TrackingContext";
 import { Alert } from "react-native";
 
 // Mock Alert

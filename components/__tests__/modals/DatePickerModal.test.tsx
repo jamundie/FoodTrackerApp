@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import DatePickerModal from '../DatePickerModal';
+import DatePickerModal from '../../DatePickerModal';
 
 const mockProps = {
   visible: true,

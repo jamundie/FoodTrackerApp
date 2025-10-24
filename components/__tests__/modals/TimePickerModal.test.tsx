@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import TimePickerModal from '../TimePickerModal';
+import TimePickerModal from '../../TimePickerModal';
 
 const mockProps = {
   visible: true,

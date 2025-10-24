@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import CategoryModal from '../CategoryModal';
-import { FOOD_CATEGORIES, FoodCategory } from '../../types/tracking';
+import CategoryModal from '../../CategoryModal';
+import { FOOD_CATEGORIES, FoodCategory } from '../../../types/tracking';
 
 const mockOnCategorySelect = jest.fn();
 const mockOnClose = jest.fn();
