@@ -72,6 +72,13 @@ npm run ios            # iOS build
 - Mock data patterns established in `__tests__` files
 - Some legacy tests use `.skip()` - update when modifying components
 - Snapshot tests exist but prefer behavioral testing
+- **Test Organization**: Component tests must be organized into appropriate subfolders within `components/__tests__/`:
+  - `forms/` - for form components (e.g., `IngredientForm`, `MealInfoForm`)
+  - `lists/` - for list/display components (e.g., `FoodEntriesList`, `RecentActivities`)
+  - `modals/` - for modal components (e.g., `CategoryModal`, `DatePickerModal`)
+  - `screens/` - for screen-level components
+  - Create new categorized folders as needed for other component types
+  - **Never place component tests directly in `components/__tests__/` root** - always organize into subfolders
 
 ### Performance Considerations
 - Use `@shopify/react-native-skia` for charts and graphics (already configured)
