@@ -77,6 +77,7 @@ describe('ProgressChart', () => {
     
     expect(getByText('Calories')).toBeTruthy();
     expect(getByText('Water (ml)')).toBeTruthy();
+    expect(getByText('Target (2500 cal)')).toBeTruthy();
   });
 
   it('renders with only food entries', () => {
@@ -93,5 +94,12 @@ describe('ProgressChart', () => {
     expect(getByText('Daily Progress (Last 7 Days)')).toBeTruthy();
     expect(getByText('Calories')).toBeTruthy();
     expect(getByText('Water (ml)')).toBeTruthy();
+    expect(getByText('Target (2500 cal)')).toBeTruthy();
+  });
+
+  it('displays target reference line in legend', () => {
+    const { getByText } = render(<ProgressChart foodEntries={mockFoodEntries} waterEntries={mockWaterEntries} />);
+    
+    expect(getByText('Target (2500 cal)')).toBeTruthy();
   });
 });

@@ -11,6 +11,10 @@ interface ProgressChartProps {
 
 export default function ProgressChart({ foodEntries, waterEntries }: ProgressChartProps) {
   const { width } = Dimensions.get('window');
+  
+  // Recommended daily calorie intake for 6ft 30-year-old man (moderate activity)
+  // TODO: Make this user-configurable based on personal data
+  const RECOMMENDED_DAILY_CALORIES = 2500;
 
   // Calculate daily calorie totals for the last 7 days
   const getDailyCalories = () => {
@@ -76,7 +80,7 @@ export default function ProgressChart({ foodEntries, waterEntries }: ProgressCha
   const dayLabels = getDayLabels();
   const chartHeight = 200;
   const chartWidth = width - 40;
-  const maxCalorieValue = Math.max(...chartData, 1); // Ensure at least 1 to avoid division by 0
+  const maxCalorieValue = Math.max(...chartData, RECOMMENDED_DAILY_CALORIES, 1); // Include recommended calories in scale
   const maxWaterValue = Math.max(...waterData, 1); // Ensure at least 1 to avoid division by 0
   const padding = 30;
 
@@ -93,6 +97,10 @@ export default function ProgressChart({ foodEntries, waterEntries }: ProgressCha
         <View style={styles.legendItem}>
           <View style={[styles.legendColor, { backgroundColor: '#17a2b8' }]} />
           <Text style={styles.legendText}>Water (ml)</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendLine, { backgroundColor: '#B8CCE8' }]} />
+          <Text style={styles.legendText}>Target (2500 cal)</Text>
         </View>
       </View>
       
@@ -173,6 +181,20 @@ export default function ProgressChart({ foodEntries, waterEntries }: ProgressCha
               />
             );
           })}
+          
+          {/* Draw recommended calorie intake reference line */}
+          {(() => {
+            const referenceY = chartHeight + padding - (RECOMMENDED_DAILY_CALORIES / maxCalorieValue) * chartHeight;
+            return (
+              <Line
+                p1={{ x: padding, y: referenceY }}
+                p2={{ x: chartWidth - padding, y: referenceY }}
+                color="#B8CCE8"
+                style="stroke"
+                strokeWidth={1}
+              />
+            );
+          })()}
         </Canvas>
         
         {/* Day labels */}

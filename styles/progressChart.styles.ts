@@ -23,6 +23,11 @@ export const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
   },
+  legendLine: {
+    width: 12,
+    height: 2,
+    backgroundColor: '#B8CCE8',
+  },
   legendText: {
     fontSize: 12,
     color: '#666',
