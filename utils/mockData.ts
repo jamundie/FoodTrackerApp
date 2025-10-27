@@ -5,17 +5,11 @@
  * Mock data is automatically loaded in development mode (NODE_ENV=development)
  * or when EXPO_PUBLIC_USE_MOCK_DATA=true is set.
  * 
- * The mock data includes comprehensive entries for the last 3 days:
+ * The mock data uses random generation from predefined arrays to create entries
+ * for the last 7 days with varied meal types, ingredients, and timing.
  * 
- * FOOD ENTRIES (12 total):
- * - Today: 4 entries (Breakfast, Lunch, Snack, Dinner)
- * - Yesterday: 4 entries (Breakfast, Lunch, Dinner, Dessert)
- * - Day before: 4 entries (Breakfast, Lunch, Snack, Dinner)
- * 
- * WATER ENTRIES (13 total):
- * - Today: 4 entries (Morning, Midday, Post-workout, Evening)
- * - Yesterday: 4 entries (Wake up, Lunch, Afternoon, Dinner)
- * - Day before: 5 entries (Morning, Coffee break, Sparkling water, Pre-dinner, Herbal tea)
+ * FOOD ENTRIES: 3-4 entries per day across 7 days
+ * WATER ENTRIES: 3-5 entries per day across 7 days
  * 
  * All entries use realistic timestamps and ingredients with proper nutritional data
  * to simulate natural usage patterns across multiple days.
@@ -31,339 +25,246 @@ const generateMockId = (prefix: string, index: number): string => {
   return `mock-${prefix}-${index}-${Date.now()}`;
 };
 
-/**
- * Create mock ingredients with realistic nutritional data
- */
-const createMockIngredients = (ingredientData: Array<{
-  name: string;
-  amount: number;
-  unit: "g" | "ml" | "piece";
-  caloriesPer100g?: number;
-}>): Ingredient[] => {
-  return ingredientData.map((data, index) => ({
-    id: generateMockId('ingredient', index),
-    name: data.name,
-    amount: data.amount,
-    unit: data.unit,
-    caloriesPer100g: data.caloriesPer100g,
-    calculatedCalories: data.caloriesPer100g 
-      ? (data.amount * (data.caloriesPer100g / 100))
-      : undefined,
-  }));
+// Random number generator with seed for consistent results in development
+let seed = 12345;
+const random = (): number => {
+  seed = (seed * 9301 + 49297) % 233280;
+  return seed / 233280;
+};
+
+const randomInt = (min: number, max: number): number => {
+  return Math.floor(random() * (max - min + 1)) + min;
+};
+
+const randomChoice = <T>(array: readonly T[]): T => {
+  return array[Math.floor(random() * array.length)];
 };
 
 /**
- * Generate mock food entries for the last 3 days
+ * Base meal names array (10 options)
+ */
+const MEAL_NAMES = [
+  'Greek Yogurt Bowl',
+  'Grilled Chicken Salad',
+  'Salmon with Quinoa',
+  'Turkey Sandwich',
+  'Beef Stir Fry',
+  'Vegetable Pasta',
+  'Smoothie Bowl',
+  'Avocado Toast',
+  'Fish Tacos',
+  'Mediterranean Bowl'
+] as const;
+
+/**
+ * Base food ingredients array (20 options) with nutritional data
+ */
+const FOOD_INGREDIENTS = [
+  { name: 'Chicken breast', unit: 'g' as const, caloriesPer100g: 165, minAmount: 80, maxAmount: 200 },
+  { name: 'Salmon fillet', unit: 'g' as const, caloriesPer100g: 208, minAmount: 100, maxAmount: 180 },
+  { name: 'Greek yogurt', unit: 'g' as const, caloriesPer100g: 59, minAmount: 150, maxAmount: 300 },
+  { name: 'Quinoa', unit: 'g' as const, caloriesPer100g: 120, minAmount: 60, maxAmount: 120 },
+  { name: 'Brown rice', unit: 'g' as const, caloriesPer100g: 111, minAmount: 80, maxAmount: 150 },
+  { name: 'Avocado', unit: 'g' as const, caloriesPer100g: 160, minAmount: 50, maxAmount: 150 },
+  { name: 'Mixed berries', unit: 'g' as const, caloriesPer100g: 57, minAmount: 80, maxAmount: 150 },
+  { name: 'Spinach', unit: 'g' as const, caloriesPer100g: 23, minAmount: 50, maxAmount: 100 },
+  { name: 'Broccoli', unit: 'g' as const, caloriesPer100g: 34, minAmount: 100, maxAmount: 200 },
+  { name: 'Sweet potato', unit: 'g' as const, caloriesPer100g: 86, minAmount: 150, maxAmount: 300 },
+  { name: 'Olive oil', unit: 'ml' as const, caloriesPer100g: 884, minAmount: 5, maxAmount: 20 },
+  { name: 'Almonds', unit: 'g' as const, caloriesPer100g: 579, minAmount: 15, maxAmount: 40 },
+  { name: 'Eggs', unit: 'piece' as const, caloriesPer100g: 155, minAmount: 1, maxAmount: 3 },
+  { name: 'Whole wheat bread', unit: 'piece' as const, caloriesPer100g: 247, minAmount: 1, maxAmount: 2 },
+  { name: 'Bell peppers', unit: 'g' as const, caloriesPer100g: 31, minAmount: 80, maxAmount: 150 },
+  { name: 'Tomatoes', unit: 'g' as const, caloriesPer100g: 18, minAmount: 100, maxAmount: 200 },
+  { name: 'Cucumber', unit: 'g' as const, caloriesPer100g: 16, minAmount: 80, maxAmount: 150 },
+  { name: 'Feta cheese', unit: 'g' as const, caloriesPer100g: 264, minAmount: 30, maxAmount: 80 },
+  { name: 'Honey', unit: 'g' as const, caloriesPer100g: 304, minAmount: 10, maxAmount: 25 },
+  { name: 'Lemon juice', unit: 'ml' as const, caloriesPer100g: 22, minAmount: 5, maxAmount: 20 }
+] as const;
+
+/**
+ * Water entry names array
+ */
+const WATER_ENTRY_NAMES = [
+  'Morning Hydration',
+  'Coffee Break Water',
+  'Pre-Workout Drink',
+  'Post-Workout Recovery',
+  'Lunch Hydration',
+  'Afternoon Refresh',
+  'Evening Tea',
+  'Bedtime Water',
+  'Midday Break',
+  'Energy Boost'
+] as const;
+
+/**
+ * Water ingredients array (max 5 per entry)
+ */
+const WATER_INGREDIENTS = [
+  { name: 'Water', unit: 'ml' as const, caloriesPer100g: 0, minAmount: 200, maxAmount: 750 },
+  { name: 'Sparkling water', unit: 'ml' as const, caloriesPer100g: 0, minAmount: 250, maxAmount: 500 },
+  { name: 'Coconut water', unit: 'ml' as const, caloriesPer100g: 19, minAmount: 200, maxAmount: 400 },
+  { name: 'Lemon juice', unit: 'ml' as const, caloriesPer100g: 22, minAmount: 5, maxAmount: 20 },
+  { name: 'Lime juice', unit: 'ml' as const, caloriesPer100g: 25, minAmount: 5, maxAmount: 15 },
+  { name: 'Mint leaves', unit: 'g' as const, caloriesPer100g: 70, minAmount: 2, maxAmount: 10 },
+  { name: 'Cucumber slices', unit: 'g' as const, caloriesPer100g: 16, minAmount: 10, maxAmount: 30 },
+  { name: 'Green tea', unit: 'g' as const, caloriesPer100g: 0, minAmount: 1, maxAmount: 3 },
+  { name: 'Honey', unit: 'g' as const, caloriesPer100g: 304, minAmount: 5, maxAmount: 15 },
+  { name: 'Electrolyte powder', unit: 'g' as const, caloriesPer100g: 300, minAmount: 3, maxAmount: 8 }
+] as const;
+
+/**
+ * Food categories for random assignment
+ */
+const FOOD_CATEGORIES: FoodCategory[] = ['Breakfast', 'Lunch', 'Dinner', 'Snack', 'Dessert'];
+
+/**
+ * Generate random ingredients for food entries
+ */
+const generateRandomFoodIngredients = (count: number): Ingredient[] => {
+  const selectedIngredients: Ingredient[] = [];
+  const availableIngredients = [...FOOD_INGREDIENTS];
+  
+  for (let i = 0; i < count && availableIngredients.length > 0; i++) {
+    const randomIndex = randomInt(0, availableIngredients.length - 1);
+    const ingredient = availableIngredients.splice(randomIndex, 1)[0];
+    const amount = randomInt(ingredient.minAmount, ingredient.maxAmount);
+    
+    selectedIngredients.push({
+      id: generateMockId('ingredient', i),
+      name: ingredient.name,
+      amount: amount,
+      unit: ingredient.unit,
+      caloriesPer100g: ingredient.caloriesPer100g,
+      calculatedCalories: ingredient.caloriesPer100g 
+        ? (amount * (ingredient.caloriesPer100g / 100))
+        : undefined,
+    });
+  }
+  
+  return selectedIngredients;
+};
+
+/**
+ * Generate random ingredients for water entries (max 5)
+ */
+const generateRandomWaterIngredients = (): Ingredient[] => {
+  const count = randomInt(1, 5); // 1-5 ingredients max
+  const selectedIngredients: Ingredient[] = [];
+  const availableIngredients = [...WATER_INGREDIENTS];
+  
+  // Always include water as base
+  const waterIngredient = availableIngredients.find(ing => ing.name === 'Water');
+  if (waterIngredient) {
+    const amount = randomInt(waterIngredient.minAmount, waterIngredient.maxAmount);
+    selectedIngredients.push({
+      id: generateMockId('ingredient', 0),
+      name: waterIngredient.name,
+      amount: amount,
+      unit: waterIngredient.unit,
+      caloriesPer100g: waterIngredient.caloriesPer100g,
+      calculatedCalories: waterIngredient.caloriesPer100g 
+        ? (amount * (waterIngredient.caloriesPer100g / 100))
+        : undefined,
+    });
+  }
+  
+  // Add additional ingredients
+  const otherIngredients = availableIngredients.filter(ing => ing.name !== 'Water');
+  for (let i = 1; i < count && otherIngredients.length > 0; i++) {
+    const randomIndex = randomInt(0, otherIngredients.length - 1);
+    const ingredient = otherIngredients.splice(randomIndex, 1)[0];
+    const amount = randomInt(ingredient.minAmount, ingredient.maxAmount);
+    
+    selectedIngredients.push({
+      id: generateMockId('ingredient', i),
+      name: ingredient.name,
+      amount: amount,
+      unit: ingredient.unit,
+      caloriesPer100g: ingredient.caloriesPer100g,
+      calculatedCalories: ingredient.caloriesPer100g 
+        ? (amount * (ingredient.caloriesPer100g / 100))
+        : undefined,
+    });
+  }
+  
+  return selectedIngredients;
+};
+/**
+ * Generate mock food entries for the last 7 days using random generation
  */
 export const createMockFoodEntries = (): FoodEntry[] => {
-  const now = new Date();
-  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  const dayBeforeYesterday = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+  const entries: FoodEntry[] = [];
+  let entryId = 1;
   
-  return [
-    // TODAY'S ENTRIES
-    {
-      id: generateMockId('food', 1),
-      mealName: 'Greek Yogurt with Berries',
-      category: 'Breakfast' as FoodCategory,
-      timestamp: createTimestamp(now, { hours: 8, minutes: 15 }),
-      ingredients: createMockIngredients([
-        { name: 'Greek yogurt', amount: 200, unit: 'g', caloriesPer100g: 59 },
-        { name: 'Mixed berries', amount: 100, unit: 'g', caloriesPer100g: 57 },
-        { name: 'Honey', amount: 20, unit: 'g', caloriesPer100g: 304 },
-      ]),
-      totalCalories: 0, // Will be calculated
-    },
-    {
-      id: generateMockId('food', 2),
-      mealName: 'Grilled Chicken Salad',
-      category: 'Lunch' as FoodCategory,
-      timestamp: createTimestamp(now, { hours: 12, minutes: 30 }),
-      ingredients: createMockIngredients([
-        { name: 'Chicken breast', amount: 150, unit: 'g', caloriesPer100g: 165 },
-        { name: 'Mixed greens', amount: 100, unit: 'g', caloriesPer100g: 22 },
-        { name: 'Cherry tomatoes', amount: 80, unit: 'g', caloriesPer100g: 18 },
-        { name: 'Olive oil', amount: 15, unit: 'ml', caloriesPer100g: 884 },
-      ]),
-      totalCalories: 0, // Will be calculated
-    },
-    {
-      id: generateMockId('food', 3),
-      mealName: 'Afternoon Apple',
-      category: 'Snack' as FoodCategory,
-      timestamp: createTimestamp(now, { hours: 15, minutes: 45 }),
-      ingredients: createMockIngredients([
-        { name: 'Apple', amount: 1, unit: 'piece', caloriesPer100g: 52 },
-        { name: 'Almond butter', amount: 15, unit: 'g', caloriesPer100g: 614 },
-      ]),
-      totalCalories: 0, // Will be calculated
-    },
-    {
-      id: generateMockId('food', 4),
-      mealName: 'Salmon with Quinoa',
-      category: 'Dinner' as FoodCategory,
-      timestamp: createTimestamp(now, { hours: 19, minutes: 0 }),
-      ingredients: createMockIngredients([
-        { name: 'Salmon fillet', amount: 150, unit: 'g', caloriesPer100g: 208 },
-        { name: 'Quinoa', amount: 100, unit: 'g', caloriesPer100g: 120 },
-        { name: 'Broccoli', amount: 150, unit: 'g', caloriesPer100g: 34 },
-        { name: 'Olive oil', amount: 10, unit: 'ml', caloriesPer100g: 884 },
-      ]),
-      totalCalories: 0, // Will be calculated
-    },
-
-    // YESTERDAY'S ENTRIES
-    {
-      id: generateMockId('food', 5),
-      mealName: 'Oatmeal with Banana',
-      category: 'Breakfast' as FoodCategory,
-      timestamp: createTimestamp(yesterday, { hours: 7, minutes: 30 }),
-      ingredients: createMockIngredients([
-        { name: 'Rolled oats', amount: 50, unit: 'g', caloriesPer100g: 389 },
-        { name: 'Banana', amount: 1, unit: 'piece', caloriesPer100g: 89 },
-        { name: 'Milk', amount: 200, unit: 'ml', caloriesPer100g: 42 },
-        { name: 'Walnuts', amount: 20, unit: 'g', caloriesPer100g: 654 },
-      ]),
-      totalCalories: 0, // Will be calculated
-    },
-    {
-      id: generateMockId('food', 6),
-      mealName: 'Turkey Sandwich',
-      category: 'Lunch' as FoodCategory,
-      timestamp: createTimestamp(yesterday, { hours: 13, minutes: 15 }),
-      ingredients: createMockIngredients([
-        { name: 'Whole wheat bread', amount: 2, unit: 'piece', caloriesPer100g: 247 },
-        { name: 'Turkey breast', amount: 100, unit: 'g', caloriesPer100g: 104 },
-        { name: 'Avocado', amount: 50, unit: 'g', caloriesPer100g: 160 },
-        { name: 'Lettuce', amount: 30, unit: 'g', caloriesPer100g: 15 },
-      ]),
-      totalCalories: 0, // Will be calculated
-    },
-    {
-      id: generateMockId('food', 7),
-      mealName: 'Beef Stir Fry',
-      category: 'Dinner' as FoodCategory,
-      timestamp: createTimestamp(yesterday, { hours: 18, minutes: 45 }),
-      ingredients: createMockIngredients([
-        { name: 'Beef strips', amount: 120, unit: 'g', caloriesPer100g: 250 },
-        { name: 'Bell peppers', amount: 100, unit: 'g', caloriesPer100g: 31 },
-        { name: 'Brown rice', amount: 80, unit: 'g', caloriesPer100g: 111 },
-        { name: 'Soy sauce', amount: 10, unit: 'ml', caloriesPer100g: 8 },
-      ]),
-      totalCalories: 0, // Will be calculated
-    },
-    {
-      id: generateMockId('food', 8),
-      mealName: 'Dark Chocolate Square',
-      category: 'Dessert' as FoodCategory,
-      timestamp: createTimestamp(yesterday, { hours: 21, minutes: 0 }),
-      ingredients: createMockIngredients([
-        { name: 'Dark chocolate', amount: 20, unit: 'g', caloriesPer100g: 546 },
-      ]),
-      totalCalories: 0, // Will be calculated
-    },
-
-    // DAY BEFORE YESTERDAY'S ENTRIES
-    {
-      id: generateMockId('food', 9),
-      mealName: 'Scrambled Eggs with Toast',
-      category: 'Breakfast' as FoodCategory,
-      timestamp: createTimestamp(dayBeforeYesterday, { hours: 8, minutes: 0 }),
-      ingredients: createMockIngredients([
-        { name: 'Eggs', amount: 2, unit: 'piece', caloriesPer100g: 155 },
-        { name: 'Sourdough bread', amount: 2, unit: 'piece', caloriesPer100g: 289 },
-        { name: 'Butter', amount: 10, unit: 'g', caloriesPer100g: 717 },
-        { name: 'Spinach', amount: 50, unit: 'g', caloriesPer100g: 23 },
-      ]),
-      totalCalories: 0, // Will be calculated
-    },
-    {
-      id: generateMockId('food', 10),
-      mealName: 'Mediterranean Bowl',
-      category: 'Lunch' as FoodCategory,
-      timestamp: createTimestamp(dayBeforeYesterday, { hours: 12, minutes: 45 }),
-      ingredients: createMockIngredients([
-        { name: 'Chicken thigh', amount: 130, unit: 'g', caloriesPer100g: 209 },
-        { name: 'Chickpeas', amount: 100, unit: 'g', caloriesPer100g: 164 },
-        { name: 'Cucumber', amount: 80, unit: 'g', caloriesPer100g: 16 },
-        { name: 'Feta cheese', amount: 40, unit: 'g', caloriesPer100g: 264 },
-        { name: 'Tahini', amount: 15, unit: 'g', caloriesPer100g: 595 },
-      ]),
-      totalCalories: 0, // Will be calculated
-    },
-    {
-      id: generateMockId('food', 11),
-      mealName: 'Trail Mix',
-      category: 'Snack' as FoodCategory,
-      timestamp: createTimestamp(dayBeforeYesterday, { hours: 16, minutes: 30 }),
-      ingredients: createMockIngredients([
-        { name: 'Almonds', amount: 20, unit: 'g', caloriesPer100g: 579 },
-        { name: 'Dried cranberries', amount: 15, unit: 'g', caloriesPer100g: 308 },
-        { name: 'Dark chocolate chips', amount: 10, unit: 'g', caloriesPer100g: 501 },
-      ]),
-      totalCalories: 0, // Will be calculated
-    },
-    {
-      id: generateMockId('food', 12),
-      mealName: 'Vegetable Pasta',
-      category: 'Dinner' as FoodCategory,
-      timestamp: createTimestamp(dayBeforeYesterday, { hours: 19, minutes: 30 }),
-      ingredients: createMockIngredients([
-        { name: 'Whole wheat pasta', amount: 100, unit: 'g', caloriesPer100g: 124 },
-        { name: 'Zucchini', amount: 150, unit: 'g', caloriesPer100g: 17 },
-        { name: 'Tomato sauce', amount: 100, unit: 'g', caloriesPer100g: 29 },
-        { name: 'Parmesan cheese', amount: 25, unit: 'g', caloriesPer100g: 431 },
-        { name: 'Olive oil', amount: 12, unit: 'ml', caloriesPer100g: 884 },
-      ]),
-      totalCalories: 0, // Will be calculated
-    },
-  ];
+  // Generate entries for 7 days
+  for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+    const date = new Date(Date.now() - dayOffset * 24 * 60 * 60 * 1000);
+    const entriesPerDay = randomInt(3, 4); // 3-4 entries per day
+    
+    for (let entryIndex = 0; entryIndex < entriesPerDay; entryIndex++) {
+      const ingredients = generateRandomFoodIngredients(randomInt(2, 5)); // 2-5 ingredients per meal
+      const totalCalories = ingredients.reduce((total, ingredient) => {
+        return total + (ingredient.calculatedCalories || 0);
+      }, 0);
+      
+      // Generate realistic meal times
+      const baseHour = entryIndex === 0 ? 8 : entryIndex === 1 ? 12 : entryIndex === 2 ? 16 : 19;
+      const hour = baseHour + randomInt(-1, 1);
+      const minutes = randomInt(0, 59);
+      
+      entries.push({
+        id: generateMockId('food', entryId++),
+        mealName: randomChoice(MEAL_NAMES),
+        category: randomChoice(FOOD_CATEGORIES),
+        timestamp: createTimestamp(date, { hours: hour, minutes }),
+        ingredients,
+        totalCalories,
+      });
+    }
+  }
+  
+  return entries;
 };
 
 /**
- * Generate mock water entries for the last 3 days
+ * Generate mock water entries for the last 7 days using random generation
  */
 export const createMockWaterEntries = (): WaterEntry[] => {
-  const now = new Date();
-  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  const dayBeforeYesterday = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+  const entries: WaterEntry[] = [];
+  let entryId = 1;
   
-  return [
-    // TODAY'S ENTRIES
-    {
-      id: generateMockId('water', 1),
-      entryName: 'Morning Hydration',
-      timestamp: createTimestamp(now, { hours: 7, minutes: 0 }),
-      ingredients: createMockIngredients([
-        { name: 'Water', amount: 500, unit: 'ml' },
-        { name: 'Lemon juice', amount: 10, unit: 'ml', caloriesPer100g: 22 },
-      ]),
-      totalVolume: 510,
-    },
-    {
-      id: generateMockId('water', 2),
-      entryName: 'Midday Water Break',
-      timestamp: createTimestamp(now, { hours: 11, minutes: 30 }),
-      ingredients: createMockIngredients([
-        { name: 'Water', amount: 400, unit: 'ml' },
-      ]),
-      totalVolume: 400,
-    },
-    {
-      id: generateMockId('water', 3),
-      entryName: 'Post-Workout Drink',
-      timestamp: createTimestamp(now, { hours: 16, minutes: 30 }),
-      ingredients: createMockIngredients([
-        { name: 'Water', amount: 750, unit: 'ml' },
-        { name: 'Electrolyte powder', amount: 5, unit: 'g', caloriesPer100g: 300 },
-      ]),
-      totalVolume: 755,
-    },
-    {
-      id: generateMockId('water', 4),
-      entryName: 'Evening Tea',
-      timestamp: createTimestamp(now, { hours: 20, minutes: 15 }),
-      ingredients: createMockIngredients([
-        { name: 'Water', amount: 250, unit: 'ml' },
-        { name: 'Green tea', amount: 2, unit: 'g' },
-      ]),
-      totalVolume: 252,
-    },
-
-    // YESTERDAY'S ENTRIES
-    {
-      id: generateMockId('water', 5),
-      entryName: 'Wake Up Water',
-      timestamp: createTimestamp(yesterday, { hours: 6, minutes: 45 }),
-      ingredients: createMockIngredients([
-        { name: 'Water', amount: 350, unit: 'ml' },
-      ]),
-      totalVolume: 350,
-    },
-    {
-      id: generateMockId('water', 6),
-      entryName: 'Lunch Hydration',
-      timestamp: createTimestamp(yesterday, { hours: 13, minutes: 45 }),
-      ingredients: createMockIngredients([
-        { name: 'Water', amount: 300, unit: 'ml' },
-        { name: 'Cucumber slices', amount: 20, unit: 'g', caloriesPer100g: 16 },
-      ]),
-      totalVolume: 320,
-    },
-    {
-      id: generateMockId('water', 7),
-      entryName: 'Afternoon Coconut Water',
-      timestamp: createTimestamp(yesterday, { hours: 15, minutes: 0 }),
-      ingredients: createMockIngredients([
-        { name: 'Coconut water', amount: 330, unit: 'ml', caloriesPer100g: 19 },
-      ]),
-      totalVolume: 330,
-    },
-    {
-      id: generateMockId('water', 8),
-      entryName: 'Dinner Water',
-      timestamp: createTimestamp(yesterday, { hours: 19, minutes: 15 }),
-      ingredients: createMockIngredients([
-        { name: 'Water', amount: 400, unit: 'ml' },
-      ]),
-      totalVolume: 400,
-    },
-
-    // DAY BEFORE YESTERDAY'S ENTRIES
-    {
-      id: generateMockId('water', 9),
-      entryName: 'Morning Start',
-      timestamp: createTimestamp(dayBeforeYesterday, { hours: 7, minutes: 15 }),
-      ingredients: createMockIngredients([
-        { name: 'Water', amount: 450, unit: 'ml' },
-        { name: 'Mint leaves', amount: 5, unit: 'g', caloriesPer100g: 70 },
-      ]),
-      totalVolume: 455,
-    },
-    {
-      id: generateMockId('water', 10),
-      entryName: 'Coffee Break Hydration',
-      timestamp: createTimestamp(dayBeforeYesterday, { hours: 10, minutes: 30 }),
-      ingredients: createMockIngredients([
-        { name: 'Water', amount: 250, unit: 'ml' },
-      ]),
-      totalVolume: 250,
-    },
-    {
-      id: generateMockId('water', 11),
-      entryName: 'Sparkling Water',
-      timestamp: createTimestamp(dayBeforeYesterday, { hours: 14, minutes: 20 }),
-      ingredients: createMockIngredients([
-        { name: 'Sparkling water', amount: 330, unit: 'ml' },
-        { name: 'Lime juice', amount: 5, unit: 'ml', caloriesPer100g: 25 },
-      ]),
-      totalVolume: 335,
-    },
-    {
-      id: generateMockId('water', 12),
-      entryName: 'Pre-Dinner Water',
-      timestamp: createTimestamp(dayBeforeYesterday, { hours: 18, minutes: 0 }),
-      ingredients: createMockIngredients([
-        { name: 'Water', amount: 500, unit: 'ml' },
-      ]),
-      totalVolume: 500,
-    },
-    {
-      id: generateMockId('water', 13),
-      entryName: 'Herbal Tea',
-      timestamp: createTimestamp(dayBeforeYesterday, { hours: 21, minutes: 30 }),
-      ingredients: createMockIngredients([
-        { name: 'Water', amount: 200, unit: 'ml' },
-        { name: 'Chamomile tea', amount: 2, unit: 'g' },
-        { name: 'Honey', amount: 5, unit: 'g', caloriesPer100g: 304 },
-      ]),
-      totalVolume: 207,
-    },
-  ];
+  // Generate entries for 7 days
+  for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+    const date = new Date(Date.now() - dayOffset * 24 * 60 * 60 * 1000);
+    const entriesPerDay = randomInt(3, 5); // 3-5 entries per day
+    
+    for (let entryIndex = 0; entryIndex < entriesPerDay; entryIndex++) {
+      const ingredients = generateRandomWaterIngredients();
+      const totalVolume = ingredients.reduce((total, ingredient) => {
+        return total + ingredient.amount;
+      }, 0);
+      
+      // Generate realistic hydration times throughout the day
+      const baseHour = 7 + (entryIndex * 3) + randomInt(0, 2);
+      const minutes = randomInt(0, 59);
+      
+      entries.push({
+        id: generateMockId('water', entryId++),
+        entryName: randomChoice(WATER_ENTRY_NAMES),
+        timestamp: createTimestamp(date, { hours: baseHour, minutes }),
+        ingredients,
+        totalVolume,
+      });
+    }
+  }
+  
+  return entries;
 };
 
 /**
- * Calculate total calories for food entries
+ * Calculate total calories for food entries (legacy function for compatibility)
  */
 export const calculateMockFoodCalories = (foodEntries: FoodEntry[]): FoodEntry[] => {
   return foodEntries.map(entry => ({
