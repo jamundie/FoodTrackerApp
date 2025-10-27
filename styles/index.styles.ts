@@ -48,38 +48,6 @@ export const styles = StyleSheet.create({
     color: "#007bff",
   },
   progressSnapshot: {},
-  chartSubtitle: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  chartContainer: {
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  chartLabels: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "90%",
-    marginTop: 10,
-  },
-  dayLabel: {
-    fontSize: 12,
-    color: "#666",
-    fontWeight: "500",
-  },
-  calorieValues: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "90%",
-    marginTop: 5,
-  },
-  calorieValue: {
-    fontSize: 10,
-    color: "#007bff",
-    fontWeight: "bold",
-  },
   recentActivities: {
     marginTop: 30,
   },
