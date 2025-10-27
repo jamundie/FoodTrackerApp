@@ -65,7 +65,7 @@ export default function HomeScreen() {
       </View>
       <View style={styles.progressSnapshot}>
         <Text style={styles.header}>Progress Snapshot</Text>
-        <ProgressChart foodEntries={data.foodEntries} />
+        <ProgressChart foodEntries={data.foodEntries} waterEntries={data.waterEntries} />
       </View>
       <RecentActivities 
         foodEntries={data.foodEntries} 

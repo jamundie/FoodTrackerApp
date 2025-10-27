@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import ProgressChart from '../../ProgressChart';
-import { FoodEntry } from '@/types/tracking';
+import { FoodEntry, WaterEntry } from '@/types/tracking';
 
 const mockFoodEntries: FoodEntry[] = [
   {
@@ -22,21 +22,38 @@ const mockFoodEntries: FoodEntry[] = [
   },
 ];
 
+const mockWaterEntries: WaterEntry[] = [
+  {
+    id: '1',
+    timestamp: new Date().toISOString(),
+    entryName: 'Morning Water',
+    ingredients: [],
+    totalVolume: 250,
+  },
+  {
+    id: '2',
+    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Yesterday
+    entryName: 'Afternoon Water',
+    ingredients: [],
+    totalVolume: 500,
+  },
+];
+
 describe('ProgressChart', () => {
   it('renders chart title and components', () => {
-    const { getByText } = render(<ProgressChart foodEntries={mockFoodEntries} />);
+    const { getByText } = render(<ProgressChart foodEntries={mockFoodEntries} waterEntries={mockWaterEntries} />);
     
-    expect(getByText('Daily Calorie Intake (Last 7 Days)')).toBeTruthy();
+    expect(getByText('Daily Progress (Last 7 Days)')).toBeTruthy();
   });
 
   it('renders with empty food entries', () => {
-    const { getByText } = render(<ProgressChart foodEntries={[]} />);
+    const { getByText } = render(<ProgressChart foodEntries={[]} waterEntries={[]} />);
     
-    expect(getByText('Daily Calorie Intake (Last 7 Days)')).toBeTruthy();
+    expect(getByText('Daily Progress (Last 7 Days)')).toBeTruthy();
   });
 
   it('displays day labels', () => {
-    const { getByText } = render(<ProgressChart foodEntries={mockFoodEntries} />);
+    const { getByText } = render(<ProgressChart foodEntries={mockFoodEntries} waterEntries={mockWaterEntries} />);
     
     // Check for some common day abbreviations
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -53,5 +70,28 @@ describe('ProgressChart', () => {
     
     // Should find at least one day label
     expect(foundDays).toBeGreaterThan(0);
+  });
+
+  it('displays legend for calories and water', () => {
+    const { getByText } = render(<ProgressChart foodEntries={mockFoodEntries} waterEntries={mockWaterEntries} />);
+    
+    expect(getByText('Calories')).toBeTruthy();
+    expect(getByText('Water (ml)')).toBeTruthy();
+  });
+
+  it('renders with only food entries', () => {
+    const { getByText } = render(<ProgressChart foodEntries={mockFoodEntries} waterEntries={[]} />);
+    
+    expect(getByText('Daily Progress (Last 7 Days)')).toBeTruthy();
+    expect(getByText('Calories')).toBeTruthy();
+    expect(getByText('Water (ml)')).toBeTruthy();
+  });
+
+  it('renders with only water entries', () => {
+    const { getByText } = render(<ProgressChart foodEntries={[]} waterEntries={mockWaterEntries} />);
+    
+    expect(getByText('Daily Progress (Last 7 Days)')).toBeTruthy();
+    expect(getByText('Calories')).toBeTruthy();
+    expect(getByText('Water (ml)')).toBeTruthy();
   });
 });

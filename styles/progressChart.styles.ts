@@ -7,6 +7,26 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
   },
+  legend: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 10,
+    gap: 20,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  legendColor: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  legendText: {
+    fontSize: 12,
+    color: '#666',
+  },
   chartContainer: {
     alignItems: 'center',
     marginVertical: 10,
