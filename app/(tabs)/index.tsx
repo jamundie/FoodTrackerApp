@@ -5,7 +5,7 @@ import React from "react";
 import { styles } from "../../styles/index.styles";
 import PlaceholderCircle from "@/components/PlaceholderCircle";
 import RecentActivities from "@/components/RecentActivities";
-import { Canvas, Line, vec, Circle, Skia } from "@shopify/react-native-skia";
+import { Canvas, Line, Circle } from "@shopify/react-native-skia";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -125,8 +125,8 @@ export default function HomeScreen() {
               return (
                 <Line
                   key={`line-${index}`}
-                  p1={vec(x1, y1)}
-                  p2={vec(x2, y2)}
+                  p1={{ x: x1, y: y1 }}
+                  p2={{ x: x2, y: y2 }}
                   color="#007bff"
                   style="stroke"
                   strokeWidth={3}

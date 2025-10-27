@@ -10,12 +10,7 @@ jest.mock("expo-router", () => ({
     push: mockPush,
   }),
 }));
-jest.mock("@shopify/react-native-skia", () => {
-  return {
-    Canvas: ({ children }: { children: React.ReactNode }) => children,
-    Rect: () => null,
-  };
-});
+
 
 describe("HomeScreen", () => {
   beforeEach(() => {
