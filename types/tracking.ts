@@ -18,6 +18,14 @@ export type Ingredient = {
 
 export type Unit = "g" | "ml" | "piece";
 
+// Shared form data type for ingredient inputs (food and water forms)
+export type IngredientFormData = {
+  name: string;
+  amount: string;
+  unit: Unit;
+  caloriesPer100g: string;
+};
+
 export type FoodCategory = 
   | "Breakfast"
   | "Lunch"
@@ -50,7 +58,6 @@ export type WaterEntry = {
 };
 
 export type TrackingData = {
-  waterIntake: number;
   foodEntries: FoodEntry[];
   waterEntries: WaterEntry[];
 };

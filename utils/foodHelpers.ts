@@ -1,5 +1,5 @@
-import { Ingredient, FoodEntry, FoodCategory } from '../types/tracking';
-import { IngredientFormData } from '../components/IngredientForm';
+import { Ingredient, FoodEntry, FoodCategory, IngredientFormData } from '../types/tracking';
+import { generateId } from './dateUtils';
 
 /**
  * Calculates total calories from processed ingredients
@@ -34,7 +34,7 @@ export const processIngredients = (ingredients: IngredientFormData[]): Ingredien
     }
 
     return {
-      id: `${Date.now()}-${index}`,
+      id: generateId(),
       name: ingredient.name.trim(),
       amount,
       unit: ingredient.unit,
@@ -56,7 +56,7 @@ export const createFoodEntry = (
   const totalCalories = calculateTotalCalories(processedIngredients);
 
   return {
-    id: Date.now().toString(),
+    id: generateId(),
     mealName: mealName.trim(),
     category,
     timestamp,

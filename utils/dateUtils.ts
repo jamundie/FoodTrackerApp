@@ -1,6 +1,10 @@
 /**
- * Utility functions for date and time formatting
+ * Utility functions for date and time formatting and ID generation
  */
+
+// Combines timestamp + random hex to avoid collisions under rapid submission
+export const generateId = (): string =>
+  `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
 
 export const formatDisplayDate = (date: Date): string => {
   const today = new Date();

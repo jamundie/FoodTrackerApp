@@ -1,5 +1,5 @@
-import { Ingredient, WaterEntry } from '../types/tracking';
-import { WaterIngredientFormData } from '../components/WaterIngredientsForm';
+import { Ingredient, WaterEntry, IngredientFormData } from '../types/tracking';
+import { generateId } from './dateUtils';
 
 /**
  * Calculates total volume from processed ingredients (for water-based drinks)
@@ -17,7 +17,7 @@ export const calculateTotalVolume = (processedIngredients: Ingredient[]): number
 /**
  * Processes raw water ingredient form data into proper Ingredient objects
  */
-export const processWaterIngredients = (ingredients: WaterIngredientFormData[]): Ingredient[] => {
+export const processWaterIngredients = (ingredients: IngredientFormData[]): Ingredient[] => {
   const validIngredients = ingredients.filter(
     (ingredient) => ingredient.name.trim() && ingredient.amount.trim()
   );
@@ -38,7 +38,7 @@ export const processWaterIngredients = (ingredients: WaterIngredientFormData[]):
     }
 
     return {
-      id: `${Date.now()}-${index}`,
+      id: generateId(),
       name: ingredient.name.trim(),
       amount,
       unit: ingredient.unit,
@@ -59,7 +59,7 @@ export const createWaterEntry = (
   const totalVolume = calculateTotalVolume(processedIngredients);
 
   return {
-    id: Date.now().toString(),
+    id: generateId(),
     entryName: entryName.trim(),
     timestamp,
     ingredients: processedIngredients,

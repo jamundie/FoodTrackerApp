@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useTracking } from './TrackingContext';
-import { FoodCategory } from '../types/tracking';
-import { IngredientFormData } from '../components/IngredientForm';
+import { FoodCategory, IngredientFormData } from '../types/tracking';
 import { MealInfoData } from '../components/MealInfoForm';
 import { processIngredients, createFoodEntry } from '../utils/foodHelpers';
 import { createTimestamp } from '../utils/dateUtils';

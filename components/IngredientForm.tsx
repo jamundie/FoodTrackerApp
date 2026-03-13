@@ -1,15 +1,8 @@
 import React from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
-import { Unit } from "../types/tracking";
+import { Unit, IngredientFormData } from "../types/tracking";
 import { styles } from "../styles/food.styles";
-
-interface IngredientFormData {
-  name: string;
-  amount: string;
-  unit: Unit;
-  caloriesPer100g: string;
-}
 
 interface IngredientFormProps {
   ingredients: IngredientFormData[];
@@ -108,5 +101,3 @@ export default function IngredientForm({
     </View>
   );
 }
-
-export type { IngredientFormData };

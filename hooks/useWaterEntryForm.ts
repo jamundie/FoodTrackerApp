@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useTracking } from './TrackingContext';
-import { WaterIngredientFormData } from '../components/WaterIngredientsForm';
+import { IngredientFormData } from '../types/tracking';
 import { WaterInfoData } from '../components/WaterInfoForm';
 import { processWaterIngredients, createWaterEntry } from '../utils/waterHelpers';
 import { createTimestamp } from '../utils/dateUtils';
@@ -18,7 +18,7 @@ export const useWaterEntryForm = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   
-  const [ingredients, setIngredients] = useState<WaterIngredientFormData[]>([
+  const [ingredients, setIngredients] = useState<IngredientFormData[]>([
     { name: "", amount: "", unit: "ml", caloriesPer100g: "" },
   ]);
 
@@ -29,7 +29,7 @@ export const useWaterEntryForm = () => {
     ]);
   }, []);
 
-  const updateIngredient = useCallback((index: number, field: keyof WaterIngredientFormData, value: string) => {
+  const updateIngredient = useCallback((index: number, field: keyof IngredientFormData, value: string) => {
     setIngredients(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
