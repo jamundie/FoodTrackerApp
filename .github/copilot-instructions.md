@@ -142,32 +142,102 @@ npm run ios            # iOS build
 4. **Calorie calculations**: Handle missing nutritional data gracefully
 5. **Date/time precision**: Use 15-minute intervals for time selections
 
-## Major Architecture Changes
+## Documentation Protocol
 
-When implementing large architectural changes:
+Documentation must stay current as part of every feature or fix — **not as an afterthought**.
 
-### Documentation Updates Required
-1. **Update `docs/ARCHITECTURE.md`** - Modify system diagrams and component hierarchies
-2. **Update `docs/TECHNICAL_DECISIONS.md`** - Add new Technical Decision Record (TDR)
-3. **Update this file** - Revise patterns and conventions if they change
-4. **Update component documentation** - Reflect new integration patterns
+### Always — every non-trivial change
+- **`docs/ARCHITECTURE.md`**: Update any section that is no longer accurate (component lists, data-flow, tech-stack versions, styling architecture, known limitations). Remove stale content; do not just append.
 
-### Technical Decision Records (TDRs)
-Create a new TDR in `docs/TECHNICAL_DECISIONS.md` following the established format:
+### When a new coding pattern is introduced
+- **This file (`.github/copilot-instructions.md`)**: Add or revise the relevant section so the next feature automatically follows the same pattern.
+
+### When a significant decision is made
+Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-008):
+
 ```markdown
-## TDR-XXX: [Decision Title]
+## TDR-XXX: [Title]
 **Date**: YYYY-MM-DD
-**Status**: Decided
+**Status**: Accepted
 **Context**: Why this change was needed
-**Decision**: What was decided and alternatives considered
+**Decision**: What was decided and why; alternatives considered
 **Consequences**: Trade-offs and implications
 ```
 
-### Examples of Major Changes Requiring TDRs
-- Switching state management approaches (Context → Redux, etc.)
-- Adding new navigation patterns or screen structures
-- Changing data persistence strategies
-- Modifying form validation or data processing flows
-- Adding external API integrations
+**A TDR is required for:**
+- New external dependency added
+- New screen, tab, or navigation pattern
+- New global state shape (context fields added/removed/renamed)
+- Data persistence introduced or changed
+- New component category or test subfolder added
+- Architectural pattern changed (styling, typing, ID generation, etc.)
 
-When adding features, follow established patterns in existing components and consult `docs/ARCHITECTURE.md` for system-level decisions.
+**A TDR is NOT required for:**
+- Bug fixes and refactors that don't change patterns
+- Adding a new component that follows an existing pattern
+- Style or copy changes
+
+### When architecture diagrams need updating
+Update or create draw.io diagrams in `docs/diagrams/` when:
+- A new screen, tab, or major component is added
+- Data flow through `TrackingContext` changes
+- A new TDR is written that changes component relationships
+
+Diagram files live at `docs/diagrams/*.mmd` (existing Mermaid) and `docs/diagrams/*.xml` (draw.io). Prefer draw.io XML for new diagrams — see **draw.io Diagram Rules** in `AGENTS.md`.
+
+### Checklist before committing a feature
+- [ ] `docs/ARCHITECTURE.md` reflects the current state (no stale sections)
+- [ ] This file updated if a new coding pattern was introduced
+- [ ] TDR added to `docs/TECHNICAL_DECISIONS.md` if criteria above are met
+- [ ] `AGENTS.md` updated if project structure or conventions changed
+- [ ] `docs/diagrams/` updated if component structure or data flow changed
+
+## draw.io Diagram Rules
+
+Use this workflow when creating or updating architecture diagrams.
+
+### Browser injection — loading XML into the live editor
+
+`window.sb.editorUi` is the live `EditorUi` instance (not `window.App` or `window.EditorUi`).
+
+```js
+// Load XML
+const ui = window.sb.editorUi;
+const doc = mxUtils.parseXml(xmlString);
+ui.editor.setGraphXml(doc.documentElement);
+
+// Fit to screen after loading
+window.sb.editorUi.editor.graph.fit();
+```
+
+`mxUtils` is available globally. The "Edit Diagram" textarea (Extras menu) is not accessible via DOM — always use `setGraphXml()`.
+
+### Colour palette (IBM Carbon — colourblind-safe)
+
+| Role | Fill | Stroke |
+|---|---|---|
+| Normal step | `#D0E8FF` | `#648FFF` |
+| Exception / loop | `#FFF3CD` | `#FFB000` |
+| Success / final | `#D6F5E3` | `#24A148` |
+| Cancel / reject | `#FFD6E8` | `#DC267F` |
+| Branch diamond | `#FFE0C2` | `#FE6100` |
+| Panel / path (purple) | `#E8D5FF` | `#785EF0` |
+
+### XML authoring rules
+
+- **Z-order:** declare background panels **first** in the XML; foreground content after — later elements render on top.
+- **Font size in HTML cells:** use `<span style="font-size:9px;">` inside `html=1` cells, not `<font size="9">`.
+- **HTML entities in `value=`:** use `&lt;` `&gt;` `&quot;` `&amp;`; line breaks with `&lt;br&gt;`.
+- **Swimlane backgrounds:** plain rectangles with `opacity=30` — avoid draw.io native swimlane containers (they add unwanted chrome).
+- **Loop boxes:** plain rectangle, `fillColor=none`, coloured dashed stroke, `fontStyle=1`, `verticalAlign=top`.
+- **Lifelines (sequence diagrams):** dashed edge (`dashed=1`) from actor header down to a terminal ellipse at the bottom.
+- **Point-to-point edges (no attached nodes):** use `<mxPoint as="sourcePoint">` / `<mxPoint as="targetPoint">` inside `<mxGeometry>` — omit `source=` and `target=` on the cell.
+- **Page size for complex diagrams:** `pageWidth="1654" pageHeight="1169"` (A3 landscape).
+
+### QA workflow
+
+1. Open `https://app.diagrams.net/` in Chrome.
+2. Inject XML via `window.sb.editorUi.editor.setGraphXml()`.
+3. Call `.fit()` to zoom to fit.
+4. Take a screenshot to visually verify colours, labels, edges, z-order.
+5. Save the XML to `docs/diagrams/<name>.xml`.
