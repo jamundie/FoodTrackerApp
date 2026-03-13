@@ -164,7 +164,7 @@ Move styles directory from `app/styles/` to root-level `styles/` directory.
 
 ---
 
-## TDR-006: Split Date/Time Picker with Calendar Interface
+## TDR-007: Split Date/Time Picker with Calendar Interface
 
 **Date**: August 2025  
 **Status**: Accepted  
