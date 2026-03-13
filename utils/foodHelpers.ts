@@ -51,7 +51,8 @@ export const createFoodEntry = (
   mealName: string,
   category: FoodCategory,
   timestamp: string,
-  processedIngredients: Ingredient[]
+  processedIngredients: Ingredient[],
+  photoUri?: string
 ): FoodEntry => {
   const totalCalories = calculateTotalCalories(processedIngredients);
 
@@ -62,5 +63,6 @@ export const createFoodEntry = (
     timestamp,
     ingredients: processedIngredients,
     totalCalories: totalCalories > 0 ? totalCalories : undefined,
+    photoUri,
   };
 };

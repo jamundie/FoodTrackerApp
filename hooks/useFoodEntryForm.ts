@@ -24,6 +24,16 @@ export const useFoodEntryForm = () => {
     { name: "", amount: "", unit: "g", caloriesPer100g: "" },
   ]);
 
+  const [photoUri, setPhotoUri] = useState<string | undefined>(undefined);
+
+  const handlePhotoSelect = useCallback((uri: string) => {
+    setPhotoUri(uri);
+  }, []);
+
+  const handlePhotoRemove = useCallback(() => {
+    setPhotoUri(undefined);
+  }, []);
+
   const addIngredient = useCallback(() => {
     setIngredients(prev => [
       ...prev,
@@ -111,6 +121,7 @@ export const useFoodEntryForm = () => {
     });
     setShowCategoryDropdown(false);
     setIngredients([{ name: "", amount: "", unit: "g", caloriesPer100g: "" }]);
+    setPhotoUri(undefined);
   }, []);
 
   const handleSubmit = useCallback(() => {
@@ -124,18 +135,20 @@ export const useFoodEntryForm = () => {
       mealInfo.mealName,
       mealInfo.category as FoodCategory,
       timestamp,
-      processedIngredients
+      processedIngredients,
+      photoUri
     );
 
     addFoodEntry(foodEntry);
     resetForm();
     Alert.alert("Success", "Food entry added successfully!");
-  }, [mealInfo, ingredients, addFoodEntry, validateForm, resetForm]);
+  }, [mealInfo, ingredients, photoUri, addFoodEntry, validateForm, resetForm]);
 
   return {
     // State
     mealInfo,
     ingredients,
+    photoUri,
     showCategoryDropdown,
     showDatePicker,
     showTimePicker,
@@ -146,6 +159,8 @@ export const useFoodEntryForm = () => {
     handleCategorySelect,
     handleDateSelect,
     handleTimeSelect,
+    handlePhotoSelect,
+    handlePhotoRemove,
     addIngredient,
     updateIngredient,
     removeIngredient,

@@ -302,4 +302,66 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#eee",
   },
+
+  // Photo input
+  photoInputGroup: {
+    marginBottom: 16,
+  },
+  addPhotoButton: {
+    borderWidth: 1,
+    borderColor: "#007AFF",
+    borderRadius: 8,
+    borderStyle: "dashed",
+    padding: 16,
+    alignItems: "center",
+    marginTop: 4,
+    backgroundColor: "#f0f8ff",
+  },
+  addPhotoButtonText: {
+    color: "#007AFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  photoPreviewContainer: {
+    marginTop: 4,
+    borderRadius: 8,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  photoPreviewImage: {
+    width: "100%",
+    height: 200,
+    resizeMode: "cover",
+  },
+  photoActions: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 8,
+  },
+  photoActionButton: {
+    flex: 1,
+    borderRadius: 6,
+    padding: 10,
+    alignItems: "center",
+    borderWidth: 1,
+  },
+  replaceButton: {
+    borderColor: "#007AFF",
+    backgroundColor: "#f0f8ff",
+  },
+  replaceButtonText: {
+    color: "#007AFF",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  removePhotoButton: {
+    borderColor: "#ff4444",
+    backgroundColor: "#fff5f5",
+  },
+  removePhotoButtonText: {
+    color: "#ff4444",
+    fontSize: 14,
+    fontWeight: "600",
+  },
 });

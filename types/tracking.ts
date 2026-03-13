@@ -5,6 +5,7 @@ export type FoodEntry = {
   timestamp: string;         // ISO date-time
   ingredients: Ingredient[]; // list of manually entered ingredients
   totalCalories?: number;    // optional: computed based on ingredients
+  photoUri?: string;         // URI of the meal photo; used for future AI analysis
 };
 
 export type Ingredient = {

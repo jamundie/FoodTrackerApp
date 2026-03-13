@@ -18,6 +18,7 @@ export default function FoodScreen() {
   const {
     mealInfo,
     ingredients,
+    photoUri,
     showCategoryDropdown,
     showDatePicker,
     showTimePicker,
@@ -26,6 +27,8 @@ export default function FoodScreen() {
     handleCategorySelect,
     handleDateSelect,
     handleTimeSelect,
+    handlePhotoSelect,
+    handlePhotoRemove,
     addIngredient,
     updateIngredient,
     removeIngredient,
@@ -49,6 +52,9 @@ export default function FoodScreen() {
           onShowTimePicker={() => setShowTimePicker(true)}
           formatDisplayDate={formatDisplayDate}
           formatDisplayTime={formatDisplayTime}
+          photoUri={photoUri}
+          onPhotoSelect={handlePhotoSelect}
+          onPhotoRemove={handlePhotoRemove}
         />
 
         <IngredientForm

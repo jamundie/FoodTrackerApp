@@ -14,6 +14,7 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 ### UI & Graphics
 - **@shopify/react-native-skia**: High-performance 2D graphics for charts
 - **@expo/vector-icons**: Icon library
+- **expo-image-picker**: Camera and photo library access for meal photos
 - **React Native StyleSheet**: Styling with performance optimizations
 
 ### State Management
@@ -65,10 +66,13 @@ app/
 ### 2. Component Architecture
 ```
 components/
-├── navigation/       # Navigation-specific components
-├── PlaceholderCircle/ # Feature-specific components
-├── Themed*/          # Design system components
-└── __tests__/        # Component tests
+├── MealInfoForm.tsx      # Meal metadata form (name, category, date/time, photo)
+├── MealPhotoInput.tsx    # Photo picker/preview; supports camera + library
+├── IngredientForm.tsx    # Dynamic ingredient card list
+├── CategoryModal.tsx     # Category selection modal
+├── FoodEntriesList.tsx   # Rendered list of past food entries
+├── Themed*/              # Design system components
+└── __tests__/            # Component tests
 ```
 
 **Design Principles:**
@@ -98,6 +102,8 @@ components/
 ### 4. Styling Architecture
 ```
 styles/
+├── food.styles.ts    # All food screen + component styles (includes photo input)
+├── water.styles.ts   # Water screen styles
 ├── index.styles.ts   # Home screen styles
 └── layout.styles.ts  # Layout styles
 ```
@@ -173,7 +179,7 @@ types/
 - Push notifications (future enhancement)
 
 ### Future Enhancements:
-- AI-driven insights integration
+- AI-driven photo analysis → auto-populate estimated ingredients from meal photo
 - Cloud sync capabilities
 - Social features
 - Advanced analytics

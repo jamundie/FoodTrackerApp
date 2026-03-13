@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
+import MealPhotoInput from "./MealPhotoInput";
 import { FoodCategory } from "../types/tracking";
 import { styles } from "../styles/food.styles";
 
@@ -19,6 +20,9 @@ interface MealInfoFormProps {
   onShowTimePicker: () => void;
   formatDisplayDate: (date: Date) => string;
   formatDisplayTime: (hours: number, minutes: number) => string;
+  photoUri: string | undefined;
+  onPhotoSelect: (uri: string) => void;
+  onPhotoRemove: () => void;
 }
 
 export default function MealInfoForm({
@@ -29,6 +33,9 @@ export default function MealInfoForm({
   onShowTimePicker,
   formatDisplayDate,
   formatDisplayTime,
+  photoUri,
+  onPhotoSelect,
+  onPhotoRemove,
 }: MealInfoFormProps) {
   return (
     <>
@@ -85,6 +92,12 @@ export default function MealInfoForm({
           <Text style={styles.dropdownArrow}>🕒</Text>
         </TouchableOpacity>
       </View>
+
+      <MealPhotoInput
+        photoUri={photoUri}
+        onPhotoSelect={onPhotoSelect}
+        onPhotoRemove={onPhotoRemove}
+      />
     </>
   );
 }

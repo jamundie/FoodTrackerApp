@@ -1,5 +1,13 @@
 // Jest setup file to mock components that cause async state updates
 
+// Mock expo-image-picker to avoid native module errors in tests
+jest.mock('expo-image-picker', () => ({
+  requestMediaLibraryPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
+  requestCameraPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
+  launchImageLibraryAsync: jest.fn().mockResolvedValue({ canceled: true, assets: [] }),
+  launchCameraAsync: jest.fn().mockResolvedValue({ canceled: true, assets: [] }),
+}));
+
 // Mock Ionicons to prevent async state updates in tests
 jest.mock('@expo/vector-icons/Ionicons', () => {
   const { Text } = require('react-native');

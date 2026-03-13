@@ -18,6 +18,9 @@ const mockProps = {
   onShowTimePicker: jest.fn(),
   formatDisplayDate: jest.fn().mockReturnValue('Today'),
   formatDisplayTime: jest.fn().mockReturnValue('12:30 PM'),
+  photoUri: undefined,
+  onPhotoSelect: jest.fn(),
+  onPhotoRemove: jest.fn(),
 };
 
 describe('MealInfoForm', () => {

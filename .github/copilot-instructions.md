@@ -131,6 +131,7 @@ npm run ios            # iOS build
 
 ### External Dependencies
 - `@expo/vector-icons` for consistent iconography
+- `expo-image-picker` for camera and photo library access in `MealPhotoInput`
 - Skia for high-performance graphics (don't add other chart libraries)
 - React Navigation automatically integrated via Expo Router
 
@@ -153,7 +154,7 @@ Documentation must stay current as part of every feature or fix — **not as an 
 - **This file (`.github/copilot-instructions.md`)**: Add or revise the relevant section so the next feature automatically follows the same pattern.
 
 ### When a significant decision is made
-Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-008):
+Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-009):
 
 ```markdown
 ## TDR-XXX: [Title]

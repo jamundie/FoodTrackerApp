@@ -23,6 +23,7 @@ docs/         # ARCHITECTURE.md, TECHNICAL_DECISIONS.md, TDRs
 - **Types**: All domain types in `types/tracking.ts`. Form data types are separate from domain types.
 - **Styling**: `StyleSheet.create()` in `styles/`. No inline styles. Use `ThemedText`/`ThemedView` over raw RN primitives.
 - **Charts**: `@shopify/react-native-skia` only — do not add other chart libraries.
+- **Photos**: Use `expo-image-picker` for camera/library access. One photo per meal entry, stored as a URI string on `FoodEntry.photoUri`. Photo state must remain independent of ingredient state (AI analysis hook writes to ingredients only).
 - **IDs**: Use `generateId()` from `utils/dateUtils.ts` (timestamp-base36 + random hex). Never use bare `Date.now()`.
 - **Date/time**: Always create timestamps via `utils/dateUtils.ts`. ISO strings for storage; `Date` objects only in UI.
 
@@ -45,7 +46,7 @@ Documentation must be kept current as part of every feature or fix. Apply these 
 - **`.github/copilot-instructions.md`**: Add or revise the relevant section (component patterns, utility conventions, testing rules, etc.) so the next feature follows the same pattern automatically.
 
 ### When a significant decision is made
-Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-008):
+Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-009):
 
 ```markdown
 ## TDR-XXX: [Title]
