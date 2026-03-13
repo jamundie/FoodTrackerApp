@@ -41,7 +41,7 @@ export default function HomeScreen() {
           >
             <PlaceholderCircle backgroundColor="#93C5FDFF"></PlaceholderCircle>
             <Text>Water Intake</Text>
-            <Text style={styles.cardCount}>{data.waterIntake} glasses</Text>
+            <Text style={styles.cardCount}>{data.waterEntries.length} glasses</Text>
           </Pressable>
           <Pressable
             style={styles.card}

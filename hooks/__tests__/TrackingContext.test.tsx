@@ -6,7 +6,7 @@ import { FoodEntry, WaterEntry } from '../../types/tracking';
 
 // Test component that uses the context
 const TestTrackingComponent = () => {
-  const { data, addWater, addFoodEntry, addWaterEntry } = useTracking();
+  const { data, addFoodEntry, addWaterEntry } = useTracking();
 
   const mockFoodEntry: FoodEntry = {
     id: '1',
@@ -25,13 +25,8 @@ const TestTrackingComponent = () => {
 
   return (
     <View>
-      <Text testID="water-intake">{data.waterIntake}</Text>
       <Text testID="food-entries-count">{data.foodEntries.length}</Text>
       <Text testID="water-entries-count">{data.waterEntries.length}</Text>
-      
-      <TouchableOpacity onPress={addWater} testID="add-water-button">
-        <Text>Add Water</Text>
-      </TouchableOpacity>
       
       <TouchableOpacity onPress={() => addFoodEntry(mockFoodEntry)} testID="add-food-entry-button">
         <Text>Add Food Entry</Text>
@@ -52,25 +47,8 @@ describe('TrackingContext', () => {
       </TrackingProvider>
     );
     
-    expect(getByTestId('water-intake').props.children).toBe(0);
     expect(getByTestId('food-entries-count').props.children).toBe(0);
     expect(getByTestId('water-entries-count').props.children).toBe(0);
-  });
-
-  it('increments water intake', () => {
-    const { getByTestId } = render(
-      <TrackingProvider>
-        <TestTrackingComponent />
-      </TrackingProvider>
-    );
-    
-    fireEvent.press(getByTestId('add-water-button'));
-    
-    expect(getByTestId('water-intake').props.children).toBe(1);
-    
-    fireEvent.press(getByTestId('add-water-button'));
-    
-    expect(getByTestId('water-intake').props.children).toBe(2);
   });
 
   it('adds food entries', () => {
@@ -105,26 +83,8 @@ describe('TrackingContext', () => {
     expect(getByTestId('water-entries-count').props.children).toBe(2);
   });
 
-  it('maintains separate counters for water intake and entries', () => {
-    const { getByTestId } = render(
-      <TrackingProvider>
-        <TestTrackingComponent />
-      </TrackingProvider>
-    );
-    
-    // Add simple water intake
-    fireEvent.press(getByTestId('add-water-button'));
-    fireEvent.press(getByTestId('add-water-button'));
-    
-    // Add water entries
-    fireEvent.press(getByTestId('add-water-entry-button'));
-    
-    expect(getByTestId('water-intake').props.children).toBe(2);
-    expect(getByTestId('water-entries-count').props.children).toBe(1);
-  });
-
   it('throws error when used outside provider', () => {
-    // Mock console.error to avoid test output pollution
+    // Suppress expected error output
     const originalError = console.error;
     console.error = jest.fn();
     
@@ -141,7 +101,6 @@ describe('TrackingContext', () => {
     
     expect(getByTestId('error').props.children).toBe('useTracking must be used within a TrackingProvider');
     
-    // Restore console.error
     console.error = originalError;
   });
 
@@ -152,17 +111,9 @@ describe('TrackingContext', () => {
       </TrackingProvider>
     );
     
-    // Add water intake
-    fireEvent.press(getByTestId('add-water-button'));
-    
-    // Add food entry
     fireEvent.press(getByTestId('add-food-entry-button'));
-    
-    // Add water entry
     fireEvent.press(getByTestId('add-water-entry-button'));
     
-    // All should be preserved
-    expect(getByTestId('water-intake').props.children).toBe(1);
     expect(getByTestId('food-entries-count').props.children).toBe(1);
     expect(getByTestId('water-entries-count').props.children).toBe(1);
   });

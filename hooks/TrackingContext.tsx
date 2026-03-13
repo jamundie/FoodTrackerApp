@@ -4,7 +4,6 @@ import { createMockFoodEntries, createMockWaterEntries, calculateMockFoodCalorie
 
 const TrackingContext = createContext<{
   data: TrackingData;
-  addWater: () => void;
   addFoodEntry: (foodEntry: FoodEntry) => void;
   addWaterEntry: (waterEntry: WaterEntry) => void;
 } | undefined>(undefined);
@@ -21,24 +20,18 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
       const mockFoodEntries = calculateMockFoodCalories(createMockFoodEntries());
       const mockWaterEntries = createMockWaterEntries();
       return {
-        waterIntake: 0,
         foodEntries: mockFoodEntries,
         waterEntries: mockWaterEntries,
       };
     }
     
     return {
-      waterIntake: 0,
       foodEntries: [],
       waterEntries: [],
     };
   };
   
   const [data, setData] = useState<TrackingData>(initializeData());
-
-  const addWater = () => {
-    setData((prev) => ({ ...prev, waterIntake: prev.waterIntake + 1 }));
-  };
 
   const addFoodEntry = (foodEntry: FoodEntry) => {
     setData((prev) => ({
@@ -55,7 +48,7 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <TrackingContext.Provider value={{ data, addWater, addFoodEntry, addWaterEntry }}>
+    <TrackingContext.Provider value={{ data, addFoodEntry, addWaterEntry }}>
       {children}
     </TrackingContext.Provider>
   );
