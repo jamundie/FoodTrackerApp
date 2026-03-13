@@ -62,19 +62,20 @@ export type VolumePresetId =
 
 export type VolumePreset = {
   id: VolumePresetId;
-  label: string;
+  label: string;      // Full label shown in the modal picker
+  shortLabel: string; // Abbreviated label shown on the trigger button
   ml: number;
 };
 
 export const VOLUME_PRESETS: readonly VolumePreset[] = [
-  { id: "glass",         label: "1 Glass",              ml: 250 },
-  { id: "pint",          label: "1 Pint",               ml: 568 },
-  { id: "wine_small",    label: "Small Wine Glass",      ml: 125 },
-  { id: "wine_standard", label: "Standard Wine Glass",   ml: 175 },
-  { id: "wine_large",    label: "Large Wine Glass",      ml: 250 },
-  { id: "cup_small",     label: "Small Cup",             ml: 150 },
-  { id: "cup_regular",   label: "Regular Cup",           ml: 240 },
-  { id: "cup_large",     label: "Large Cup",             ml: 350 },
+  { id: "glass",         label: "1 Glass",              shortLabel: "Glass",    ml: 250 },
+  { id: "pint",          label: "1 Pint",               shortLabel: "Pint",     ml: 568 },
+  { id: "wine_small",    label: "Small Wine Glass",      shortLabel: "Sm Wine",  ml: 125 },
+  { id: "wine_standard", label: "Standard Wine Glass",   shortLabel: "Std Wine", ml: 175 },
+  { id: "wine_large",    label: "Large Wine Glass",      shortLabel: "Lg Wine",  ml: 250 },
+  { id: "cup_small",     label: "Small Cup",             shortLabel: "Sm Cup",   ml: 150 },
+  { id: "cup_regular",   label: "Regular Cup",           shortLabel: "Reg Cup",  ml: 240 },
+  { id: "cup_large",     label: "Large Cup",             shortLabel: "Lg Cup",   ml: 350 },
 ] as const;
 
 export type WaterEntry = {

@@ -29,12 +29,10 @@ export default function WaterVolumeSelector({
         onPress={() => setModalVisible(true)}
         testID="volume-selector-button"
       >
-        <Text style={styles.dropdownButtonText} numberOfLines={1}>
-          {selectedPreset.label}
+        <Text style={[styles.dropdownButtonText, waterStyles.volumeTriggerLabel]} numberOfLines={1}>
+          {selectedPreset.shortLabel}
         </Text>
-        <Text style={styles.dropdownArrow}>
-          {selectedPreset.ml} ml  ▾
-        </Text>
+        <Text style={styles.dropdownArrow}>▾</Text>
       </TouchableOpacity>
 
       <Modal

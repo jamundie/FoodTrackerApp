@@ -15,22 +15,22 @@ describe('WaterVolumeSelector', () => {
     jest.clearAllMocks();
   });
 
-  it('renders the selected preset label', () => {
+  it('renders the selected preset short label on the trigger', () => {
     const { getByText } = render(<WaterVolumeSelector {...defaultProps} />);
-    expect(getByText('1 Glass')).toBeTruthy();
+    expect(getByText('Glass')).toBeTruthy();
   });
 
-  it('shows the selected preset ml in the trigger button', () => {
+  it('shows the trigger button', () => {
     const { getByTestId } = render(<WaterVolumeSelector {...defaultProps} />);
     const btn = getByTestId('volume-selector-button');
     expect(btn).toBeTruthy();
   });
 
-  it('renders a different preset when selectedPresetId changes', () => {
+  it('renders a different short label when selectedPresetId changes', () => {
     const { getByText } = render(
       <WaterVolumeSelector selectedPresetId="pint" onSelect={mockOnSelect} />
     );
-    expect(getByText('1 Pint')).toBeTruthy();
+    expect(getByText('Pint')).toBeTruthy();
   });
 
   it('opens modal when button is pressed', () => {

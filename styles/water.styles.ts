@@ -24,4 +24,9 @@ export const waterStyles = StyleSheet.create({
     flex: 2,
     marginTop: 0,
   },
+  // Label inside the trigger — flex:1 so it shrinks and never pushes the arrow out
+  volumeTriggerLabel: {
+    flex: 1,
+    flexShrink: 1,
+  },
 });
