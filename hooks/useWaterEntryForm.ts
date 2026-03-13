@@ -1,13 +1,15 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useTracking } from './TrackingContext';
-import { IngredientFormData } from '../types/tracking';
+import { IngredientFormData, VolumePreset, VolumePresetId, VOLUME_PRESETS } from '../types/tracking';
 import { WaterInfoData } from '../components/WaterInfoForm';
 import { processWaterIngredients, createWaterEntry } from '../utils/waterHelpers';
 import { createTimestamp } from '../utils/dateUtils';
 
 export const useWaterEntryForm = () => {
-  const { addWaterEntry } = useTracking();
+  const { addWaterEntry, userProfile } = useTracking();
+
+  const defaultPresetId: VolumePresetId = userProfile.defaultVolumePresetId;
   
   const [waterInfo, setWaterInfo] = useState<WaterInfoData>({
     entryName: "",
@@ -15,12 +17,18 @@ export const useWaterEntryForm = () => {
     selectedTime: { hours: new Date().getHours(), minutes: 0 },
   });
   
+  const [volumePresetId, setVolumePresetId] = useState<VolumePresetId>(defaultPresetId);
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   
   const [ingredients, setIngredients] = useState<IngredientFormData[]>([
     { name: "", amount: "", unit: "ml", caloriesPer100g: "" },
   ]);
+
+  const handleVolumePresetChange = useCallback((preset: VolumePreset) => {
+    setVolumePresetId(preset.id);
+  }, []);
 
   const addIngredient = useCallback(() => {
     setIngredients(prev => [
@@ -84,6 +92,7 @@ export const useWaterEntryForm = () => {
       selectedDate: new Date(),
       selectedTime: { hours: new Date().getHours(), minutes: 0 },
     });
+    setVolumePresetId(defaultPresetId);
     setIngredients([{ name: "", amount: "", unit: "ml", caloriesPer100g: "" }]);
   }, []);
 
@@ -94,20 +103,24 @@ export const useWaterEntryForm = () => {
 
     const processedIngredients = processWaterIngredients(ingredients);
     const timestamp = createTimestamp(waterInfo.selectedDate, waterInfo.selectedTime);
+    const selectedPreset = VOLUME_PRESETS.find((p) => p.id === volumePresetId)!;
     const waterEntry = createWaterEntry(
       waterInfo.entryName,
       timestamp,
-      processedIngredients
+      processedIngredients,
+      volumePresetId,
+      selectedPreset.ml,
     );
 
     addWaterEntry(waterEntry);
     resetForm();
     Alert.alert("Success", "Water entry added successfully!");
-  }, [waterInfo, ingredients, addWaterEntry, validateForm, resetForm]);
+  }, [waterInfo, ingredients, volumePresetId, addWaterEntry, validateForm, resetForm]);
 
   return {
     // State
     waterInfo,
+    volumePresetId,
     ingredients,
     showDatePicker,
     showTimePicker,
@@ -115,6 +128,7 @@ export const useWaterEntryForm = () => {
     // Handlers
     handleSubmit,
     handleEntryNameUpdate,
+    handleVolumePresetChange,
     handleDateSelect,
     handleTimeSelect,
     addIngredient,

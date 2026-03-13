@@ -15,7 +15,7 @@
  * to simulate natural usage patterns across multiple days.
  */
 
-import { FoodEntry, WaterEntry, Ingredient, FoodCategory } from '../types/tracking';
+import { FoodEntry, WaterEntry, Ingredient, FoodCategory, VOLUME_PRESETS } from '../types/tracking';
 import { createTimestamp } from './dateUtils';
 
 /**
@@ -242,9 +242,13 @@ export const createMockWaterEntries = (): WaterEntry[] => {
     
     for (let entryIndex = 0; entryIndex < entriesPerDay; entryIndex++) {
       const ingredients = generateRandomWaterIngredients();
-      const totalVolume = ingredients.reduce((total, ingredient) => {
+      const ingredientVolume = ingredients.reduce((total, ingredient) => {
         return total + ingredient.amount;
       }, 0);
+      
+      // Pick a random preset for variety
+      const preset = VOLUME_PRESETS[randomInt(0, VOLUME_PRESETS.length - 1)];
+      const totalVolume = preset.ml + ingredientVolume;
       
       // Generate realistic hydration times throughout the day
       const baseHour = 7 + (entryIndex * 3) + randomInt(0, 2);
@@ -255,6 +259,8 @@ export const createMockWaterEntries = (): WaterEntry[] => {
         entryName: randomChoice(WATER_ENTRY_NAMES),
         timestamp: createTimestamp(date, { hours: baseHour, minutes }),
         ingredients,
+        volumePresetId: preset.id,
+        volumeMl: preset.ml,
         totalVolume,
       });
     }

@@ -1,4 +1,4 @@
-import { Ingredient, WaterEntry, IngredientFormData } from '../types/tracking';
+import { Ingredient, WaterEntry, IngredientFormData, VolumePresetId } from '../types/tracking';
 import { generateId } from './dateUtils';
 
 /**
@@ -54,15 +54,20 @@ export const processWaterIngredients = (ingredients: IngredientFormData[]): Ingr
 export const createWaterEntry = (
   entryName: string,
   timestamp: string,
-  processedIngredients: Ingredient[]
+  processedIngredients: Ingredient[],
+  volumePresetId: VolumePresetId,
+  volumeMl: number
 ): WaterEntry => {
-  const totalVolume = calculateTotalVolume(processedIngredients);
+  const ingredientVolume = calculateTotalVolume(processedIngredients);
+  const totalVolume = volumeMl + ingredientVolume;
 
   return {
     id: generateId(),
     entryName: entryName.trim(),
     timestamp,
     ingredients: processedIngredients,
-    totalVolume: totalVolume > 0 ? totalVolume : undefined,
+    volumePresetId,
+    volumeMl,
+    totalVolume,
   };
 };

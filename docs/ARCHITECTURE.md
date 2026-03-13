@@ -52,7 +52,8 @@ app/
 │   ├── index.tsx     # Home/Dashboard
 │   ├── food.tsx      # Food tracking
 │   ├── water.tsx     # Water tracking
-│   └── stats.tsx     # Statistics
+│   ├── profile.tsx   # User profile
+│   └── stats.tsx     # Statistics (stub)
 ├── _layout.tsx       # Root layout with providers
 └── +not-found.tsx    # 404 handling
 ```
@@ -71,6 +72,11 @@ components/
 ├── IngredientForm.tsx    # Dynamic ingredient card list
 ├── CategoryModal.tsx     # Category selection modal
 ├── FoodEntriesList.tsx   # Rendered list of past food entries
+├── WaterInfoForm.tsx     # Water entry metadata form (name, volume preset, date/time)
+├── WaterVolumeSelector.tsx  # Modal dropdown for selecting drink-size preset
+├── WaterIngredientsForm.tsx # Water ingredient card list
+├── WaterEntriesList.tsx  # Rendered list of past water entries
+├── ProfileForm.tsx       # User profile form (name, age, weight, height, goals, default glass)
 ├── Themed*/              # Design system components
 └── __tests__/            # Component tests
 ```
@@ -85,7 +91,7 @@ components/
 
 #### Global State (TrackingContext)
 - User tracking data (food, water intake)
-- Application preferences
+- User profile (`userProfile`: display name, age, weight, height, daily water goal, default glass volume preset)
 - Cross-screen shared state
 
 #### Local State
@@ -103,7 +109,8 @@ components/
 ```
 styles/
 ├── food.styles.ts    # All food screen + component styles (includes photo input)
-├── water.styles.ts   # Water screen styles
+├── water.styles.ts   # Water screen + volume selector styles
+├── profile.styles.ts # Profile screen styles
 ├── index.styles.ts   # Home screen styles
 └── layout.styles.ts  # Layout styles
 ```
@@ -118,6 +125,7 @@ styles/
 ```
 types/
 └── tracking.ts       # Domain-specific type definitions
+                      # — FoodEntry, WaterEntry, Ingredient, VolumePreset, UserProfile
 ```
 
 **Implementation:**

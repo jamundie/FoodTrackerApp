@@ -11,16 +11,17 @@ This is a React Native food tracking app built with Expo Router, TypeScript, and
 - Use `@/` path alias for imports (configured in `tsconfig.json`)
 
 ### State Management Strategy
-- **Global state**: Use `TrackingContext` in `hooks/TrackingContext.tsx` for cross-screen data
+- **Global state**: Use `TrackingContext` in `hooks/TrackingContext.tsx` for cross-screen data. Current context shape: `data` (food/water entries), `userProfile` (display name, age, weight, height, daily water goal, default volume preset), `addFoodEntry`, `addWaterEntry`, `updateUserProfile`.
 - **Local state**: Use React's `useState` for component-specific UI state
-- **Form state**: Use custom hooks like `useFoodEntryForm` for complex form logic
+- **Form state**: Use custom hooks like `useFoodEntryForm` / `useWaterEntryForm` for complex form logic. Form hooks may read from `userProfile` to seed default values (e.g. `defaultVolumePresetId`).
 - Never introduce Redux or other state libraries - stick to React Context pattern
 
 ### TypeScript Conventions
 - All types live in `types/` directory - import from `types/tracking.ts`
-- Use strict typing with `const` assertions for readonly arrays (see `FOOD_CATEGORIES`)
+- Use strict typing with `const` assertions for readonly arrays (see `FOOD_CATEGORIES`, `VOLUME_PRESETS`)
 - Custom hooks must have proper return types and error boundaries
 - Form data interfaces separate from domain types (e.g., `IngredientFormData` vs `Ingredient`)
+- Volume presets: use `VolumePresetId` union type; `VOLUME_PRESETS` constant holds all preset objects; always look up a preset from `VOLUME_PRESETS` by ID rather than constructing one inline
 
 ## Component Patterns
 
@@ -54,7 +55,16 @@ export type Ingredient = {
 };
 ```
 
-## Development Workflows
+### Water Entry Patterns
+- `WaterEntry` carries `volumePresetId` (which preset was selected), `volumeMl` (ml from preset), and `totalVolume` (preset ml + any ml ingredients — always set).
+- Use `WaterVolumeSelector` (modal dropdown) wherever a preset picker is needed. Props: `selectedPresetId` + `onSelect`.
+- `useWaterEntryForm` seeds `volumePresetId` from `userProfile.defaultVolumePresetId` and resets to it on `resetForm()`.
+
+### Profile Pattern
+- `ProfileForm` is a self-contained form component: reads an `UserProfile` prop, holds local draft state, calls `onSave(updated)` on submit.
+- The profile screen (`app/(tabs)/profile.tsx`) wires `ProfileForm` directly to `useTracking()`.
+- `ProfileForm` embeds `WaterVolumeSelector` for the default glass size field.
+
 
 ### Key Commands
 ```bash
@@ -134,6 +144,7 @@ npm run ios            # iOS build
 - `expo-image-picker` for camera and photo library access in `MealPhotoInput`
 - Skia for high-performance graphics (don't add other chart libraries)
 - React Navigation automatically integrated via Expo Router
+- No custom ml entry for water volume — presets only (`VOLUME_PRESETS` in `types/tracking.ts`)
 
 ## Common Gotchas
 
@@ -154,7 +165,7 @@ Documentation must stay current as part of every feature or fix — **not as an 
 - **This file (`.github/copilot-instructions.md`)**: Add or revise the relevant section so the next feature automatically follows the same pattern.
 
 ### When a significant decision is made
-Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-009):
+Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-010):
 
 ```markdown
 ## TDR-XXX: [Title]

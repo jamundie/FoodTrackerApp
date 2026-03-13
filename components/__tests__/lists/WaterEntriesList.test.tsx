@@ -18,7 +18,9 @@ const mockWaterEntries: WaterEntry[] = [
         calculatedCalories: 6.6,
       },
     ],
-    totalVolume: 30,
+    volumePresetId: 'glass',
+    volumeMl: 250,
+    totalVolume: 280,
   },
   {
     id: '2',
@@ -40,13 +42,18 @@ const mockWaterEntries: WaterEntry[] = [
         unit: 'ml',
       },
     ],
-    totalVolume: 500,
+    volumePresetId: 'pint',
+    volumeMl: 568,
+    totalVolume: 1068,
   },
   {
     id: '3',
     entryName: 'Plain water',
     timestamp: '2025-08-03T12:00:00.000Z',
     ingredients: [],
+    volumePresetId: 'glass',
+    volumeMl: 250,
+    totalVolume: 250,
   },
   {
     id: '4',
@@ -62,6 +69,9 @@ const mockWaterEntries: WaterEntry[] = [
         calculatedCalories: 304,
       },
     ],
+    volumePresetId: 'cup_regular',
+    volumeMl: 240,
+    totalVolume: 240,
   },
 ];
 
@@ -101,18 +111,26 @@ describe('WaterEntriesList', () => {
   it('displays ingredients count and volume when available', () => {
     const { getByText } = render(<WaterEntriesList waterEntries={mockWaterEntries} />);
     
-    // Single ingredient with volume
-    expect(getByText('1 ingredient • 30 ml')).toBeTruthy();
+    // Entry 1: glass preset (250 ml) + 30 ml ingredient = 280 ml total
+    expect(getByText('1 Glass • 280 ml')).toBeTruthy();
+    expect(getByText('1 ingredient')).toBeTruthy();
     
-    // Multiple ingredients with volume
-    expect(getByText('2 ingredients • 500 ml')).toBeTruthy();
+    // Entry 2: pint preset (568 ml) + 500 ml ingredient = 1068 ml total
+    expect(getByText('1 Pint • 1068 ml')).toBeTruthy();
+    expect(getByText('2 ingredients')).toBeTruthy();
+  });
+
+  it('displays volume even when there are no ingredients', () => {
+    const { getByText } = render(<WaterEntriesList waterEntries={mockWaterEntries} />);
+    
+    // Entry 3: plain water, glass (250 ml), no ingredients — volume still shown
+    expect(getByText('1 Glass • 250 ml')).toBeTruthy();
   });
 
   it('does not display ingredients line when no ingredients', () => {
     const { queryByText } = render(<WaterEntriesList waterEntries={mockWaterEntries} />);
     
-    // Plain water has no ingredients, so shouldn't show ingredients line
-    // We verify by checking it doesn't show "0 ingredients"
+    // Plain water has no ingredients, so shouldn't show "0 ingredients"
     expect(queryByText('0 ingredients')).toBeNull();
   });
 
@@ -129,11 +147,11 @@ describe('WaterEntriesList', () => {
     });
   });
 
-  it('handles entries with no volume correctly', () => {
-    const entriesWithoutVolume = [
+  it('handles entries with only non-liquid ingredients correctly', () => {
+    const entryWithSolidIngredient: WaterEntry[] = [
       {
         id: '1',
-        entryName: 'Test Entry',
+        entryName: 'Protein Shake',
         timestamp: '2025-08-04T12:00:00.000Z',
         ingredients: [
           {
@@ -143,20 +161,24 @@ describe('WaterEntriesList', () => {
             unit: 'g',
           },
         ],
+        volumePresetId: 'glass',
+        volumeMl: 250,
+        totalVolume: 250,
       },
-    ] as WaterEntry[];
+    ];
 
-    const { getByText, queryByText } = render(<WaterEntriesList waterEntries={entriesWithoutVolume} />);
+    const { getByText } = render(<WaterEntriesList waterEntries={entryWithSolidIngredient} />);
     
+    expect(getByText('1 Glass • 250 ml')).toBeTruthy();
     expect(getByText('1 ingredient')).toBeTruthy();
-    expect(queryByText('ml')).toBeNull();
   });
 
   it('uses correct plural form for ingredients', () => {
-    const singleIngredientEntry = mockWaterEntries.filter(entry => entry.ingredients.length === 1);
+    // Entry 1 and 4 both have 1 ingredient; filter to just entry 1
+    const singleIngredientEntry = mockWaterEntries.filter(entry => entry.id === '1');
     const { getByText } = render(<WaterEntriesList waterEntries={singleIngredientEntry} />);
     
-    expect(getByText('1 ingredient • 30 ml')).toBeTruthy();
+    expect(getByText('1 ingredient')).toBeTruthy();
   });
 
   it('displays entries in reverse chronological order', () => {
@@ -166,18 +188,27 @@ describe('WaterEntriesList', () => {
         entryName: 'Oldest',
         timestamp: '2025-08-01T08:00:00.000Z',
         ingredients: [],
+        volumePresetId: 'glass',
+        volumeMl: 250,
+        totalVolume: 250,
       },
       {
         id: '2',
         entryName: 'Middle',
         timestamp: '2025-08-02T12:00:00.000Z',
         ingredients: [],
+        volumePresetId: 'glass',
+        volumeMl: 250,
+        totalVolume: 250,
       },
       {
         id: '3',
         entryName: 'Newest',
         timestamp: '2025-08-03T18:00:00.000Z',
         ingredients: [],
+        volumePresetId: 'glass',
+        volumeMl: 250,
+        totalVolume: 250,
       },
     ];
 

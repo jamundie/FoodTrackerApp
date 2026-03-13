@@ -9,4 +9,19 @@ export const waterStyles = StyleSheet.create({
     color: "#007AFF",
     fontWeight: "600",
   },
+  // Inline row: entry name input + volume selector on the same line
+  nameVolumeRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+    marginTop: 4,
+  },
+  nameInput: {
+    flex: 3,
+    marginTop: 0,
+  },
+  volumeSelector: {
+    flex: 2,
+    marginTop: 0,
+  },
 });

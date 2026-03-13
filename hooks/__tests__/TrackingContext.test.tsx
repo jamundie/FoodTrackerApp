@@ -2,7 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { TrackingProvider, useTracking } from '../TrackingContext';
-import { FoodEntry, WaterEntry } from '../../types/tracking';
+import { FoodEntry, WaterEntry, UserProfile } from '../../types/tracking';
 
 // Test component that uses the context
 const TestTrackingComponent = () => {
@@ -21,6 +21,9 @@ const TestTrackingComponent = () => {
     entryName: 'Test Water Entry',
     timestamp: '2025-08-04T14:00:00.000Z',
     ingredients: [],
+    volumePresetId: 'glass',
+    volumeMl: 250,
+    totalVolume: 250,
   };
 
   return (
@@ -116,5 +119,52 @@ describe('TrackingContext', () => {
     
     expect(getByTestId('food-entries-count').props.children).toBe(1);
     expect(getByTestId('water-entries-count').props.children).toBe(1);
+  });
+});
+
+// Test component for userProfile / updateUserProfile
+const TestProfileComponent = () => {
+  const { userProfile, updateUserProfile } = useTracking();
+
+  const updatedProfile: UserProfile = {
+    displayName: 'Alice',
+    age: 28,
+    defaultVolumePresetId: 'pint',
+  };
+
+  return (
+    <View>
+      <Text testID="display-name">{userProfile.displayName}</Text>
+      <Text testID="default-preset">{userProfile.defaultVolumePresetId}</Text>
+      <TouchableOpacity onPress={() => updateUserProfile(updatedProfile)} testID="update-profile-button">
+        <Text>Update Profile</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+describe('TrackingContext — userProfile', () => {
+  it('provides default userProfile', () => {
+    const { getByTestId } = render(
+      <TrackingProvider>
+        <TestProfileComponent />
+      </TrackingProvider>
+    );
+
+    expect(getByTestId('display-name').props.children).toBe('');
+    expect(getByTestId('default-preset').props.children).toBe('glass');
+  });
+
+  it('updates userProfile via updateUserProfile', () => {
+    const { getByTestId } = render(
+      <TrackingProvider>
+        <TestProfileComponent />
+      </TrackingProvider>
+    );
+
+    fireEvent.press(getByTestId('update-profile-button'));
+
+    expect(getByTestId('display-name').props.children).toBe('Alice');
+    expect(getByTestId('default-preset').props.children).toBe('pint');
   });
 });

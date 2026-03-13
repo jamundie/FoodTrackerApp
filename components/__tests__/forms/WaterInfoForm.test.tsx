@@ -10,7 +10,9 @@ const mockWaterInfo: WaterInfoData = {
 
 const mockProps = {
   waterInfo: mockWaterInfo,
+  volumePresetId: 'glass' as const,
   onUpdateEntryName: jest.fn(),
+  onVolumePresetChange: jest.fn(),
   onShowDatePicker: jest.fn(),
   onShowTimePicker: jest.fn(),
   formatDisplayDate: jest.fn().mockReturnValue('Today'),
@@ -30,6 +32,12 @@ describe('WaterInfoForm', () => {
     expect(getByDisplayValue('Test Water Entry')).toBeTruthy();
     expect(getByText('Today')).toBeTruthy();
     expect(getByText('2:30 PM')).toBeTruthy();
+  });
+
+  it('renders the volume selector', () => {
+    const { getByTestId } = render(<WaterInfoForm {...mockProps} />);
+    
+    expect(getByTestId('volume-selector-button')).toBeTruthy();
   });
 
   it('does not render category field', () => {

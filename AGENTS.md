@@ -6,7 +6,7 @@ A React Native / Expo health tracker. Primarily a **mobile app** (iOS + Android)
 
 ```
 app/          # Expo Router file-based routes
-app/(tabs)/   # Tab screens: index (Home), food, water, stats
+app/(tabs)/   # Tab screens: index (Home), food, water, profile, stats
 components/   # UI components; tests in components/__tests__/<subfolder>
 hooks/        # TrackingContext (global state) + form hooks
 types/        # All domain types — import from types/tracking.ts
@@ -46,7 +46,7 @@ Documentation must be kept current as part of every feature or fix. Apply these 
 - **`.github/copilot-instructions.md`**: Add or revise the relevant section (component patterns, utility conventions, testing rules, etc.) so the next feature follows the same pattern automatically.
 
 ### When a significant decision is made
-Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-009):
+Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-010):
 
 ```markdown
 ## TDR-XXX: [Title]
@@ -154,6 +154,7 @@ Once the app is running on the emulator you can ask OpenCode to take a screensho
 
 
 - `stats.tsx` is a stub — not yet implemented
+- Profile tab is implemented (`profile.tsx`) — form saves to `TrackingContext.userProfile` in-memory only
 - Sleep and Stress tracking not yet started
 - No data persistence (all in-memory)
 - `waterIntake` counter in context is unused — water tab uses `addWaterEntry()` instead

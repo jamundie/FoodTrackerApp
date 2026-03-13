@@ -2,6 +2,9 @@ import React from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { styles } from "../styles/food.styles";
+import { waterStyles } from "../styles/water.styles";
+import WaterVolumeSelector from "./WaterVolumeSelector";
+import { VolumePreset, VolumePresetId } from "../types/tracking";
 
 export interface WaterInfoData {
   entryName: string;
@@ -11,7 +14,9 @@ export interface WaterInfoData {
 
 interface WaterInfoFormProps {
   waterInfo: WaterInfoData;
+  volumePresetId: VolumePresetId;
   onUpdateEntryName: (name: string) => void;
+  onVolumePresetChange: (preset: VolumePreset) => void;
   onShowDatePicker: () => void;
   onShowTimePicker: () => void;
   formatDisplayDate: (date: Date) => string;
@@ -20,7 +25,9 @@ interface WaterInfoFormProps {
 
 export default function WaterInfoForm({
   waterInfo,
+  volumePresetId,
   onUpdateEntryName,
+  onVolumePresetChange,
   onShowDatePicker,
   onShowTimePicker,
   formatDisplayDate,
@@ -30,13 +37,19 @@ export default function WaterInfoForm({
     <>
       <View style={styles.inputGroup}>
         <ThemedText type="defaultSemiBold">Water Entry Name</ThemedText>
-        <TextInput
-          style={styles.input}
-          value={waterInfo.entryName}
-          onChangeText={onUpdateEntryName}
-          placeholder="e.g., Morning hydration, Post-workout drink"
-          placeholderTextColor="#999"
-        />
+        <View style={waterStyles.nameVolumeRow}>
+          <TextInput
+            style={[styles.input, waterStyles.nameInput]}
+            value={waterInfo.entryName}
+            onChangeText={onUpdateEntryName}
+            placeholder="e.g., Morning hydration, Post-workout drink"
+            placeholderTextColor="#999"
+          />
+          <WaterVolumeSelector
+            selectedPresetId={volumePresetId}
+            onSelect={onVolumePresetChange}
+          />
+        </View>
       </View>
 
       <View style={styles.inputGroup}>

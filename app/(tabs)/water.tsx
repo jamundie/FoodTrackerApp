@@ -17,11 +17,13 @@ export default function WaterScreen() {
   const { data } = useTracking();
   const {
     waterInfo,
+    volumePresetId,
     ingredients,
     showDatePicker,
     showTimePicker,
     handleSubmit,
     handleEntryNameUpdate,
+    handleVolumePresetChange,
     handleDateSelect,
     handleTimeSelect,
     addIngredient,
@@ -40,7 +42,9 @@ export default function WaterScreen() {
 
         <WaterInfoForm
           waterInfo={waterInfo}
+          volumePresetId={volumePresetId}
           onUpdateEntryName={handleEntryNameUpdate}
+          onVolumePresetChange={handleVolumePresetChange}
           onShowDatePicker={() => setShowDatePicker(true)}
           onShowTimePicker={() => setShowTimePicker(true)}
           formatDisplayDate={formatDisplayDate}

@@ -50,15 +50,53 @@ export const FOOD_CATEGORIES: readonly FoodCategory[] = [
   "Other"
 ] as const;
 
+export type VolumePresetId =
+  | "glass"
+  | "pint"
+  | "wine_small"
+  | "wine_standard"
+  | "wine_large"
+  | "cup_small"
+  | "cup_regular"
+  | "cup_large";
+
+export type VolumePreset = {
+  id: VolumePresetId;
+  label: string;
+  ml: number;
+};
+
+export const VOLUME_PRESETS: readonly VolumePreset[] = [
+  { id: "glass",         label: "1 Glass",              ml: 250 },
+  { id: "pint",          label: "1 Pint",               ml: 568 },
+  { id: "wine_small",    label: "Small Wine Glass",      ml: 125 },
+  { id: "wine_standard", label: "Standard Wine Glass",   ml: 175 },
+  { id: "wine_large",    label: "Large Wine Glass",      ml: 250 },
+  { id: "cup_small",     label: "Small Cup",             ml: 150 },
+  { id: "cup_regular",   label: "Regular Cup",           ml: 240 },
+  { id: "cup_large",     label: "Large Cup",             ml: 350 },
+] as const;
+
 export type WaterEntry = {
   id: string;
-  entryName: string;         // "Morning hydration", "Post-workout drink", etc.
-  timestamp: string;         // ISO date-time
-  ingredients: Ingredient[]; // optional: flavoring, supplements, etc.
-  totalVolume?: number;      // optional: computed based on ingredients in ml
+  entryName: string;              // "Morning hydration", "Post-workout drink", etc.
+  timestamp: string;              // ISO date-time
+  ingredients: Ingredient[];      // optional: flavoring, supplements, etc.
+  volumePresetId: VolumePresetId; // selected drink-size preset
+  volumeMl: number;               // ml from the preset
+  totalVolume?: number;           // preset ml + any ml ingredients
 };
 
 export type TrackingData = {
   foodEntries: FoodEntry[];
   waterEntries: WaterEntry[];
+};
+
+export type UserProfile = {
+  displayName: string;
+  age?: number;
+  weightKg?: number;
+  heightCm?: number;
+  dailyWaterGoalMl?: number;
+  defaultVolumePresetId: VolumePresetId;
 };

@@ -1,11 +1,18 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { TrackingData, FoodEntry, WaterEntry } from '../types/tracking';
+import { TrackingData, FoodEntry, WaterEntry, UserProfile } from '../types/tracking';
 import { createMockFoodEntries, createMockWaterEntries, calculateMockFoodCalories } from '../utils/mockData';
+
+const DEFAULT_USER_PROFILE: UserProfile = {
+  displayName: '',
+  defaultVolumePresetId: 'glass',
+};
 
 const TrackingContext = createContext<{
   data: TrackingData;
+  userProfile: UserProfile;
   addFoodEntry: (foodEntry: FoodEntry) => void;
   addWaterEntry: (waterEntry: WaterEntry) => void;
+  updateUserProfile: (profile: UserProfile) => void;
 } | undefined>(undefined);
 
 export const TrackingProvider = ({ children }: { children: ReactNode }) => {
@@ -32,6 +39,7 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const [data, setData] = useState<TrackingData>(initializeData());
+  const [userProfile, setUserProfile] = useState<UserProfile>(DEFAULT_USER_PROFILE);
 
   const addFoodEntry = (foodEntry: FoodEntry) => {
     setData((prev) => ({
@@ -47,8 +55,12 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
     }));
   };
 
+  const updateUserProfile = (profile: UserProfile) => {
+    setUserProfile(profile);
+  };
+
   return (
-    <TrackingContext.Provider value={{ data, addFoodEntry, addWaterEntry }}>
+    <TrackingContext.Provider value={{ data, userProfile, addFoodEntry, addWaterEntry, updateUserProfile }}>
       {children}
     </TrackingContext.Provider>
   );

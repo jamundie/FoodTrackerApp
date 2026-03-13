@@ -140,46 +140,50 @@ describe('waterHelpers', () => {
       const timestamp = '2025-08-04T14:30:00.000Z';
       const entryName = 'Afternoon hydration';
 
-      const result = createWaterEntry(entryName, timestamp, ingredients);
+      const result = createWaterEntry(entryName, timestamp, ingredients, 'glass', 250);
 
       expect(result).toMatchObject({
         entryName: 'Afternoon hydration',
         timestamp: '2025-08-04T14:30:00.000Z',
         ingredients,
-        totalVolume: 30,
+        volumePresetId: 'glass',
+        volumeMl: 250,
+        totalVolume: 280, // 250 preset + 30 ml ingredient
       });
       expect(result.id).toBeDefined();
       expect(typeof result.id).toBe('string');
     });
 
     test('trims entry name', () => {
-      const result = createWaterEntry('  Test Entry  ', '2025-08-04T14:30:00.000Z', []);
+      const result = createWaterEntry('  Test Entry  ', '2025-08-04T14:30:00.000Z', [], 'glass', 250);
 
       expect(result.entryName).toBe('Test Entry');
     });
 
-    test('handles no volume when no ml ingredients', () => {
+    test('totalVolume equals preset ml when no ml ingredients', () => {
       const ingredients = [
         { id: '1', name: 'Powder', amount: 25, unit: 'g' as const },
       ];
 
-      const result = createWaterEntry('Test', '2025-08-04T14:30:00.000Z', ingredients);
+      const result = createWaterEntry('Test', '2025-08-04T14:30:00.000Z', ingredients, 'cup_regular', 240);
 
-      expect(result.totalVolume).toBeUndefined();
+      expect(result.totalVolume).toBe(240);
     });
 
     test('handles empty ingredients array', () => {
-      const result = createWaterEntry('Plain water', '2025-08-04T14:30:00.000Z', []);
+      const result = createWaterEntry('Plain water', '2025-08-04T14:30:00.000Z', [], 'glass', 250);
 
       expect(result.ingredients).toEqual([]);
-      expect(result.totalVolume).toBeUndefined();
+      expect(result.volumePresetId).toBe('glass');
+      expect(result.volumeMl).toBe(250);
+      expect(result.totalVolume).toBe(250);
     });
 
     test('generates unique ID', async () => {
-      const entry1 = createWaterEntry('Entry 1', '2025-08-04T14:30:00.000Z', []);
+      const entry1 = createWaterEntry('Entry 1', '2025-08-04T14:30:00.000Z', [], 'glass', 250);
       // Small delay to ensure different timestamp
       await new Promise(resolve => setTimeout(resolve, 1));
-      const entry2 = createWaterEntry('Entry 2', '2025-08-04T14:30:00.000Z', []);
+      const entry2 = createWaterEntry('Entry 2', '2025-08-04T14:30:00.000Z', [], 'glass', 250);
 
       expect(entry1.id).not.toBe(entry2.id);
     });
