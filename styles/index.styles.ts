@@ -29,7 +29,12 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: "center",
     justifyContent: "center",
-    boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
+    // Native shadow (iOS + Android)
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
 
   cardCount: {

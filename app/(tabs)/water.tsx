@@ -10,7 +10,8 @@ import WaterEntriesList from "../../components/WaterEntriesList";
 import { useTracking } from "../../hooks/TrackingContext";
 import { useWaterEntryForm } from "../../hooks/useWaterEntryForm";
 import { formatDisplayDate, formatDisplayTime } from "../../utils/dateUtils";
-import { styles, waterStyles } from "../../styles/water.styles";
+import { styles } from "../../styles/food.styles";
+import { waterStyles } from "../../styles/water.styles";
 
 export default function WaterScreen() {
   const { data } = useTracking();
