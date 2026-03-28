@@ -4,17 +4,38 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Slot, Stack } from "expo-router";
+import { Slot, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
+import React from "react";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
-import React from "react";
+import { AuthProvider, useAuth } from "@/hooks/AuthContext";
 import { TrackingProvider } from "@/hooks/TrackingContext";
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+// Redirects unauthenticated users to sign-in and authenticated users away from auth screens
+function AuthGate() {
+  const { session, loading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (loading) return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+
+    if (!session && !inAuthGroup) {
+      router.replace("/(auth)/sign-in" as any);
+    } else if (session && inAuthGroup) {
+      router.replace("/(tabs)" as any);
+    }
+  }, [session, loading, segments]);
+
+  return <Slot />;
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -33,10 +54,12 @@ export default function RootLayout() {
   }
 
   return (
-    <TrackingProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Slot />
-      </ThemeProvider>
-    </TrackingProvider>
+    <AuthProvider>
+      <TrackingProvider>
+        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+          <AuthGate />
+        </ThemeProvider>
+      </TrackingProvider>
+    </AuthProvider>
   );
 }
