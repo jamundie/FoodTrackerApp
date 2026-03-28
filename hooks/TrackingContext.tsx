@@ -81,7 +81,16 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
       foodEntries: [persistedEntry, ...prev.foodEntries],
     }));
 
-    await insertFoodEntry(userId, persistedEntry);
+    try {
+      await insertFoodEntry(userId, persistedEntry);
+    } catch (err) {
+      console.error('[TrackingContext] addFoodEntry:', err);
+      // Roll back optimistic update on failure
+      setData((prev) => ({
+        ...prev,
+        foodEntries: prev.foodEntries.filter((e) => e.id !== persistedEntry.id),
+      }));
+    }
   }, [userId]);
 
   const addWaterEntry = useCallback(async (entry: WaterEntry) => {
@@ -92,13 +101,25 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
       waterEntries: [entry, ...prev.waterEntries],
     }));
 
-    await insertWaterEntry(userId, entry);
+    try {
+      await insertWaterEntry(userId, entry);
+    } catch (err) {
+      console.error('[TrackingContext] addWaterEntry:', err);
+      setData((prev) => ({
+        ...prev,
+        waterEntries: prev.waterEntries.filter((e) => e.id !== entry.id),
+      }));
+    }
   }, [userId]);
 
   const updateUserProfile = useCallback(async (profile: UserProfile) => {
     if (!userId) return;
     setUserProfile(profile);
-    await upsertUserProfile(userId, profile);
+    try {
+      await upsertUserProfile(userId, profile);
+    } catch (err) {
+      console.error('[TrackingContext] updateUserProfile:', err);
+    }
   }, [userId]);
 
   return (

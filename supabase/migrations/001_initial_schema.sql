@@ -89,6 +89,8 @@ alter table public.water_ingredients enable row level security;
 -- user_profiles: each user sees and edits only their own row
 create policy "users select own profile"
   on public.user_profiles for select using (auth.uid() = id);
+create policy "users insert own profile"
+  on public.user_profiles for insert with check (auth.uid() = id);
 create policy "users update own profile"
   on public.user_profiles for update using (auth.uid() = id);
 

@@ -31,7 +31,7 @@ export async function fetchUserProfile(userId: string): Promise<UserProfile | nu
 }
 
 export async function upsertUserProfile(userId: string, profile: UserProfile): Promise<void> {
-  await supabase.from('user_profiles').upsert({
+  const { error } = await supabase.from('user_profiles').upsert({
     id: userId,
     display_name: profile.displayName,
     age: profile.age ?? null,
@@ -41,6 +41,7 @@ export async function upsertUserProfile(userId: string, profile: UserProfile): P
     default_volume_preset_id: profile.defaultVolumePresetId,
     updated_at: new Date().toISOString(),
   });
+  if (error) throw new Error(`upsertUserProfile failed: ${error.message}`);
 }
 
 // ── food entries ─────────────────────────────────────────────
@@ -67,7 +68,7 @@ export async function fetchFoodEntries(userId: string): Promise<FoodEntry[]> {
 }
 
 export async function insertFoodEntry(userId: string, entry: FoodEntry): Promise<void> {
-  await supabase.from('food_entries').insert({
+  const { error } = await supabase.from('food_entries').insert({
     id: entry.id,
     user_id: userId,
     meal_name: entry.mealName,
@@ -76,11 +77,13 @@ export async function insertFoodEntry(userId: string, entry: FoodEntry): Promise
     total_calories: entry.totalCalories ?? null,
     photo_storage_path: entry.photoUri ?? null,
   });
+  if (error) throw new Error(`insertFoodEntry failed: ${error.message}`);
 
   if (entry.ingredients.length > 0) {
-    await supabase.from('food_ingredients').insert(
+    const { error: ingError } = await supabase.from('food_ingredients').insert(
       entry.ingredients.map((ing) => mapFoodIngredientToRow(ing, userId, entry.id))
     );
+    if (ingError) throw new Error(`insertFoodIngredients failed: ${ingError.message}`);
   }
 }
 
@@ -107,7 +110,7 @@ export async function fetchWaterEntries(userId: string): Promise<WaterEntry[]> {
 }
 
 export async function insertWaterEntry(userId: string, entry: WaterEntry): Promise<void> {
-  await supabase.from('water_entries').insert({
+  const { error } = await supabase.from('water_entries').insert({
     id: entry.id,
     user_id: userId,
     entry_name: entry.entryName,
@@ -116,11 +119,13 @@ export async function insertWaterEntry(userId: string, entry: WaterEntry): Promi
     volume_ml: entry.volumeMl,
     total_volume: entry.totalVolume ?? null,
   });
+  if (error) throw new Error(`insertWaterEntry failed: ${error.message}`);
 
   if (entry.ingredients.length > 0) {
-    await supabase.from('water_ingredients').insert(
+    const { error: ingError } = await supabase.from('water_ingredients').insert(
       entry.ingredients.map((ing) => mapWaterIngredientToRow(ing, userId, entry.id))
     );
+    if (ingError) throw new Error(`insertWaterIngredients failed: ${ingError.message}`);
   }
 }
 
