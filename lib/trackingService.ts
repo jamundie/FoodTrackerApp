@@ -5,6 +5,7 @@
 import * as FileSystem from 'expo-file-system';
 import { supabase } from '@/lib/supabase';
 import { FoodEntry, WaterEntry, UserProfile, Ingredient } from '@/types/tracking';
+import { encryptPhoto, decryptPhoto } from '@/utils/photoEncryption';
 
 // ── helpers ──────────────────────────────────────────────────
 
@@ -133,33 +134,48 @@ export async function insertWaterEntry(userId: string, entry: WaterEntry): Promi
 // ── photo storage ─────────────────────────────────────────────
 
 /**
- * Upload a local photo URI to the private meal-photos bucket.
- * Returns the storage path (not a public URL).
+ * Encrypt and upload a local photo URI to the private meal-photos bucket.
+ * The file is AES-256-GCM encrypted on-device before leaving the app.
+ * Returns the storage path (not a URL), or null on failure.
  */
 export async function uploadMealPhoto(
   userId: string,
   entryId: string,
   localUri: string
 ): Promise<string | null> {
-  const ext = localUri.split('.').pop()?.toLowerCase() ?? 'jpg';
-  const path = `${userId}/${entryId}.${ext}`;
+  // Storage path has no extension — the encrypted blob is not a valid image file
+  const path = `${userId}/${entryId}.enc`;
 
-  // Hermes (Android) cannot create Blobs from ArrayBuffer/Uint8Array.
-  // Supabase storage accepts ArrayBuffer directly — decode base64 to ArrayBuffer
-  // using atob() which Hermes does support, matching the pattern in Supabase docs.
+  // Read the raw image bytes as base64, then convert to ArrayBuffer
   const base64 = await FileSystem.readAsStringAsync(localUri, {
     encoding: FileSystem.EncodingType.Base64,
   });
   const binary = atob(base64);
-  const buffer = new ArrayBuffer(binary.length);
-  const view = new Uint8Array(buffer);
+  const plainBuffer = new ArrayBuffer(binary.length);
+  const view = new Uint8Array(plainBuffer);
   for (let i = 0; i < binary.length; i++) {
     view[i] = binary.charCodeAt(i);
   }
 
+  // Encrypt on-device — Supabase receives only opaque ciphertext
+  const encryptedBuffer = await encryptPhoto(plainBuffer);
+
+  // encryptPhoto returns quick-crypto's Buffer (typed as ArrayBufferLike internally).
+  // Convert to a standard ArrayBuffer via base64 round-trip so Supabase accepts it.
+  const encryptedBase64 = encryptedBuffer.toString('base64');
+  const encBinary = atob(encryptedBase64);
+  const uploadBuffer = new ArrayBuffer(encBinary.length);
+  const uploadView = new Uint8Array(uploadBuffer);
+  for (let i = 0; i < encBinary.length; i++) {
+    uploadView[i] = encBinary.charCodeAt(i);
+  }
+
   const { error } = await supabase.storage
     .from('meal-photos')
-    .upload(path, buffer, { contentType: `image/${ext}`, upsert: true });
+    .upload(path, uploadBuffer, {
+      contentType: 'application/octet-stream',
+      upsert: true,
+    });
 
   if (error) {
     console.warn('Photo upload failed:', error.message);
@@ -169,16 +185,40 @@ export async function uploadMealPhoto(
 }
 
 /**
- * Generate a short-lived signed URL for a stored photo.
- * Expires in 60 seconds — enough to render on screen.
+ * Download an encrypted photo, decrypt it on-device, and return a
+ * local file:// URI suitable for use in an <Image> source prop.
+ * Returns null if the download or decryption fails.
  */
-export async function getPhotoSignedUrl(storagePath: string): Promise<string | null> {
-  const { data, error } = await supabase.storage
+export async function getDecryptedPhotoUri(storagePath: string): Promise<string | null> {
+  // Get a short-lived signed URL to fetch the ciphertext
+  const { data, error: urlError } = await supabase.storage
     .from('meal-photos')
     .createSignedUrl(storagePath, 60);
 
-  if (error || !data) return null;
-  return data.signedUrl;
+  if (urlError || !data) return null;
+
+  // Download ciphertext
+  const response = await fetch(data.signedUrl);
+  if (!response.ok) return null;
+  const encryptedBuffer = await response.arrayBuffer();
+
+  // Decrypt on-device — decryptPhoto returns quick-crypto's Buffer type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let plainBuffer: any;
+  try {
+    plainBuffer = await decryptPhoto(encryptedBuffer);
+  } catch {
+    console.warn('Photo decryption failed — key mismatch or corrupt data');
+    return null;
+  }
+
+  // Write decrypted bytes to a temp file so <Image> can read it
+  const tempUri = `${FileSystem.cacheDirectory}photo_${Date.now()}.jpg`;
+  const base64 = Buffer.from(plainBuffer as Buffer).toString('base64');
+  await FileSystem.writeAsStringAsync(tempUri, base64, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+  return tempUri;
 }
 
 // ── private row mappers ───────────────────────────────────────

@@ -24,7 +24,7 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 
 ### Backend & Persistence
 - **Supabase (Postgres)**: Cloud database — `food_entries`, `food_ingredients`, `water_entries`, `water_ingredients`, `user_profiles`
-- **Supabase Storage**: Private `meal-photos` bucket; accessed via 60-second signed URLs
+- **Supabase Storage**: Private `meal-photos` bucket; photos are AES-256-GCM encrypted on-device before upload — server holds only opaque ciphertext
 - **Supabase Auth**: Email/password authentication; session stored in device keychain via `expo-secure-store`
 - **Row Level Security (RLS)**: All tables scoped to `auth.uid() = user_id` — data isolation enforced at DB layer
 
@@ -57,7 +57,7 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 │  fetchFoodEntries / insertFoodEntry                    │
 │  fetchWaterEntries / insertWaterEntry                  │
 │  fetchUserProfile / upsertUserProfile                  │
-│  uploadMealPhoto / getPhotoSignedUrl                   │
+│  uploadMealPhoto / getDecryptedPhotoUri                │
 └──────────────────────┬────────────────────────────────┘
                        │
 ┌──────────────────────▼────────────────────────────────┐
@@ -157,9 +157,10 @@ components/
 
 **Meal photos flow:**
 1. User picks/captures photo → local `file://` URI stored in form state
-2. On submit: `uploadMealPhoto(userId, entryId, localUri)` uploads to private `meal-photos` bucket
-3. Returned storage path (not a URL) is stored on `FoodEntry.photoUri`
-4. `hooks/useSignedPhotoUrl.ts` resolves a storage path to a 60-second signed URL at render time
+2. On submit: `uploadMealPhoto` reads the file, encrypts it on-device (AES-256-GCM, per-user key in device keychain), uploads ciphertext to private `meal-photos` bucket as `userId/entryId.enc`
+3. Returned storage path stored on `FoodEntry.photoUri`
+4. `hooks/useSignedPhotoUrl.ts` calls `getDecryptedPhotoUri`: downloads ciphertext via signed URL, decrypts on-device, writes to a temp `file://` URI for `<Image>` to render
+5. Encryption key (`PHOTO_ENCRYPTION_KEY`) lives only in `expo-secure-store` — never leaves the device
 
 ### 5. Styling Architecture
 ```
@@ -243,7 +244,7 @@ types/
 
 ## Security & Privacy
 - Session tokens stored in device keychain (iOS Keychain / Android Keystore) via `expo-secure-store`
-- Meal photos in private Supabase Storage bucket — no public URLs, 60-second signed URLs only
+- Meal photos encrypted on-device (AES-256-GCM) before upload — Supabase Storage holds only ciphertext; decryption key never leaves the device keychain
 - Row Level Security enforced at DB layer — user data isolated even from direct DB queries
 - Supabase credentials stored in `.env.local` (gitignored); CI uses GitHub environment secrets
 

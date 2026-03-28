@@ -39,7 +39,7 @@ jest.mock('./lib/trackingService', () => ({
   insertWaterEntry: jest.fn().mockResolvedValue(undefined),
   upsertUserProfile: jest.fn().mockResolvedValue(undefined),
   uploadMealPhoto: jest.fn().mockResolvedValue(null),
-  getPhotoSignedUrl: jest.fn().mockResolvedValue('https://mock.url/photo.jpg'),
+  getDecryptedPhotoUri: jest.fn().mockResolvedValue('file:///mock/decrypted-photo.jpg'),
 }));
 
 // Mock AuthContext globally so any test rendering TrackingProvider works without an AuthProvider
