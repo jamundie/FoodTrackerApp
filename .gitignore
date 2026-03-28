@@ -31,6 +31,10 @@ ios/build/
 # Bundle artifacts
 *.jsbundle
 
+# Environment variables (local overrides — never commit real credentials)
+.env.local
+.env*.local
+
 # Security files
 *.jks
 *.p8
