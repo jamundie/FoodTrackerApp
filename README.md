@@ -104,28 +104,42 @@ This creates the `food_entries`, `water_entries`, and `user_profiles` tables, en
 
 ### 4. Dev Auto-Sign-In (optional but recommended)
 
-To skip the sign-in screen on every dev build, create a Supabase Auth user once (via the Supabase Dashboard → Authentication → Users → Invite user), then add their credentials to `.env.local`:
+To skip the sign-in screen on every dev build, create a Supabase Auth user once (via the Supabase Dashboard → Authentication → Users → Add user → Create new user), then add their credentials to `.env.local`:
 
 ```
 EXPO_PUBLIC_DEV_EMAIL=dev@example.com
 EXPO_PUBLIC_DEV_PASSWORD=your-dev-password
 ```
 
-When `__DEV__` is `true` and these vars are set, `AuthContext` signs in automatically on startup — `npm run android` opens straight to the app tabs.
+When `__DEV__` is `true` and these vars are set, `AuthContext` signs in automatically on startup.
 
 > These vars are ignored in production builds. Never commit `.env.local`.
 
 ### 5. Run the App
 
-```bash
-# Android (emulator must be running)
-npm run android
+There are three scripts depending on what you need:
 
-# Start Metro bundler only
-npm run start
-```
+| Command | When to use |
+|---|---|
+| `npm run dev` | **Daily development** — starts Metro and launches Android in one command |
+| `npm run android` | After adding a new native dependency — rebuilds the APK from scratch |
+| `npm start` | Starts Metro only — press `a` in the terminal to open on Android |
+
+For day-to-day development always use `npm run dev`. The emulator must already be running before you call any of these.
+
+> **Important**: `npm run android` alone will fail if Metro is not already running — it builds and installs the APK but does not start the bundler. Use `npm run dev` instead.
 
 ### 6. Troubleshooting
+
+If the app launches but shows the sign-in screen unexpectedly despite having dev credentials set, the Metro cache may be stale. Clear it with:
+
+```bash
+npx expo start --clear
+```
+
+Then use `npm run dev` as normal.
+
+For other environment or dependency issues:
 
 ```bash
 npx expo-doctor
