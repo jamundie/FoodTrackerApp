@@ -12,7 +12,7 @@ components/   # UI components; tests in components/__tests__/<subfolder>
 hooks/        # AuthContext, TrackingContext (global state) + form hooks
 lib/          # supabase.ts (client singleton), trackingService.ts (persistence layer)
 types/        # All domain types — import from types/tracking.ts
-utils/        # Pure helpers: dateUtils, foodHelpers, waterHelpers, mockData
+utils/        # Pure helpers: dateUtils, foodHelpers, waterHelpers
 styles/       # StyleSheet files, one per screen/component group
 constants/    # Colors.ts — light/dark palette tokens
 supabase/     # migrations/001_initial_schema.sql — run once in Supabase Dashboard

@@ -117,30 +117,68 @@ When `__DEV__` is `true` and these vars are set, `AuthContext` signs in automati
 
 ### 5. Run the App
 
-There are three scripts depending on what you need:
+**Daily development** uses two terminals:
+
+**Terminal 1 — start Metro:**
+```bash
+npm run dev
+```
+Attempts to set the ADB reverse tunnel (`tcp:8081`), then starts Metro with a cleared cache. The tunnel step is non-fatal — Metro starts even if no emulator is running yet. Leave Metro running.
+
+> **If you start the emulator after Metro is already running**, set the tunnel manually before running `npm run android`:
+> ```bash
+> adb reverse tcp:8081 tcp:8081
+> ```
+
+**Terminal 2 — build and install the APK:**
+```bash
+npm run android
+```
+This builds and installs the APK without starting a second Metro instance (`--no-bundler`). Run this once after `npm run dev` is up; re-run it only when you add a new native dependency.
+
+> **Tip**: After the APK is installed you rarely need to rebuild. For JS-only changes, Metro hot-reloads automatically — just keep Terminal 1 running.
+
+**Other scripts:**
 
 | Command | When to use |
 |---|---|
-| `npm run dev` | **Daily development** — starts Metro and launches Android in one command |
-| `npm run android` | After adding a new native dependency — rebuilds the APK from scratch |
-| `npm start` | Starts Metro only — press `a` in the terminal to open on Android |
-
-For day-to-day development always use `npm run dev`. The emulator must already be running before you call any of these.
-
-> **Important**: `npm run android` alone will fail if Metro is not already running — it builds and installs the APK but does not start the bundler. Use `npm run dev` instead.
+| `npm run dev` | Daily — sets ADB reverse + starts Metro with `--clear` |
+| `npm run android` | Builds/installs the APK (run once, or after native dep changes) |
+| `npm start` | Starts Metro only (no ADB reverse, no `--clear`) |
 
 ### 6. Troubleshooting
 
-If the app launches but shows the sign-in screen unexpectedly despite having dev credentials set, the Metro cache may be stale. Clear it with:
+**App can't connect to Metro / shows "Unable to connect to Metro"**
 
+The emulator needs a reverse tunnel to reach Metro on your host machine:
 ```bash
-npx expo start --clear
+adb reverse tcp:8081 tcp:8081
+```
+`npm run dev` does this automatically, but if you started Metro another way, run it manually.
+
+**Stale bundle / app shows old code**
+
+Stop Metro and restart with:
+```bash
+npm run dev
 ```
 
-Then use `npm run dev` as normal.
+**App launched but shows sign-in screen despite dev credentials being set**
+
+The bundle may be cached from before the env vars were set. Stop Metro, clear, and restart:
+```bash
+npm run dev
+```
+
+**After adding a native dependency, the app crashes on launch**
+
+Run a clean rebuild:
+```bash
+cd android && ./gradlew clean && cd ..
+npm run android
+```
 
 For other environment or dependency issues:
-
 ```bash
 npx expo-doctor
 ```
