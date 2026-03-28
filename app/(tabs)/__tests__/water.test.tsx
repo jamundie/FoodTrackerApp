@@ -1,16 +1,29 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import WaterScreen from '../water';
-import { TrackingProvider } from '../../../hooks/TrackingContext';
+import { TrackingProvider, useTracking } from '../../../hooks/TrackingContext';
 
 // Mock Alert.alert
 jest.spyOn(Alert, 'alert');
 
+// Helper component to expose the context loading state as a testID
+const LoadingGate = ({ children }: { children: React.ReactNode }) => {
+  const { loading } = useTracking();
+  return (
+    <View>
+      <Text testID="context-loading">{loading ? 'loading' : 'ready'}</Text>
+      {children}
+    </View>
+  );
+};
+
 const renderWaterScreen = () => {
   return render(
     <TrackingProvider>
-      <WaterScreen />
+      <LoadingGate>
+        <WaterScreen />
+      </LoadingGate>
     </TrackingProvider>
   );
 };
@@ -155,7 +168,10 @@ describe('Water Screen Integration', () => {
 
     it('shows recent entries after successful submission', async () => {
       const { getByPlaceholderText, getByTestId, getByText } = renderWaterScreen();
-      
+
+      // Wait for initial context load before submitting
+      await waitFor(() => expect(getByTestId('context-loading').props.children).toBe('ready'));
+
       // Submit a water entry
       const entryNameInput = getByPlaceholderText('e.g., Morning hydration, Post-workout drink');
       fireEvent.changeText(entryNameInput, 'Morning Water');
@@ -176,7 +192,10 @@ describe('Water Screen Integration', () => {
 
     it('displays multiple entries in recent list', async () => {
       const { getByPlaceholderText, getByTestId, getByText } = renderWaterScreen();
-      
+
+      // Wait for initial context load before submitting
+      await waitFor(() => expect(getByTestId('context-loading').props.children).toBe('ready'));
+
       // Submit first entry
       const entryNameInput = getByPlaceholderText('e.g., Morning hydration, Post-workout drink');
       fireEvent.changeText(entryNameInput, 'Morning Water');

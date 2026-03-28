@@ -1,4 +1,59 @@
 // Jest setup file to mock components that cause async state updates
+import React from 'react';
+
+// ── Supabase + auth mocks (must come first — many modules import these) ──────
+
+// Prevent lib/supabase.ts from throwing on missing env vars in test environment
+jest.mock('./lib/supabase', () => ({
+  supabase: {
+    auth: {
+      getSession: jest.fn().mockResolvedValue({ data: { session: null } }),
+      onAuthStateChange: jest.fn().mockReturnValue({ data: { subscription: { unsubscribe: jest.fn() } } }),
+      signUp: jest.fn().mockResolvedValue({ error: null }),
+      signInWithPassword: jest.fn().mockResolvedValue({ error: null }),
+      signOut: jest.fn().mockResolvedValue({}),
+    },
+    from: jest.fn().mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      insert: jest.fn().mockResolvedValue({ error: null }),
+      upsert: jest.fn().mockResolvedValue({ error: null }),
+      eq: jest.fn().mockReturnThis(),
+      order: jest.fn().mockResolvedValue({ data: [], error: null }),
+      single: jest.fn().mockResolvedValue({ data: null, error: null }),
+    }),
+    storage: {
+      from: jest.fn().mockReturnValue({
+        upload: jest.fn().mockResolvedValue({ error: null }),
+        createSignedUrl: jest.fn().mockResolvedValue({ data: { signedUrl: 'https://mock.url/photo.jpg' }, error: null }),
+      }),
+    },
+  },
+}));
+
+// Mock trackingService globally so no real Supabase calls occur in any test
+jest.mock('./lib/trackingService', () => ({
+  fetchFoodEntries: jest.fn().mockResolvedValue([]),
+  fetchWaterEntries: jest.fn().mockResolvedValue([]),
+  fetchUserProfile: jest.fn().mockResolvedValue(null),
+  insertFoodEntry: jest.fn().mockResolvedValue(undefined),
+  insertWaterEntry: jest.fn().mockResolvedValue(undefined),
+  upsertUserProfile: jest.fn().mockResolvedValue(undefined),
+  uploadMealPhoto: jest.fn().mockResolvedValue(null),
+  getPhotoSignedUrl: jest.fn().mockResolvedValue('https://mock.url/photo.jpg'),
+}));
+
+// Mock AuthContext globally so any test rendering TrackingProvider works without an AuthProvider
+jest.mock('./hooks/AuthContext', () => ({
+  useAuth: () => ({ user: { id: 'test-user-id', email: 'test@example.com' }, session: null, loading: false }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+// Mock expo-secure-store (native module — not available in Jest)
+jest.mock('expo-secure-store', () => ({
+  getItemAsync: jest.fn().mockResolvedValue(null),
+  setItemAsync: jest.fn().mockResolvedValue(undefined),
+  deleteItemAsync: jest.fn().mockResolvedValue(undefined),
+}));
 
 // Mock expo-image-picker to avoid native module errors in tests
 jest.mock('expo-image-picker', () => ({
