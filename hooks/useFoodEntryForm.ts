@@ -124,10 +124,11 @@ export const useFoodEntryForm = () => {
     setPhotoUri(undefined);
   }, []);
 
-  const handleSubmit = useCallback(() => {
-    if (!validateForm()) {
-      return;
-    }
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = useCallback(async () => {
+    if (submitting) return;
+    if (!validateForm()) return;
 
     const processedIngredients = processIngredients(ingredients);
     const timestamp = createTimestamp(mealInfo.selectedDate, mealInfo.selectedTime);
@@ -139,16 +140,25 @@ export const useFoodEntryForm = () => {
       photoUri
     );
 
-    addFoodEntry(foodEntry);
-    resetForm();
-    Alert.alert("Success", "Food entry added successfully!");
-  }, [mealInfo, ingredients, photoUri, addFoodEntry, validateForm, resetForm]);
+    setSubmitting(true);
+    try {
+      await addFoodEntry(foodEntry);
+      resetForm();
+      Alert.alert("Success", "Food entry added successfully!");
+    } catch (err) {
+      console.error('[useFoodEntryForm] handleSubmit:', err);
+      Alert.alert("Error", "Failed to save entry. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }, [submitting, mealInfo, ingredients, photoUri, addFoodEntry, validateForm, resetForm]);
 
   return {
     // State
     mealInfo,
     ingredients,
     photoUri,
+    submitting,
     showCategoryDropdown,
     showDatePicker,
     showTimePicker,

@@ -2,6 +2,7 @@
  * Supabase persistence layer — all DB and storage operations.
  * TrackingContext calls these; components never import this directly.
  */
+import * as FileSystem from 'expo-file-system';
 import { supabase } from '@/lib/supabase';
 import { FoodEntry, WaterEntry, UserProfile, Ingredient } from '@/types/tracking';
 
@@ -143,12 +144,22 @@ export async function uploadMealPhoto(
   const ext = localUri.split('.').pop()?.toLowerCase() ?? 'jpg';
   const path = `${userId}/${entryId}.${ext}`;
 
-  const response = await fetch(localUri);
-  const blob = await response.blob();
+  // Hermes (Android) cannot create Blobs from ArrayBuffer/Uint8Array.
+  // Supabase storage accepts ArrayBuffer directly — decode base64 to ArrayBuffer
+  // using atob() which Hermes does support, matching the pattern in Supabase docs.
+  const base64 = await FileSystem.readAsStringAsync(localUri, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+  const binary = atob(base64);
+  const buffer = new ArrayBuffer(binary.length);
+  const view = new Uint8Array(buffer);
+  for (let i = 0; i < binary.length; i++) {
+    view[i] = binary.charCodeAt(i);
+  }
 
   const { error } = await supabase.storage
     .from('meal-photos')
-    .upload(path, blob, { contentType: `image/${ext}`, upsert: true });
+    .upload(path, buffer, { contentType: `image/${ext}`, upsert: true });
 
   if (error) {
     console.warn('Photo upload failed:', error.message);

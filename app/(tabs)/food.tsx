@@ -19,6 +19,7 @@ export default function FoodScreen() {
     mealInfo,
     ingredients,
     photoUri,
+    submitting,
     showCategoryDropdown,
     showDatePicker,
     showTimePicker,
@@ -65,11 +66,12 @@ export default function FoodScreen() {
         />
 
         <TouchableOpacity 
-          style={styles.submitButton} 
+          style={[styles.submitButton, submitting && styles.submitButtonDisabled]} 
           onPress={handleSubmit}
+          disabled={submitting}
           testID="submit-food-entry-button"
         >
-          <Text style={styles.submitButtonText}>Add Food Entry</Text>
+          <Text style={styles.submitButtonText}>{submitting ? 'Saving...' : 'Add Food Entry'}</Text>
         </TouchableOpacity>
 
         <CategoryModal

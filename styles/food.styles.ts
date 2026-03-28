@@ -286,6 +286,9 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 16,
   },
+  submitButtonDisabled: {
+    opacity: 0.6,
+  },
   submitButtonText: {
     color: "#fff",
     fontSize: 18,

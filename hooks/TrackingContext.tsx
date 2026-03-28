@@ -75,22 +75,12 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
       persistedEntry = { ...entry, photoUri: storagePath ?? undefined };
     }
 
-    // Optimistic update — add to local state immediately
+    // Persist first — then update local state so load() cannot race and overwrite
+    await insertFoodEntry(userId, persistedEntry);
     setData((prev) => ({
       ...prev,
       foodEntries: [persistedEntry, ...prev.foodEntries],
     }));
-
-    try {
-      await insertFoodEntry(userId, persistedEntry);
-    } catch (err) {
-      console.error('[TrackingContext] addFoodEntry:', err);
-      // Roll back optimistic update on failure
-      setData((prev) => ({
-        ...prev,
-        foodEntries: prev.foodEntries.filter((e) => e.id !== persistedEntry.id),
-      }));
-    }
   }, [userId]);
 
   const addWaterEntry = useCallback(async (entry: WaterEntry) => {
