@@ -1,24 +1,29 @@
 # FoodTrackerApp — OpenCode Rules
 
-A React Native / Expo health tracker. Primarily a **mobile app** (iOS + Android). TypeScript strict mode throughout.
+A React Native / Expo health tracker. Primarily a **mobile app** (iOS + Android). TypeScript strict mode throughout. Data is persisted to Supabase; users authenticate with Supabase Auth.
 
 ## Project Structure
 
 ```
 app/          # Expo Router file-based routes
-app/(tabs)/   # Tab screens: index (Home), food, water, profile, stats
+app/(auth)/   # Auth screens: sign-in, sign-up (unauthenticated)
+app/(tabs)/   # Tab screens: index (Home), food, water, profile, stats (authenticated)
 components/   # UI components; tests in components/__tests__/<subfolder>
-hooks/        # TrackingContext (global state) + form hooks
+hooks/        # AuthContext, TrackingContext (global state) + form hooks
+lib/          # supabase.ts (client singleton), trackingService.ts (persistence layer)
 types/        # All domain types — import from types/tracking.ts
 utils/        # Pure helpers: dateUtils, foodHelpers, waterHelpers, mockData
 styles/       # StyleSheet files, one per screen/component group
 constants/    # Colors.ts — light/dark palette tokens
+supabase/     # migrations/001_initial_schema.sql — run once in Supabase Dashboard
 docs/         # ARCHITECTURE.md, TECHNICAL_DECISIONS.md, TDRs
 ```
 
 ## Key Conventions
 
-- **State**: React Context only (`hooks/TrackingContext.tsx`). No Redux/Zustand.
+- **State**: React Context only (`hooks/AuthContext.tsx` for auth, `hooks/TrackingContext.tsx` for data). No Redux/Zustand.
+- **Auth**: `useAuth()` from `hooks/AuthContext.tsx`. Never access `supabase.auth` directly in components.
+- **Persistence**: All Supabase calls go through `lib/trackingService.ts`. Never import `supabase` in components or screens — only in `trackingService.ts`.
 - **Routing**: Expo Router file-based. Never manually configure routes.
 - **Types**: All domain types in `types/tracking.ts`. Form data types are separate from domain types.
 - **Styling**: `StyleSheet.create()` in `styles/`. No inline styles. Use `ThemedText`/`ThemedView` over raw RN primitives.
@@ -33,6 +38,8 @@ docs/         # ARCHITECTURE.md, TECHNICAL_DECISIONS.md, TDRs
 - Tests **must** live in the appropriate subfolder of `components/__tests__/`:
   `forms/`, `lists/`, `modals/`, `screens/` — never in the root of `__tests__/`
 - Prefer behavioural tests over snapshots.
+- **Global mocks** in `jest.setup.ts`: `lib/supabase`, `lib/trackingService`, `hooks/AuthContext`, `expo-secure-store` — tests run fully offline.
+- **Async context pattern**: tests rendering `TrackingProvider` must wait for the initial `load()` to settle before asserting on state (`await waitFor(() => loading === 'ready')`).
 - Run tests: `npm test`
 
 ## Documentation Protocol
@@ -46,7 +53,7 @@ Documentation must be kept current as part of every feature or fix. Apply these 
 - **`.github/copilot-instructions.md`**: Add or revise the relevant section (component patterns, utility conventions, testing rules, etc.) so the next feature follows the same pattern automatically.
 
 ### When a significant decision is made
-Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-010):
+Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-012):
 
 ```markdown
 ## TDR-XXX: [Title]
@@ -154,8 +161,6 @@ Once the app is running on the emulator you can ask OpenCode to take a screensho
 
 
 - `stats.tsx` is a stub — not yet implemented
-- Profile tab is implemented (`profile.tsx`) — form saves to `TrackingContext.userProfile` in-memory only
 - Sleep and Stress tracking not yet started
-- No data persistence (all in-memory)
-- `waterIntake` counter in context is unused — water tab uses `addWaterEntry()` instead
+- Data persists to Supabase — SQL migration in `supabase/migrations/001_initial_schema.sql` must be run once in Supabase Dashboard before the app works end-to-end
 - CI uses Node 18 but `.nvmrc` pins Node 20 — align before changing CI

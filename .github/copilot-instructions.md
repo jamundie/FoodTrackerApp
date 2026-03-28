@@ -1,20 +1,35 @@
 # GitHub Copilot Instructions
 
 ## Overview
-This is a React Native food tracking app built with Expo Router, TypeScript, and Context API. Focus on type safety, performance, and consistent patterns when contributing.
+This is a React Native food tracking app built with Expo Router, TypeScript, and Context API, backed by Supabase (Postgres + Storage + Auth). Focus on type safety, performance, and consistent patterns when contributing.
 
 ## Architecture Patterns
 
 ### File-Based Routing with Expo Router
 - Routes live in `app/` directory with automatic generation
-- Tab navigation in `app/(tabs)/` - don't modify file structure without understanding routing implications
+- Tab navigation in `app/(tabs)/` — authenticated screens only
+- Auth screens in `app/(auth)/` — sign-in and sign-up
+- `AuthGate` in `app/_layout.tsx` handles redirects between auth and tabs
 - Use `@/` path alias for imports (configured in `tsconfig.json`)
 
+### Auth Pattern
+- Auth state lives in `hooks/AuthContext.tsx` (`AuthProvider` + `useAuth`)
+- `useAuth()` exposes: `user`, `session`, `loading`, `signIn`, `signUp`, `signOut`
+- Sessions stored in device keychain via `expo-secure-store` (not AsyncStorage)
+- Never read auth state from anywhere other than `useAuth()` — don't access `supabase.auth` directly in components
+
 ### State Management Strategy
-- **Global state**: Use `TrackingContext` in `hooks/TrackingContext.tsx` for cross-screen data. Current context shape: `data` (food/water entries), `userProfile` (display name, age, weight, height, daily water goal, default volume preset), `addFoodEntry`, `addWaterEntry`, `updateUserProfile`.
+- **Auth state**: Use `useAuth()` from `hooks/AuthContext.tsx`
+- **Global tracking state**: Use `TrackingContext` in `hooks/TrackingContext.tsx`. Current context shape: `data` (food/water entries), `userProfile` (display name, age, weight, height, daily water goal, default volume preset), `loading`, `addFoodEntry`, `addWaterEntry`, `updateUserProfile`. All action functions are `async`.
 - **Local state**: Use React's `useState` for component-specific UI state
 - **Form state**: Use custom hooks like `useFoodEntryForm` / `useWaterEntryForm` for complex form logic. Form hooks may read from `userProfile` to seed default values (e.g. `defaultVolumePresetId`).
 - Never introduce Redux or other state libraries - stick to React Context pattern
+- Provider order in `app/_layout.tsx`: `AuthProvider` → `TrackingProvider` → `ThemeProvider`
+
+### Persistence Pattern
+- All Supabase DB and storage calls go through `lib/trackingService.ts` — never call `supabase.from()` or `supabase.storage` directly from components or hooks
+- Supabase client singleton is in `lib/supabase.ts` — import from there, never instantiate inline
+- `TrackingContext` uses `user?.id` (not the whole `user` object) as `useEffect` dependency to prevent re-running when the auth provider returns a new object reference on re-render
 
 ### TypeScript Conventions
 - All types live in `types/` directory - import from `types/tracking.ts`
@@ -82,6 +97,14 @@ npm run ios            # iOS build
 - Mock data patterns established in `__tests__` files
 - Some legacy tests use `.skip()` - update when modifying components
 - Snapshot tests exist but prefer behavioral testing
+- **Global mocks**: `jest.setup.ts` mocks `lib/supabase`, `lib/trackingService`, `hooks/AuthContext`, and `expo-secure-store` globally — tests run fully offline with no real credentials needed
+- **Async context tests**: `TrackingContext` fires an async `load()` on mount. Tests that render `TrackingProvider` and then assert on context-driven state must wait for the initial load to settle first:
+  ```tsx
+  // Expose loading state in your test component, then:
+  await waitFor(() => expect(getByTestId('context-loading').props.children).toBe('ready'));
+  // Now safe to interact and assert on state
+  ```
+  This prevents a race where `load()` resolves after an optimistic update and overwrites it with empty data.
 - **Test Organization**: Component tests must be organized into appropriate subfolders within `components/__tests__/`:
   - `forms/` - for form components (e.g., `IngredientForm`, `MealInfoForm`)
   - `lists/` - for list/display components (e.g., `FoodEntriesList`, `RecentActivities`)
@@ -113,7 +136,10 @@ npm run ios            # iOS build
 
 ### Critical Files
 - `app/_layout.tsx` - Root provider setup (don't modify provider order)
-- `hooks/TrackingContext.tsx` - Central state management
+- `hooks/AuthContext.tsx` - Auth state and session management
+- `hooks/TrackingContext.tsx` - Central tracking state management
+- `lib/supabase.ts` - Supabase client singleton
+- `lib/trackingService.ts` - All Supabase DB/storage calls (the persistence layer)
 - `types/tracking.ts` - All domain types
 - `docs/ARCHITECTURE.md` - Detailed technical documentation
 
@@ -132,16 +158,20 @@ npm run ios            # iOS build
 ### Context Provider Setup
 ```tsx
 // Root layout pattern - maintain this order
-<TrackingProvider>
-  <ThemeProvider value={theme}>
-    <Slot />
-  </ThemeProvider>
-</TrackingProvider>
+<AuthProvider>
+  <TrackingProvider>
+    <ThemeProvider value={theme}>
+      <Slot />
+    </ThemeProvider>
+  </TrackingProvider>
+</AuthProvider>
 ```
 
 ### External Dependencies
 - `@expo/vector-icons` for consistent iconography
 - `expo-image-picker` for camera and photo library access in `MealPhotoInput`
+- `expo-secure-store` for session persistence in device keychain — install via `npx expo install`, not `npm install`
+- `@supabase/supabase-js` for database, storage, and auth
 - Skia for high-performance graphics (don't add other chart libraries)
 - React Navigation automatically integrated via Expo Router
 - No custom ml entry for water volume — presets only (`VOLUME_PRESETS` in `types/tracking.ts`)
@@ -165,7 +195,7 @@ Documentation must stay current as part of every feature or fix — **not as an 
 - **This file (`.github/copilot-instructions.md`)**: Add or revise the relevant section so the next feature automatically follows the same pattern.
 
 ### When a significant decision is made
-Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-010):
+Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-012):
 
 ```markdown
 ## TDR-XXX: [Title]

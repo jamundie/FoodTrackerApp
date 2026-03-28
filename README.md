@@ -32,6 +32,7 @@ A mobile-first app for tracking food and water intake, with progress snapshots a
 ### Tech Stack
 - **Framework**: React Native with Expo SDK 53
 - **Navigation**: Expo Router (file-based routing)
+- **Backend**: Supabase (Postgres + RLS + private object storage + Auth)
 - **State Management**: React Context API with custom hooks
 - **UI Components**: Custom themed components with React Native StyleSheet
 - **Charts & Visualization**: @shopify/react-native-skia for high-performance graphics
@@ -44,6 +45,7 @@ A mobile-first app for tracking food and water intake, with progress snapshots a
 3. **Native Performance**: Skia for charts ensures 60fps animations
 4. **Type Safety**: Full TypeScript implementation for better developer experience
 5. **Component Isolation**: Clear separation between UI, logic, and styling
+6. **Persistence via Supabase**: All data stored in Postgres with RLS; meal photos in a private storage bucket
 
 📖 **For detailed architecture documentation, see [docs/](./docs/)**
 
@@ -59,66 +61,79 @@ A mobile-first app for tracking food and water intake, with progress snapshots a
 
 ## 🚀 Get Started
 
+### ⚙️ Requirements
+
+- Node.js 18 or 20
+- Android Studio with emulator configured (for Android builds)
+- Java 17 on your PATH
+- Expo CLI (bundled via `npx expo`)
+- A [Supabase](https://supabase.com) project (free tier is sufficient)
+
 ### 1. Install Dependencies
 
-```
+```bash
 npm install
 ```
 
-### 2. Run the App Locally (Android)
+### 2. Configure Environment
 
-Ensure your Android emulator is running or connect a device via USB
+Copy the example env file and fill in your values:
+
+```bash
+cp .env.example .env.local
+```
+
+Open `.env.local` and set:
 
 ```
-npm run build
+EXPO_PUBLIC_SUPABASE_URL=https://<your-project-ref>.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
 ```
 
-Alternatively to open the project in development mode
+Both values are available in your Supabase project under **Settings → API**.
+
+### 3. Run the Database Migration
+
+In your Supabase project, open the **SQL Editor** and run the contents of:
 
 ```
+supabase/migrations/001_initial_schema.sql
+```
+
+This creates the `food_entries`, `water_entries`, and `user_profiles` tables, enables RLS, and creates the private `meal-photos` storage bucket.
+
+### 4. Dev Auto-Sign-In (optional but recommended)
+
+To skip the sign-in screen on every dev build, create a Supabase Auth user once (via the Supabase Dashboard → Authentication → Users → Invite user), then add their credentials to `.env.local`:
+
+```
+EXPO_PUBLIC_DEV_EMAIL=dev@example.com
+EXPO_PUBLIC_DEV_PASSWORD=your-dev-password
+```
+
+When `__DEV__` is `true` and these vars are set, `AuthContext` signs in automatically on startup — `npm run android` opens straight to the app tabs.
+
+> These vars are ignored in production builds. Never commit `.env.local`.
+
+### 5. Run the App
+
+```bash
+# Android (emulator must be running)
+npm run android
+
+# Start Metro bundler only
 npm run start
 ```
 
-### 3. Mock Data for Development
+### 6. Troubleshooting
 
-The app includes permanent mock data (3 food entries, 2 water entries) that loads automatically in development mode to help with testing and feature development.
-
-**Mock data behavior:**
-- **Development mode** (`npm start`): Mock data loads automatically
-- **Production builds**: No mock data (clean slate)
-- **Tests**: No mock data (isolated test environment)
-
-**To control mock data:**
 ```bash
-# Force enable mock data in any environment
-EXPO_PUBLIC_USE_MOCK_DATA=true npm start
-
-# Development mode always includes mock data unless explicitly disabled
-npm start  # includes mock data
-```
-
-### 4. Troubleshooting
-
-If you hit environment or dependency issues:
-
-```
 npx expo-doctor
 ```
 
-### ⚙️ Requirements
-
-Node.js 18 or 20
-
-Android Studio with emulator configured (for Android builds)
-
-Java 17 installed and available on your PATH
-
-Expo CLI (bundled via npx expo)
-
 ### 🛠 Additional Notes
 
-Native android/ folder is included for local Android builds
-
-Charts use react-native-skia, requiring native builds — not supported in Expo Go
-
-For iOS development, future setup for Xcode is required
+- Native `android/` folder is included for local Android builds
+- Charts use `react-native-skia`, requiring native builds — not supported in Expo Go
+- For iOS development, Xcode setup is required
+- `.nvmrc` pins Node 20; CI currently uses Node 18 — align before changing CI

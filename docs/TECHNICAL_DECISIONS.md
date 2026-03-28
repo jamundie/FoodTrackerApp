@@ -293,6 +293,61 @@ const timeOptions = Array.from({ length: 24 }, (_, hour) =>
 
 ---
 
+## TDR-010: Supabase for Cloud Persistence
+
+**Date**: 2026-03-28
+**Status**: Accepted
+**Context**: The app had no data persistence — all state was in-memory and lost on restart. A backend was needed for database storage, file storage (meal photos), and user authentication in a single, cohesive platform.
+
+### Decision
+Use Supabase (Postgres + Row Level Security + Storage + Auth) as the backend. Persistence is isolated in `lib/trackingService.ts`; the Supabase client singleton lives in `lib/supabase.ts`.
+
+### Alternatives Considered
+- **Firebase/Firestore**: NoSQL, strong ecosystem, but vendor lock-in and no SQL query power
+- **AWS Amplify**: Very capable but heavyweight config overhead for a solo project
+- **SQLite (local-only)**: Considered as a first step, rejected because multi-device sync would require a rewrite
+
+### Rationale
+- **Single platform**: DB, storage, and auth in one service — no gluing separate tools
+- **Row Level Security**: Per-user data isolation enforced at the DB layer, not in application code
+- **Private photo bucket**: Signed URL access (60-second expiry) — meal photo URLs are never public
+- **Postgres**: Relational model fits the entry → ingredients relationship cleanly
+- **Open source / self-hostable**: Reduces vendor risk vs Firebase
+
+### Consequences
+- **Positive**: Data persists across sessions; multi-device access; photos safely stored; RLS means even direct DB access is user-scoped
+- **Negative**: Requires network access; adds Supabase dependency; SQL migration must be run manually in dashboard
+- **Mitigation**: `lib/trackingService.ts` isolation means the persistence layer can be swapped; all Supabase calls are mocked globally in `jest.setup.ts` so tests run offline
+
+---
+
+## TDR-011: Supabase Auth + expo-secure-store for Session Persistence
+
+**Date**: 2026-03-28
+**Status**: Accepted
+**Context**: With cloud persistence added, user identity is required to scope data. A secure, low-friction auth approach was needed that integrates naturally with Expo and Supabase.
+
+### Decision
+Use Supabase Auth (email/password) for authentication. Sessions are stored in the device keychain/keystore via `expo-secure-store` instead of AsyncStorage. Auth state is managed in `hooks/AuthContext.tsx` (`AuthProvider` + `useAuth`). Route guarding via `AuthGate` in `app/_layout.tsx`.
+
+### Alternatives Considered
+- **AsyncStorage for session**: Easier but insecure — tokens in plaintext on the filesystem
+- **Custom JWT backend**: Too much infrastructure for a solo project
+- **OAuth-only (Google/Apple)**: Better UX but higher setup complexity; can be added later on top of this
+
+### Rationale
+- **Keychain storage**: `expo-secure-store` uses iOS Keychain / Android Keystore — session tokens are encrypted at rest, never in plaintext
+- **Supabase Auth integration**: The Supabase JS client accepts a custom storage adapter; `ExpoSecureStoreAdapter` drops in with no other changes
+- **AuthProvider pattern**: Isolates auth concerns; `TrackingContext` depends on `useAuth()` to scope data fetches to the signed-in user
+- **Auth route group**: `app/(auth)/` follows Expo Router conventions; `AuthGate` in root layout handles redirects declaratively
+
+### Consequences
+- **Positive**: Session tokens encrypted on device; clean separation of auth vs data concerns; auth screens follow app design language
+- **Negative**: `expo-secure-store` is a native module — `npx expo install` required (not `npm install`); cannot be tested without mocking
+- **Mitigation**: `expo-secure-store` globally mocked in `jest.setup.ts`; `AuthContext` globally mocked so all tests work without real credentials
+
+---
+
 ## Decision Template
 
 For future decisions, use this template:

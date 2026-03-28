@@ -1,7 +1,7 @@
 # Architecture Documentation
 
 ## Overview
-Food Tracker App is a React Native application built with Expo, designed for tracking nutritional intake with a focus on performance, user experience, and maintainability.
+Food Tracker App is a React Native application built with Expo, designed for tracking nutritional intake with a focus on performance, user experience, and maintainability. Data is persisted to Supabase (Postgres + Storage), with user identity managed via Supabase Auth and sessions stored in the device keychain.
 
 ## Core Technologies
 
@@ -18,45 +18,83 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 - **React Native StyleSheet**: Styling with performance optimizations
 
 ### State Management
-- **React Context API**: Global state management
+- **React Context API**: Global state management (`AuthContext`, `TrackingContext`)
 - **Custom Hooks**: Encapsulated business logic
 - **Local Component State**: For UI-specific state
+
+### Backend & Persistence
+- **Supabase (Postgres)**: Cloud database — `food_entries`, `food_ingredients`, `water_entries`, `water_ingredients`, `user_profiles`
+- **Supabase Storage**: Private `meal-photos` bucket; accessed via 60-second signed URLs
+- **Supabase Auth**: Email/password authentication; session stored in device keychain via `expo-secure-store`
+- **Row Level Security (RLS)**: All tables scoped to `auth.uid() = user_id` — data isolation enforced at DB layer
 
 ## Architecture Patterns
 
 ### System Overview
 
-📊 **[View System Overview Diagram](./diagrams/system-overview.mmd)**
+```
+┌─────────────────────────────────────────────────────┐
+│                    App Layer                         │
+│  Expo Router  │  (auth) group  │  (tabs) group       │
+└──────────────────────┬──────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────┐
+│               Provider Stack (app/_layout.tsx)       │
+│  AuthProvider → TrackingProvider → ThemeProvider     │
+└────────────┬──────────────────────────┬─────────────┘
+             │                          │
+┌────────────▼──────────┐  ┌────────────▼────────────┐
+│    AuthContext         │  │    TrackingContext        │
+│  session, user,        │  │  data (food/water),       │
+│  signIn/signUp/signOut │  │  userProfile, loading,    │
+│  (hooks/AuthContext)   │  │  addFoodEntry/addWater/   │
+└────────────┬──────────┘  │  updateUserProfile        │
+             │              └────────────┬─────────────┘
+             │                           │
+┌────────────▼───────────────────────────▼─────────────┐
+│                 Persistence Layer                      │
+│              lib/trackingService.ts                    │
+│  fetchFoodEntries / insertFoodEntry                    │
+│  fetchWaterEntries / insertWaterEntry                  │
+│  fetchUserProfile / upsertUserProfile                  │
+│  uploadMealPhoto / getPhotoSignedUrl                   │
+└──────────────────────┬────────────────────────────────┘
+                       │
+┌──────────────────────▼────────────────────────────────┐
+│               lib/supabase.ts (client singleton)       │
+│     Supabase JS client + ExpoSecureStoreAdapter        │
+└──────────────────────┬────────────────────────────────┘
+                       │
+┌──────────────────────▼────────────────────────────────┐
+│                    Supabase Cloud                       │
+│  Postgres (RLS)  │  Auth  │  Storage (meal-photos)     │
+└────────────────────────────────────────────────────────┘
+```
 
-This diagram shows the complete application architecture including:
-- App Layer with Expo Router file-based routing
-- State Management Layer with Context API
-- UI Component Layer with themed components
-- Visualization Layer with Skia graphics
-- Data Layer with TypeScript definitions
+📊 **[View System Overview Diagram](./diagrams/system-overview.mmd)**
 
 ### Component Hierarchy
 
 📊 **[View Component Hierarchy Diagram](./diagrams/component-hierarchy.mmd)**
 
-This diagram illustrates the component structure showing:
-- Root layout with TrackingProvider
-- Tab navigation structure
-- Screen components and their containers
-- UI component relationships
-
 ### 1. File-Based Routing
 ```
 app/
-├── (tabs)/           # Tab navigation group
+├── (auth)/           # Auth route group (unauthenticated)
+│   ├── _layout.tsx   # Headerless stack layout
+│   ├── sign-in.tsx   # Email/password sign-in
+│   └── sign-up.tsx   # Registration + email verification state
+├── (tabs)/           # Tab navigation group (authenticated)
 │   ├── index.tsx     # Home/Dashboard
 │   ├── food.tsx      # Food tracking
 │   ├── water.tsx     # Water tracking
-│   ├── profile.tsx   # User profile
+│   ├── profile.tsx   # User profile + sign-out
 │   └── stats.tsx     # Statistics (stub)
-├── _layout.tsx       # Root layout with providers
+├── _layout.tsx       # Root layout: AuthProvider + AuthGate + providers
 └── +not-found.tsx    # 404 handling
 ```
+
+**AuthGate** (in `app/_layout.tsx`): redirects unauthenticated users to `/(auth)/sign-in` and authenticated users away from auth screens.
 
 **Benefits:**
 - Intuitive navigation structure
@@ -89,10 +127,18 @@ components/
 
 ### 3. State Management Strategy
 
-#### Global State (TrackingContext)
+#### Auth State (AuthContext)
+- Managed by `hooks/AuthContext.tsx`
+- Exposes: `user`, `session`, `loading`, `signIn`, `signUp`, `signOut`
+- Session persisted to device keychain via `expo-secure-store`
+
+#### Global Tracking State (TrackingContext)
+- Managed by `hooks/TrackingContext.tsx`
+- Depends on `useAuth()` — loads data for signed-in user, clears on sign-out
+- Uses `user?.id` (not the whole `user` object) as `useEffect` dependency to avoid re-running on object reference changes
+- **Optimistic updates**: `addFoodEntry` / `addWaterEntry` update local state immediately before the Supabase write resolves
 - User tracking data (food, water intake)
 - User profile (`userProfile`: display name, age, weight, height, daily water goal, default glass volume preset)
-- Cross-screen shared state
 
 #### Local State
 - Form inputs
@@ -103,11 +149,22 @@ components/
 - Lightweight compared to Redux
 - Built-in React patterns
 - Easy to understand and maintain
-- No additional dependencies
+- Auth and data concerns cleanly separated into two contexts
 
-### 4. Styling Architecture
+### 4. Persistence Layer
+
+`lib/trackingService.ts` isolates all Supabase DB and storage calls. `TrackingContext` never imports from `lib/supabase.ts` directly — it only calls service functions. This makes the persistence layer swappable and trivially mockable in tests.
+
+**Meal photos flow:**
+1. User picks/captures photo → local `file://` URI stored in form state
+2. On submit: `uploadMealPhoto(userId, entryId, localUri)` uploads to private `meal-photos` bucket
+3. Returned storage path (not a URL) is stored on `FoodEntry.photoUri`
+4. `hooks/useSignedPhotoUrl.ts` resolves a storage path to a 60-second signed URL at render time
+
+### 5. Styling Architecture
 ```
 styles/
+├── auth.styles.ts    # Sign-in / sign-up screen styles
 ├── food.styles.ts    # All food screen + component styles (includes photo input)
 ├── water.styles.ts   # Water screen + volume selector styles
 ├── profile.styles.ts # Profile screen styles
@@ -121,7 +178,7 @@ styles/
 - Consistent spacing and colors via constants
 - Platform-specific styles when needed
 
-### 5. Type Safety
+### 6. Type Safety
 ```
 types/
 └── tracking.ts       # Domain-specific type definitions
@@ -136,17 +193,13 @@ types/
 
 ## Performance Considerations
 
-### User Interaction Flow
-
-### Performance Architecture
-
 ### 1. React Native Skia for Charts
 - **Why**: 60fps animations, complex graphics capability
 - **Alternative considered**: Victory Native (chose Skia for performance)
 - **Trade-off**: Larger bundle size for better UX
 
 ### 2. Native Builds Required
-- Skia requires native compilation
+- Skia and `expo-secure-store` require native compilation
 - Cannot use Expo Go for development
 - Development builds necessary for testing
 
@@ -157,16 +210,11 @@ types/
 
 ## Development Workflow
 
-## Development Workflow
-
-### Build and Deployment Pipeline
-
-### Technology Decision Tree
-
 ### Testing Strategy
-- **Unit Tests**: Jest with React Native Testing Library
-- **Component Tests**: Snapshot testing for UI consistency
-- **Manual Testing**: Development builds on real devices
+- **Framework**: Jest + `@testing-library/react-native`
+- **Global mocks**: `jest.setup.ts` mocks `lib/supabase`, `lib/trackingService`, `hooks/AuthContext`, and `expo-secure-store` so all tests run without network or native modules
+- **Async pattern**: Tests that render `TrackingProvider` must wait for the initial `load()` to settle (`await waitFor(() => loading === 'ready')`) before asserting on context-driven state, to avoid race conditions with optimistic updates
+- **Test organization**: `components/__tests__/forms/`, `lists/`, `modals/`, `screens/`
 
 ### Code Quality
 - **Husky**: Pre-commit hooks
@@ -175,27 +223,35 @@ types/
 
 ### Build Process
 - **Development**: `expo start` with development build
-- **Android**: `expo run:android` for local builds
-- **iOS**: Future setup with Xcode required
+- **Android**: `npm run android`
+- **iOS**: `npm run ios`
+- **Supabase migration**: SQL in `supabase/migrations/001_initial_schema.sql` — run once in Supabase Dashboard SQL Editor
 
 ## Scalability Considerations
 
 ### Current Architecture Supports:
 - Adding new tracking categories (exercise, sleep, etc.)
-- Multiple user profiles
-- Offline data storage (future enhancement)
+- Multiple user accounts (data isolated by RLS)
+- Cross-device sync (data in cloud, not local-only)
 - Push notifications (future enhancement)
 
 ### Future Enhancements:
 - AI-driven photo analysis → auto-populate estimated ingredients from meal photo
-- Cloud sync capabilities
 - Social features
 - Advanced analytics
+- OAuth providers (Google/Apple) — layerable on top of existing AuthContext
 
 ## Security & Privacy
-- Local data storage (no cloud by default)
-- Type-safe data handling
-- Future: encryption for sensitive data
+- Session tokens stored in device keychain (iOS Keychain / Android Keystore) via `expo-secure-store`
+- Meal photos in private Supabase Storage bucket — no public URLs, 60-second signed URLs only
+- Row Level Security enforced at DB layer — user data isolated even from direct DB queries
+- Supabase credentials stored in `.env.local` (gitignored); CI uses GitHub environment secrets
+
+## Known Limitations
+- `stats.tsx` is a stub — not yet implemented
+- Sleep and Stress tracking not yet started
+- No offline support — app requires network for data operations
+- CI uses Node 18 but `.nvmrc` pins Node 20 — align before changing CI
 
 ## Decision Log
 
@@ -207,7 +263,9 @@ types/
 | Context API | Redux, Zustand | Simpler for current scope, built-in React |
 | React Native Skia | Victory Native, D3 | Performance for complex charts |
 | TypeScript | JavaScript | Better maintainability, fewer runtime errors |
-| Native builds | Expo Go | Required for Skia, better for production |
+| Native builds | Expo Go | Required for Skia + secure store |
+| Supabase | Firebase, AWS Amplify | SQL + RLS + Auth + Storage in one platform |
+| expo-secure-store | AsyncStorage | Keychain/Keystore encryption for session tokens |
 
 ### File Organization Decisions
 
@@ -216,13 +274,14 @@ types/
 | Moved styles/ out of app/ | Expo Router treating styles as routes | Relocated to root level to avoid routing conflicts |
 | Separate navigation components | Code organization | Better separation of concerns |
 | Custom hooks for business logic | State management | Reusable logic, easier testing |
+| lib/ for Supabase client + service | Keep infra separate from UI | Single import path; easy to mock in tests |
 
 ## Getting Started for Contributors
 
 1. **Prerequisites**: Node.js 20, Android Studio, Java 17
-2. **Setup**: `npm install` → `npm run android`
+2. **Setup**: `npm install` → copy `.env.example` to `.env.local` and fill in Supabase credentials → run SQL migration in Supabase Dashboard → `npm run android`
 3. **Development**: Use development builds, not Expo Go
-4. **Testing**: `npm test` for unit tests
+4. **Testing**: `npm test` for unit tests (runs fully offline via mocks)
 5. **Architecture**: Follow existing patterns, update this doc for major changes
 
 ## Contributing Guidelines
