@@ -107,9 +107,10 @@ export type BowelUrgency = 'none' | 'mild' | 'moderate' | 'urgent';
 export type BowelEntry = {
   id: string;
   timestamp: string;          // ISO date-time
-  bristolType: BristolType;   // 1–7 stool classification
+  falseAlarm: boolean;        // sensation to go but no movement
+  bristolType?: BristolType;  // absent when falseAlarm is true
   urgency: BowelUrgency;
-  hasBlood: boolean;
+  hasBlood: boolean;          // always false when falseAlarm is true
   painLevel: number;          // 0–10 (0 = no pain)
   notes?: string;
 };

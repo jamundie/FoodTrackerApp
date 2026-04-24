@@ -20,6 +20,7 @@ type Props = {
   form: BowelFormState;
   onShowDatePicker: () => void;
   onShowTimePicker: () => void;
+  onToggleFalseAlarm: () => void;
   onBristolType: (type: BristolType) => void;
   onUrgency: (urgency: BowelUrgency) => void;
   onToggleBlood: () => void;
@@ -31,6 +32,7 @@ export default function BowelEntryForm({
   form,
   onShowDatePicker,
   onShowTimePicker,
+  onToggleFalseAlarm,
   onBristolType,
   onUrgency,
   onToggleBlood,
@@ -64,35 +66,56 @@ export default function BowelEntryForm({
         </View>
       </View>
 
-      {/* Bristol Stool Scale */}
+      {/* False alarm toggle — shown early so it collapses irrelevant fields */}
       <View style={styles.inputGroup}>
-        <ThemedText type="defaultSemiBold">Bristol Stool Type</ThemedText>
-        <View style={bowelStyles.bristolGrid}>
-          {BRISTOL_TYPES.map((type) => (
-            <TouchableOpacity
-              key={type}
-              style={[
-                bowelStyles.bristolButton,
-                form.bristolType === type && bowelStyles.bristolButtonSelected,
-              ]}
-              onPress={() => onBristolType(type)}
-              testID={`bristol-type-${type}`}
-            >
-              <Text
-                style={[
-                  bowelStyles.bristolButtonText,
-                  form.bristolType === type && bowelStyles.bristolButtonTextSelected,
-                ]}
-              >
-                {type}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={bowelStyles.bristolDescription}>
-          {BRISTOL_DESCRIPTIONS[form.bristolType]}
-        </Text>
+        <TouchableOpacity
+          style={bowelStyles.toggleRow}
+          onPress={onToggleFalseAlarm}
+          testID="false-alarm-toggle"
+        >
+          <View>
+            <Text style={bowelStyles.toggleLabel}>Sensation only — no movement</Text>
+            <Text style={bowelStyles.toggleSubLabel}>Urge to go but nothing happened</Text>
+          </View>
+          <View style={[bowelStyles.toggleButton, form.falseAlarm && bowelStyles.toggleButtonFalseAlarm]}>
+            <Text style={[bowelStyles.toggleButtonText, form.falseAlarm && bowelStyles.toggleButtonTextFalseAlarm]}>
+              {form.falseAlarm ? 'Yes' : 'No'}
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
+
+      {/* Bristol Stool Scale — hidden for false alarms */}
+      {!form.falseAlarm && (
+        <View style={styles.inputGroup}>
+          <ThemedText type="defaultSemiBold">Bristol Stool Type</ThemedText>
+          <View style={bowelStyles.bristolGrid}>
+            {BRISTOL_TYPES.map((type) => (
+              <TouchableOpacity
+                key={type}
+                style={[
+                  bowelStyles.bristolButton,
+                  form.bristolType === type && bowelStyles.bristolButtonSelected,
+                ]}
+                onPress={() => onBristolType(type)}
+                testID={`bristol-type-${type}`}
+              >
+                <Text
+                  style={[
+                    bowelStyles.bristolButtonText,
+                    form.bristolType === type && bowelStyles.bristolButtonTextSelected,
+                  ]}
+                >
+                  {type}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={bowelStyles.bristolDescription}>
+            {BRISTOL_DESCRIPTIONS[form.bristolType]}
+          </Text>
+        </View>
+      )}
 
       {/* Urgency */}
       <View style={styles.inputGroup}>
@@ -151,27 +174,19 @@ export default function BowelEntryForm({
         </View>
       </View>
 
-      {/* Blood present toggle */}
-      <View style={styles.inputGroup}>
-        <TouchableOpacity style={bowelStyles.toggleRow} onPress={onToggleBlood} testID="blood-toggle">
-          <Text style={bowelStyles.toggleLabel}>Blood present?</Text>
-          <View
-            style={[
-              bowelStyles.toggleButton,
-              form.hasBlood && bowelStyles.toggleButtonActive,
-            ]}
-          >
-            <Text
-              style={[
-                bowelStyles.toggleButtonText,
-                form.hasBlood && bowelStyles.toggleButtonTextActive,
-              ]}
-            >
-              {form.hasBlood ? 'Yes' : 'No'}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </View>
+      {/* Blood present — hidden for false alarms */}
+      {!form.falseAlarm && (
+        <View style={styles.inputGroup}>
+          <TouchableOpacity style={bowelStyles.toggleRow} onPress={onToggleBlood} testID="blood-toggle">
+            <Text style={bowelStyles.toggleLabel}>Blood present?</Text>
+            <View style={[bowelStyles.toggleButton, form.hasBlood && bowelStyles.toggleButtonActive]}>
+              <Text style={[bowelStyles.toggleButtonText, form.hasBlood && bowelStyles.toggleButtonTextActive]}>
+                {form.hasBlood ? 'Yes' : 'No'}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Notes */}
       <View style={styles.inputGroup}>

@@ -21,6 +21,7 @@ export default function BowelScreen() {
     setShowTimePicker,
     handleDateSelect,
     handleTimeSelect,
+    toggleFalseAlarm,
     setBristolType,
     setUrgency,
     toggleBlood,
@@ -40,6 +41,7 @@ export default function BowelScreen() {
           form={form}
           onShowDatePicker={() => setShowDatePicker(true)}
           onShowTimePicker={() => setShowTimePicker(true)}
+          onToggleFalseAlarm={toggleFalseAlarm}
           onBristolType={setBristolType}
           onUrgency={setUrgency}
           onToggleBlood={toggleBlood}

@@ -25,7 +25,11 @@ export default function BowelEntriesList({ bowelEntries }: BowelEntriesListProps
         .map((entry) => (
           <View key={entry.id} style={styles.entryCard}>
             <ThemedText type="defaultSemiBold" style={bowelStyles.entryCardType}>
-              {BRISTOL_DESCRIPTIONS[entry.bristolType]}
+              {entry.falseAlarm
+                ? 'Sensation only — no movement'
+                : entry.bristolType != null
+                  ? BRISTOL_DESCRIPTIONS[entry.bristolType]
+                  : 'Unknown type'}
             </ThemedText>
             <ThemedText type="default" style={styles.hint}>
               Urgency: {BOWEL_URGENCY_LABELS[entry.urgency]}

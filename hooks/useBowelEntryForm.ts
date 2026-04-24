@@ -7,6 +7,7 @@ import { generateId, createTimestamp } from '../utils/dateUtils';
 export type BowelFormState = {
   selectedDate: Date;
   selectedTime: { hours: number; minutes: number };
+  falseAlarm: boolean;
   bristolType: BristolType;
   urgency: BowelUrgency;
   hasBlood: boolean;
@@ -17,6 +18,7 @@ export type BowelFormState = {
 const defaultFormState = (): BowelFormState => ({
   selectedDate: new Date(),
   selectedTime: { hours: new Date().getHours(), minutes: 0 },
+  falseAlarm: false,
   bristolType: 4,
   urgency: 'none',
   hasBlood: false,
@@ -38,6 +40,15 @@ export const useBowelEntryForm = () => {
   const handleTimeSelect = useCallback((hours: number, minutes: number) => {
     setForm((prev) => ({ ...prev, selectedTime: { hours, minutes } }));
     setShowTimePicker(false);
+  }, []);
+
+  const toggleFalseAlarm = useCallback(() => {
+    setForm((prev) => ({
+      ...prev,
+      falseAlarm: !prev.falseAlarm,
+      // clear stool-specific fields when switching to false alarm
+      ...(prev.falseAlarm ? {} : { hasBlood: false }),
+    }));
   }, []);
 
   const setBristolType = useCallback((type: BristolType) => {
@@ -68,9 +79,10 @@ export const useBowelEntryForm = () => {
     const entry: BowelEntry = {
       id: generateId(),
       timestamp: createTimestamp(form.selectedDate, form.selectedTime),
-      bristolType: form.bristolType,
+      falseAlarm: form.falseAlarm,
+      bristolType: form.falseAlarm ? undefined : form.bristolType,
       urgency: form.urgency,
-      hasBlood: form.hasBlood,
+      hasBlood: form.falseAlarm ? false : form.hasBlood,
       painLevel: form.painLevel,
       notes: form.notes.trim() || undefined,
     };
@@ -88,6 +100,7 @@ export const useBowelEntryForm = () => {
     setShowTimePicker,
     handleDateSelect,
     handleTimeSelect,
+    toggleFalseAlarm,
     setBristolType,
     setUrgency,
     toggleBlood,

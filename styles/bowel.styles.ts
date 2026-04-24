@@ -128,6 +128,11 @@ export const bowelStyles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
+  toggleSubLabel: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 2,
+  },
   toggleButton: {
     paddingHorizontal: 20,
     paddingVertical: 8,
@@ -140,6 +145,10 @@ export const bowelStyles = StyleSheet.create({
     borderColor: '#dc2626',
     backgroundColor: '#fee2e2',
   },
+  toggleButtonFalseAlarm: {
+    borderColor: '#d97706',
+    backgroundColor: '#fef3c7',
+  },
   toggleButtonText: {
     fontSize: 14,
     fontWeight: '600',
@@ -147,6 +156,9 @@ export const bowelStyles = StyleSheet.create({
   },
   toggleButtonTextActive: {
     color: '#dc2626',
+  },
+  toggleButtonTextFalseAlarm: {
+    color: '#d97706',
   },
 
   // Entry cards in the list

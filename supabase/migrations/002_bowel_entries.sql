@@ -8,7 +8,8 @@ create table if not exists public.bowel_entries (
   id          text primary key,                              -- app-generated (generateId())
   user_id     uuid not null references auth.users(id) on delete cascade,
   timestamp   timestamptz not null,
-  bristol_type integer not null check (bristol_type between 1 and 7),
+  false_alarm boolean not null default false,
+  bristol_type integer check (bristol_type between 1 and 7), -- null when false_alarm is true
   urgency     text not null default 'none'
                 check (urgency in ('none', 'mild', 'moderate', 'urgent')),
   has_blood   boolean not null default false,
