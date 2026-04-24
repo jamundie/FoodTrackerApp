@@ -248,9 +248,37 @@ types/
 - Row Level Security enforced at DB layer — user data isolated even from direct DB queries
 - Supabase credentials stored in `.env.local` (gitignored); CI uses GitHub environment secrets
 
+## Current Implementation Status
+
+### Implemented & Supabase-backed
+| Feature | Status | Notes |
+|---|---|---|
+| Food tracking | Complete | Form, ingredient list, per-ingredient calories, photo (encrypted upload/download), Supabase-persisted |
+| Water tracking | Complete | Volume preset selector, optional ingredients, optimistic updates, Supabase-persisted |
+| User profile | Complete | Display name, age, weight, height, daily water goal, default glass size — Supabase-persisted |
+| Auth | Complete | Email/password, session in device keychain |
+| Home dashboard | Mostly real | Summary cards + 7-day chart use real data; 2500 kcal reference line is hardcoded (TODO) |
+
+### Stubbed / Not Started
+| Feature | Status | Notes |
+|---|---|---|
+| Stats tab | Stub | `app/(tabs)/stats.tsx` renders placeholder text only — no charts or calculations |
+| Sleep tracking | Not started | "Coming Soon" card on Home only; no tab, no types, no DB table |
+| Stress tracking | Not started | Same as sleep — card only |
+| Bowel movement tracking | Not started | Does not exist anywhere in the codebase |
+| AI assessment | Not started | No AI API calls exist; `FoodEntry.photoUri` has a comment noting it is intended for future AI analysis |
+
+### Planned Feature Backlog (priority order)
+1. **Bowel movement tracking** — new tab, `BowelEntry` type (Bristol scale, frequency, urgency, notes, blood flag), DB table, service functions, `TrackingContext` additions
+2. **Sleep tracking** — new tab, `SleepEntry` type (start/end times, quality rating, notes), DB table, service functions, `TrackingContext` additions
+3. **Stats tab** — meaningful charts correlating food/water/sleep/bowel data over time; trend analysis
+4. **AI bowel assessment** — Supabase Edge Function (to protect API key) that receives recent bowel + food + water + sleep entries and returns dietary/lifestyle improvement suggestions; surface via a dedicated AI Insights screen or inline in Stats
+5. **Configurable calorie target** — wire the 2500 kcal reference line in `ProgressChart` to `userProfile.dailyCalorieGoal` (requires new profile field + migration)
+
 ## Known Limitations
 - `stats.tsx` is a stub — not yet implemented
-- Sleep and Stress tracking not yet started
+- Sleep, Stress, and Bowel Movement tracking not yet started
+- No AI integration exists yet
 - No offline support — app requires network for data operations
 - CI uses Node 18 but `.nvmrc` pins Node 20 — align before changing CI
 
