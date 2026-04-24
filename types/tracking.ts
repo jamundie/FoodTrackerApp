@@ -88,9 +88,53 @@ export type WaterEntry = {
   totalVolume?: number;           // preset ml + any ml ingredients
 };
 
+// ── Bowel movement tracking ───────────────────────────────────
+
+/**
+ * Bristol Stool Scale types 1–7.
+ * 1 = separate hard lumps (severe constipation)
+ * 2 = lumpy sausage (mild constipation)
+ * 3 = cracked sausage (normal)
+ * 4 = smooth soft sausage (normal/ideal)
+ * 5 = soft blobs (lacking fibre)
+ * 6 = fluffy ragged pieces (mild diarrhoea)
+ * 7 = watery, no solids (severe diarrhoea)
+ */
+export type BristolType = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+export type BowelUrgency = 'none' | 'mild' | 'moderate' | 'urgent';
+
+export type BowelEntry = {
+  id: string;
+  timestamp: string;          // ISO date-time
+  bristolType: BristolType;   // 1–7 stool classification
+  urgency: BowelUrgency;
+  hasBlood: boolean;
+  painLevel: number;          // 0–10 (0 = no pain)
+  notes?: string;
+};
+
+export const BRISTOL_DESCRIPTIONS: Record<BristolType, string> = {
+  1: 'Type 1 — Separate hard lumps',
+  2: 'Type 2 — Lumpy sausage',
+  3: 'Type 3 — Cracked sausage',
+  4: 'Type 4 — Smooth sausage (ideal)',
+  5: 'Type 5 — Soft blobs',
+  6: 'Type 6 — Fluffy, ragged',
+  7: 'Type 7 — Watery',
+};
+
+export const BOWEL_URGENCY_LABELS: Record<BowelUrgency, string> = {
+  none: 'None',
+  mild: 'Mild',
+  moderate: 'Moderate',
+  urgent: 'Urgent',
+};
+
 export type TrackingData = {
   foodEntries: FoodEntry[];
   waterEntries: WaterEntry[];
+  bowelEntries: BowelEntry[];
 };
 
 export type UserProfile = {

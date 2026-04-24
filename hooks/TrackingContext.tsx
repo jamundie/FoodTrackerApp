@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { TrackingData, FoodEntry, WaterEntry, UserProfile } from '../types/tracking';
+import { TrackingData, FoodEntry, WaterEntry, BowelEntry, UserProfile } from '../types/tracking';
 import { useAuth } from './AuthContext';
 import {
   fetchFoodEntries,
   fetchWaterEntries,
+  fetchBowelEntries,
   fetchUserProfile,
   insertFoodEntry,
   insertWaterEntry,
+  insertBowelEntry,
   upsertUserProfile,
   uploadMealPhoto,
 } from '../lib/trackingService';
@@ -16,7 +18,7 @@ const DEFAULT_USER_PROFILE: UserProfile = {
   defaultVolumePresetId: 'glass',
 };
 
-const EMPTY_DATA: TrackingData = { foodEntries: [], waterEntries: [] };
+const EMPTY_DATA: TrackingData = { foodEntries: [], waterEntries: [], bowelEntries: [] };
 
 type TrackingContextValue = {
   data: TrackingData;
@@ -24,6 +26,7 @@ type TrackingContextValue = {
   loading: boolean;
   addFoodEntry: (foodEntry: FoodEntry) => Promise<void>;
   addWaterEntry: (waterEntry: WaterEntry) => Promise<void>;
+  addBowelEntry: (bowelEntry: BowelEntry) => Promise<void>;
   updateUserProfile: (profile: UserProfile) => Promise<void>;
 };
 
@@ -50,13 +53,14 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
     let cancelled = false;
     const load = async () => {
       setLoading(true);
-      const [foodEntries, waterEntries, profile] = await Promise.all([
+      const [foodEntries, waterEntries, bowelEntries, profile] = await Promise.all([
         fetchFoodEntries(userId),
         fetchWaterEntries(userId),
+        fetchBowelEntries(userId),
         fetchUserProfile(userId),
       ]);
       if (!cancelled) {
-        setData({ foodEntries, waterEntries });
+        setData({ foodEntries, waterEntries, bowelEntries });
         if (profile) setUserProfile(profile);
         setLoading(false);
       }
@@ -102,6 +106,26 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [userId]);
 
+  const addBowelEntry = useCallback(async (entry: BowelEntry) => {
+    if (!userId) return;
+
+    // Optimistic update
+    setData((prev) => ({
+      ...prev,
+      bowelEntries: [entry, ...prev.bowelEntries],
+    }));
+
+    try {
+      await insertBowelEntry(userId, entry);
+    } catch (err) {
+      console.error('[TrackingContext] addBowelEntry:', err);
+      setData((prev) => ({
+        ...prev,
+        bowelEntries: prev.bowelEntries.filter((e) => e.id !== entry.id),
+      }));
+    }
+  }, [userId]);
+
   const updateUserProfile = useCallback(async (profile: UserProfile) => {
     if (!userId) return;
     setUserProfile(profile);
@@ -113,7 +137,7 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
   }, [userId]);
 
   return (
-    <TrackingContext.Provider value={{ data, userProfile, loading, addFoodEntry, addWaterEntry, updateUserProfile }}>
+    <TrackingContext.Provider value={{ data, userProfile, loading, addFoodEntry, addWaterEntry, addBowelEntry, updateUserProfile }}>
       {children}
     </TrackingContext.Provider>
   );

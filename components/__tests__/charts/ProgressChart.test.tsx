@@ -28,6 +28,8 @@ const mockWaterEntries: WaterEntry[] = [
     timestamp: new Date().toISOString(),
     entryName: 'Morning Water',
     ingredients: [],
+    volumePresetId: 'glass',
+    volumeMl: 250,
     totalVolume: 250,
   },
   {
@@ -35,6 +37,8 @@ const mockWaterEntries: WaterEntry[] = [
     timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Yesterday
     entryName: 'Afternoon Water',
     ingredients: [],
+    volumePresetId: 'pint',
+    volumeMl: 568,
     totalVolume: 500,
   },
 ];

@@ -28,7 +28,7 @@ describe("HomeScreen", () => {
     // Use getAllByText for Water Intake since it might appear multiple times
     expect(getByTestId("water-intake-button")).toBeTruthy();
     expect(getByText(/Sleep/i)).toBeTruthy();
-    expect(getByText(/Stress/i)).toBeTruthy();
+    expect(getByTestId("bowel-button")).toBeTruthy();
   });
 
   it("calls router.push when Food Intake is pressed", () => {

@@ -33,6 +33,8 @@ const mockWaterEntry: WaterEntry = {
       unit: 'ml'
     }
   ],
+  volumePresetId: 'glass',
+  volumeMl: 250,
   totalVolume: 500
 };
 

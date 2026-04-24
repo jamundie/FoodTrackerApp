@@ -23,7 +23,7 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 - **Local Component State**: For UI-specific state
 
 ### Backend & Persistence
-- **Supabase (Postgres)**: Cloud database — `food_entries`, `food_ingredients`, `water_entries`, `water_ingredients`, `user_profiles`
+- **Supabase (Postgres)**: Cloud database — `food_entries`, `food_ingredients`, `water_entries`, `water_ingredients`, `bowel_entries`, `user_profiles`
 - **Supabase Storage**: Private `meal-photos` bucket; photos are AES-256-GCM encrypted on-device before upload — server holds only opaque ciphertext
 - **Supabase Auth**: Email/password authentication; session stored in device keychain via `expo-secure-store`
 - **Row Level Security (RLS)**: All tables scoped to `auth.uid() = user_id` — data isolation enforced at DB layer
@@ -45,10 +45,12 @@ Food Tracker App is a React Native application built with Expo, designed for tra
              │                          │
 ┌────────────▼──────────┐  ┌────────────▼────────────┐
 │    AuthContext         │  │    TrackingContext        │
-│  session, user,        │  │  data (food/water),       │
+│  session, user,        │  │  data (food/water/bowel), │
 │  signIn/signUp/signOut │  │  userProfile, loading,    │
-│  (hooks/AuthContext)   │  │  addFoodEntry/addWater/   │
-└────────────┬──────────┘  │  updateUserProfile        │
+│  (hooks/AuthContext)   │  │  addFoodEntry/            │
+└────────────┬──────────┘  │  addWaterEntry/            │
+             │              │  addBowelEntry/            │
+             │              │  updateUserProfile         │
              │              └────────────┬─────────────┘
              │                           │
 ┌────────────▼───────────────────────────▼─────────────┐
@@ -56,6 +58,7 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 │              lib/trackingService.ts                    │
 │  fetchFoodEntries / insertFoodEntry                    │
 │  fetchWaterEntries / insertWaterEntry                  │
+│  fetchBowelEntries / insertBowelEntry                  │
 │  fetchUserProfile / upsertUserProfile                  │
 │  uploadMealPhoto / getDecryptedPhotoUri                │
 └──────────────────────┬────────────────────────────────┘
@@ -88,6 +91,7 @@ app/
 │   ├── index.tsx     # Home/Dashboard
 │   ├── food.tsx      # Food tracking
 │   ├── water.tsx     # Water tracking
+│   ├── bowel.tsx     # Bowel movement tracking
 │   ├── profile.tsx   # User profile + sign-out
 │   └── stats.tsx     # Statistics (stub)
 ├── _layout.tsx       # Root layout: AuthProvider + AuthGate + providers
@@ -114,6 +118,8 @@ components/
 ├── WaterVolumeSelector.tsx  # Modal dropdown for selecting drink-size preset
 ├── WaterIngredientsForm.tsx # Water ingredient card list
 ├── WaterEntriesList.tsx  # Rendered list of past water entries
+├── BowelEntryForm.tsx    # Bristol type, urgency, pain, blood toggle, notes
+├── BowelEntriesList.tsx  # Rendered list of past bowel entries
 ├── ProfileForm.tsx       # User profile form (name, age, weight, height, goals, default glass)
 ├── Themed*/              # Design system components
 └── __tests__/            # Component tests
@@ -257,6 +263,8 @@ types/
 | Water tracking | Complete | Volume preset selector, optional ingredients, optimistic updates, Supabase-persisted |
 | User profile | Complete | Display name, age, weight, height, daily water goal, default glass size — Supabase-persisted |
 | Auth | Complete | Email/password, session in device keychain |
+| Bowel movement tracking | Complete | Bristol scale 1–7, urgency, pain level 0–10, blood flag, notes — Supabase-persisted via `bowel_entries` |
+
 | Home dashboard | Mostly real | Summary cards + 7-day chart use real data; 2500 kcal reference line is hardcoded (TODO) |
 
 ### Stubbed / Not Started
@@ -265,15 +273,13 @@ types/
 | Stats tab | Stub | `app/(tabs)/stats.tsx` renders placeholder text only — no charts or calculations |
 | Sleep tracking | Not started | "Coming Soon" card on Home only; no tab, no types, no DB table |
 | Stress tracking | Not started | Same as sleep — card only |
-| Bowel movement tracking | Not started | Does not exist anywhere in the codebase |
 | AI assessment | Not started | No AI API calls exist; `FoodEntry.photoUri` has a comment noting it is intended for future AI analysis |
 
 ### Planned Feature Backlog (priority order)
-1. **Bowel movement tracking** — new tab, `BowelEntry` type (Bristol scale, frequency, urgency, notes, blood flag), DB table, service functions, `TrackingContext` additions
-2. **Sleep tracking** — new tab, `SleepEntry` type (start/end times, quality rating, notes), DB table, service functions, `TrackingContext` additions
-3. **Stats tab** — meaningful charts correlating food/water/sleep/bowel data over time; trend analysis
-4. **AI bowel assessment** — Supabase Edge Function (to protect API key) that receives recent bowel + food + water + sleep entries and returns dietary/lifestyle improvement suggestions; surface via a dedicated AI Insights screen or inline in Stats
-5. **Configurable calorie target** — wire the 2500 kcal reference line in `ProgressChart` to `userProfile.dailyCalorieGoal` (requires new profile field + migration)
+1. **Sleep tracking** — new tab, `SleepEntry` type (start/end times, quality rating, notes), DB table, service functions, `TrackingContext` additions
+2. **Stats tab** — meaningful charts correlating food/water/sleep/bowel data over time; trend analysis
+3. **AI bowel assessment** — Supabase Edge Function (to protect API key) that receives recent bowel + food + water + sleep entries and returns dietary/lifestyle improvement suggestions; surface via a dedicated AI Insights screen or inline in Stats
+4. **Configurable calorie target** — wire the 2500 kcal reference line in `ProgressChart` to `userProfile.dailyCalorieGoal` (requires new profile field + migration)
 
 ## Known Limitations
 - `stats.tsx` is a stub — not yet implemented

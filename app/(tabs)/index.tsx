@@ -54,12 +54,12 @@ export default function HomeScreen() {
           </Pressable>
           <Pressable
             style={styles.card}
-            onPress={() => console.log("Stress pressed")}
-            testID="stress-button"
+            onPress={() => router.push("/bowel")}
+            testID="bowel-button"
           >
-            <PlaceholderCircle backgroundColor="#86EFACFF"></PlaceholderCircle>
-            <Text>Stress</Text>
-            <Text style={styles.cardCount}>Coming Soon</Text>
+            <PlaceholderCircle backgroundColor="#C4B5FDFF"></PlaceholderCircle>
+            <Text>Bowel</Text>
+            <Text style={styles.cardCount}>{data.bowelEntries.length} entries</Text>
           </Pressable>
         </View>
       </View>

@@ -412,3 +412,11 @@ New files: `utils/photoEncryption.ts` — `encryptPhoto`, `decryptPhoto`, `getOr
 - **Negative**: [Drawbacks]
 - **Mitigation**: [How to address drawbacks]
 ```
+
+## TDR-012: Bowel Movement Tracking Feature
+
+**Date**: 2026-04-24
+**Status**: Accepted
+**Context**: The app's end goal is to correlate bowel health with food, water, and sleep habits, then use AI to provide dietary improvement suggestions. Bowel movement tracking is the core differentiating feature and must be implemented first to start collecting the data the AI will rely on.
+**Decision**: Added a dedicated `bowel` tab with full Supabase persistence. The `BowelEntry` type captures the clinically-recognised Bristol Stool Scale (types 1–7), urgency (none/mild/moderate/urgent), pain level (0–10), blood presence, and freeform notes. A new `bowel_entries` table was added via migration `002_bowel_entries.sql` with RLS policies mirroring the food and water tables. The `TrackingContext` was extended with `bowelEntries: BowelEntry[]` and `addBowelEntry` (optimistic update pattern, same as water). The home dashboard Stress placeholder card was replaced with a live Bowel card.
+**Consequences**: `TrackingData` now carries a third array (`bowelEntries`), which is a breaking change to the type — all existing consumers (tests, context) updated. The `EMPTY_DATA` constant includes the new field. Data is immediately useful for future AI analysis once sleep tracking is also in place.

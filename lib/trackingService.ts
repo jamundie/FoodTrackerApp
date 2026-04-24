@@ -4,7 +4,7 @@
  */
 import * as FileSystem from 'expo-file-system';
 import { supabase } from '@/lib/supabase';
-import { FoodEntry, WaterEntry, UserProfile, Ingredient } from '@/types/tracking';
+import { FoodEntry, WaterEntry, BowelEntry, BristolType, BowelUrgency, UserProfile, Ingredient } from '@/types/tracking';
 import { encryptPhoto, decryptPhoto } from '@/utils/photoEncryption';
 
 // ── helpers ──────────────────────────────────────────────────
@@ -129,6 +129,42 @@ export async function insertWaterEntry(userId: string, entry: WaterEntry): Promi
     );
     if (ingError) throw new Error(`insertWaterIngredients failed: ${ingError.message}`);
   }
+}
+
+// ── bowel entries ─────────────────────────────────────────────
+
+export async function fetchBowelEntries(userId: string): Promise<BowelEntry[]> {
+  const { data: entries, error } = await supabase
+    .from('bowel_entries')
+    .select('*')
+    .eq('user_id', userId)
+    .order('timestamp', { ascending: false });
+
+  if (error || !entries) return [];
+
+  return entries.map((row) => ({
+    id: row.id,
+    timestamp: row.timestamp,
+    bristolType: row.bristol_type as BristolType,
+    urgency: row.urgency as BowelUrgency,
+    hasBlood: row.has_blood,
+    painLevel: row.pain_level,
+    notes: row.notes ?? undefined,
+  }));
+}
+
+export async function insertBowelEntry(userId: string, entry: BowelEntry): Promise<void> {
+  const { error } = await supabase.from('bowel_entries').insert({
+    id: entry.id,
+    user_id: userId,
+    timestamp: toISOString(entry.timestamp),
+    bristol_type: entry.bristolType,
+    urgency: entry.urgency,
+    has_blood: entry.hasBlood,
+    pain_level: entry.painLevel,
+    notes: entry.notes ?? null,
+  });
+  if (error) throw new Error(`insertBowelEntry failed: ${error.message}`);
 }
 
 // ── photo storage ─────────────────────────────────────────────

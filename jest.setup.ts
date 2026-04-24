@@ -34,9 +34,11 @@ jest.mock('./lib/supabase', () => ({
 jest.mock('./lib/trackingService', () => ({
   fetchFoodEntries: jest.fn().mockResolvedValue([]),
   fetchWaterEntries: jest.fn().mockResolvedValue([]),
+  fetchBowelEntries: jest.fn().mockResolvedValue([]),
   fetchUserProfile: jest.fn().mockResolvedValue(null),
   insertFoodEntry: jest.fn().mockResolvedValue(undefined),
   insertWaterEntry: jest.fn().mockResolvedValue(undefined),
+  insertBowelEntry: jest.fn().mockResolvedValue(undefined),
   upsertUserProfile: jest.fn().mockResolvedValue(undefined),
   uploadMealPhoto: jest.fn().mockResolvedValue(null),
   getDecryptedPhotoUri: jest.fn().mockResolvedValue('file:///mock/decrypted-photo.jpg'),
