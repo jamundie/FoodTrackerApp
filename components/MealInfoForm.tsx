@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
-import MealPhotoInput from "./MealPhotoInput";
+import PhotoInput from "./PhotoInput";
 import { FoodCategory } from "../types/tracking";
 import { styles } from "../styles/food.styles";
 
@@ -93,7 +93,7 @@ export default function MealInfoForm({
         </TouchableOpacity>
       </View>
 
-      <MealPhotoInput
+      <PhotoInput
         photoUri={photoUri}
         onPhotoSelect={onPhotoSelect}
         onPhotoRemove={onPhotoRemove}

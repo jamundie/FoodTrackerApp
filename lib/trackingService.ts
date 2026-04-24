@@ -174,11 +174,11 @@ export async function insertBowelEntry(userId: string, entry: BowelEntry): Promi
 // ── photo storage ─────────────────────────────────────────────
 
 /**
- * Encrypt and upload a local photo URI to the private meal-photos bucket.
+ * Encrypt and upload a local photo URI to the private user-photos bucket.
  * The file is AES-256-GCM encrypted on-device before leaving the app.
  * Returns the storage path (not a URL), or null on failure.
  */
-export async function uploadMealPhoto(
+export async function uploadPhoto(
   userId: string,
   entryId: string,
   localUri: string
@@ -211,7 +211,7 @@ export async function uploadMealPhoto(
   }
 
   const { error } = await supabase.storage
-    .from('meal-photos')
+    .from('user-photos')
     .upload(path, uploadBuffer, {
       contentType: 'application/octet-stream',
       upsert: true,
@@ -232,7 +232,7 @@ export async function uploadMealPhoto(
 export async function getDecryptedPhotoUri(storagePath: string): Promise<string | null> {
   // Get a short-lived signed URL to fetch the ciphertext
   const { data, error: urlError } = await supabase.storage
-    .from('meal-photos')
+    .from('user-photos')
     .createSignedUrl(storagePath, 60);
 
   if (urlError || !data) return null;

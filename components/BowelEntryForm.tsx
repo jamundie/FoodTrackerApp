@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, Image, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from './ThemedText';
-import MealPhotoInput from './MealPhotoInput';
+import PhotoInput from './PhotoInput';
 import {
   BristolType,
   BowelUrgency,
@@ -208,7 +208,7 @@ export default function BowelEntryForm({
       )}
 
       {/* Photo — encrypted upload, same pipeline as food entries */}
-      <MealPhotoInput
+      <PhotoInput
         photoUri={photoUri}
         onPhotoSelect={onPhotoSelect}
         onPhotoRemove={onPhotoRemove}

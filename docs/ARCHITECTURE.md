@@ -24,7 +24,7 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 
 ### Backend & Persistence
 - **Supabase (Postgres)**: Cloud database — `food_entries`, `food_ingredients`, `water_entries`, `water_ingredients`, `bowel_entries`, `user_profiles`
-- **Supabase Storage**: Private `meal-photos` bucket; photos are AES-256-GCM encrypted on-device before upload — server holds only opaque ciphertext
+- **Supabase Storage**: Private `user-photos` bucket; photos are AES-256-GCM encrypted on-device before upload — server holds only opaque ciphertext
 - **Supabase Auth**: Email/password authentication; session stored in device keychain via `expo-secure-store`
 - **Row Level Security (RLS)**: All tables scoped to `auth.uid() = user_id` — data isolation enforced at DB layer
 
@@ -60,7 +60,7 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 │  fetchWaterEntries / insertWaterEntry                  │
 │  fetchBowelEntries / insertBowelEntry                  │
 │  fetchUserProfile / upsertUserProfile                  │
-│  uploadMealPhoto / getDecryptedPhotoUri                │
+│  uploadPhoto / getDecryptedPhotoUri                    │
 └──────────────────────┬────────────────────────────────┘
                        │
 ┌──────────────────────▼────────────────────────────────┐
@@ -70,7 +70,7 @@ Food Tracker App is a React Native application built with Expo, designed for tra
                        │
 ┌──────────────────────▼────────────────────────────────┐
 │                    Supabase Cloud                       │
-│  Postgres (RLS)  │  Auth  │  Storage (meal-photos)     │
+│  Postgres (RLS)  │  Auth  │  Storage (user-photos)     │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -110,7 +110,7 @@ app/
 ```
 components/
 ├── MealInfoForm.tsx      # Meal metadata form (name, category, date/time, photo)
-├── MealPhotoInput.tsx    # Photo picker/preview; supports camera + library
+├── PhotoInput.tsx          # Generic photo picker/preview; supports camera + library; optional label/aspect/quality props
 ├── IngredientForm.tsx    # Dynamic ingredient card list
 ├── CategoryModal.tsx     # Category selection modal
 ├── FoodEntriesList.tsx   # Rendered list of past food entries
@@ -163,7 +163,7 @@ components/
 
 **Meal photos flow:**
 1. User picks/captures photo → local `file://` URI stored in form state
-2. On submit: `uploadMealPhoto` reads the file, encrypts it on-device (AES-256-GCM, per-user key in device keychain), uploads ciphertext to private `meal-photos` bucket as `userId/entryId.enc`
+2. On submit: `uploadPhoto` reads the file, encrypts it on-device (AES-256-GCM, per-user key in device keychain), uploads ciphertext to private `user-photos` bucket as `userId/entryId.enc`
 3. Returned storage path stored on `FoodEntry.photoUri`
 4. `hooks/useSignedPhotoUrl.ts` calls `getDecryptedPhotoUri`: downloads ciphertext via signed URL, decrypts on-device, writes to a temp `file://` URI for `<Image>` to render
 5. Encryption key (`PHOTO_ENCRYPTION_KEY`) lives only in `expo-secure-store` — never leaves the device

@@ -10,7 +10,7 @@ import {
   insertWaterEntry,
   insertBowelEntry,
   upsertUserProfile,
-  uploadMealPhoto,
+  uploadPhoto,
 } from '../lib/trackingService';
 
 const DEFAULT_USER_PROFILE: UserProfile = {
@@ -75,7 +75,7 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
     // If the entry has a local photo URI, upload it first and replace with storage path
     let persistedEntry = entry;
     if (entry.photoUri && !entry.photoUri.startsWith('http')) {
-      const storagePath = await uploadMealPhoto(userId, entry.id, entry.photoUri);
+      const storagePath = await uploadPhoto(userId, entry.id, entry.photoUri);
       persistedEntry = { ...entry, photoUri: storagePath ?? undefined };
     }
 
@@ -110,10 +110,10 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
     if (!userId) return;
 
     // If a local photo URI was attached, encrypt + upload it first, then replace with the storage path.
-    // Uses the same meal-photos bucket and AES-256-GCM pipeline as food entries.
+    // Uses the user-photos bucket and AES-256-GCM pipeline shared with food entries.
     let persistedEntry = entry;
     if (entry.photoUri && !entry.photoUri.startsWith('http')) {
-      const storagePath = await uploadMealPhoto(userId, entry.id, entry.photoUri);
+      const storagePath = await uploadPhoto(userId, entry.id, entry.photoUri);
       persistedEntry = { ...entry, photoUri: storagePath ?? undefined };
     }
 
