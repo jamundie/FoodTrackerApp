@@ -7,6 +7,11 @@ export const bowelStyles = StyleSheet.create({
   },
 
   // Bristol type selector
+  bristolHeadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   bristolGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -183,5 +188,32 @@ export const bowelStyles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+
+  // Bristol chart modal
+  chartModalContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  chartModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#1a1a1a',
+  },
+  chartModalTitle: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: '600',
+  },
+  chartModalCloseButton: {
+    padding: 4,
+  },
+  chartModalImage: {
+    flex: 1,
+    width: '100%',
+    resizeMode: 'contain',
   },
 });

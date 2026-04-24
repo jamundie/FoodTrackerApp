@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Modal, Image, SafeAreaView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from './ThemedText';
 import {
   BristolType,
@@ -39,6 +40,8 @@ export default function BowelEntryForm({
   onPainLevel,
   onNotes,
 }: Props) {
+  const [showChart, setShowChart] = useState(false);
+
   return (
     <View>
       {/* Date & Time */}
@@ -88,7 +91,16 @@ export default function BowelEntryForm({
       {/* Bristol Stool Scale — hidden for false alarms */}
       {!form.falseAlarm && (
         <View style={styles.inputGroup}>
-          <ThemedText type="defaultSemiBold">Bristol Stool Type</ThemedText>
+          <View style={bowelStyles.bristolHeadingRow}>
+            <ThemedText type="defaultSemiBold">Bristol Stool Type</ThemedText>
+            <TouchableOpacity
+              onPress={() => setShowChart(true)}
+              testID="bristol-chart-info"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="information-circle-outline" size={20} color="#7c3aed" />
+            </TouchableOpacity>
+          </View>
           <View style={bowelStyles.bristolGrid}>
             {BRISTOL_TYPES.map((type) => (
               <TouchableOpacity
@@ -200,6 +212,31 @@ export default function BowelEntryForm({
           testID="bowel-notes-input"
         />
       </View>
+
+      {/* Bristol Stool Chart reference image */}
+      <Modal
+        visible={showChart}
+        animationType="slide"
+        onRequestClose={() => setShowChart(false)}
+        testID="bristol-chart-modal"
+      >
+        <SafeAreaView style={bowelStyles.chartModalContainer}>
+          <View style={bowelStyles.chartModalHeader}>
+            <Text style={bowelStyles.chartModalTitle}>Bristol Stool Chart</Text>
+            <TouchableOpacity
+              style={bowelStyles.chartModalCloseButton}
+              onPress={() => setShowChart(false)}
+              testID="bristol-chart-close"
+            >
+              <Ionicons name="close" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
+          <Image
+            source={require('../assets/images/bristol-stool-chart.png')}
+            style={bowelStyles.chartModalImage}
+          />
+        </SafeAreaView>
+      </Modal>
     </View>
   );
 }
