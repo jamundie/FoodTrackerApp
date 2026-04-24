@@ -31,6 +31,15 @@ export const useBowelEntryForm = () => {
   const [form, setForm] = useState<BowelFormState>(defaultFormState());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [photoUri, setPhotoUri] = useState<string | undefined>(undefined);
+
+  const handlePhotoSelect = useCallback((uri: string) => {
+    setPhotoUri(uri);
+  }, []);
+
+  const handlePhotoRemove = useCallback(() => {
+    setPhotoUri(undefined);
+  }, []);
 
   const handleDateSelect = useCallback((date: Date) => {
     setForm((prev) => ({ ...prev, selectedDate: date }));
@@ -73,6 +82,7 @@ export const useBowelEntryForm = () => {
 
   const resetForm = useCallback(() => {
     setForm(defaultFormState());
+    setPhotoUri(undefined);
   }, []);
 
   const handleSubmit = useCallback(async () => {
@@ -85,15 +95,17 @@ export const useBowelEntryForm = () => {
       hasBlood: form.falseAlarm ? false : form.hasBlood,
       painLevel: form.painLevel,
       notes: form.notes.trim() || undefined,
+      photoUri,
     };
 
     await addBowelEntry(entry);
     resetForm();
     Alert.alert('Logged', 'Bowel movement recorded.');
-  }, [form, addBowelEntry, resetForm]);
+  }, [form, photoUri, addBowelEntry, resetForm]);
 
   return {
     form,
+    photoUri,
     showDatePicker,
     showTimePicker,
     setShowDatePicker,
@@ -106,6 +118,8 @@ export const useBowelEntryForm = () => {
     toggleBlood,
     setPainLevel,
     setNotes,
+    handlePhotoSelect,
+    handlePhotoRemove,
     handleSubmit,
   };
 };

@@ -151,6 +151,7 @@ export async function fetchBowelEntries(userId: string): Promise<BowelEntry[]> {
     hasBlood: row.has_blood,
     painLevel: row.pain_level,
     notes: row.notes ?? undefined,
+    photoUri: row.photo_storage_path ?? undefined,
   }));
 }
 
@@ -165,6 +166,7 @@ export async function insertBowelEntry(userId: string, entry: BowelEntry): Promi
     has_blood: entry.hasBlood,
     pain_level: entry.painLevel,
     notes: entry.notes ?? null,
+    photo_storage_path: entry.photoUri ?? null,
   });
   if (error) throw new Error(`insertBowelEntry failed: ${error.message}`);
 }

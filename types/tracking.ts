@@ -113,6 +113,7 @@ export type BowelEntry = {
   hasBlood: boolean;          // always false when falseAlarm is true
   painLevel: number;          // 0–10 (0 = no pain)
   notes?: string;
+  photoUri?: string;          // storage path after upload; local file:// URI before
 };
 
 export const BRISTOL_DESCRIPTIONS: Record<BristolType, string> = {

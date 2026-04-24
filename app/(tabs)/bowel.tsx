@@ -15,6 +15,7 @@ export default function BowelScreen() {
   const { data } = useTracking();
   const {
     form,
+    photoUri,
     showDatePicker,
     showTimePicker,
     setShowDatePicker,
@@ -27,6 +28,8 @@ export default function BowelScreen() {
     toggleBlood,
     setPainLevel,
     setNotes,
+    handlePhotoSelect,
+    handlePhotoRemove,
     handleSubmit,
   } = useBowelEntryForm();
 
@@ -39,6 +42,7 @@ export default function BowelScreen() {
 
         <BowelEntryForm
           form={form}
+          photoUri={photoUri}
           onShowDatePicker={() => setShowDatePicker(true)}
           onShowTimePicker={() => setShowTimePicker(true)}
           onToggleFalseAlarm={toggleFalseAlarm}
@@ -47,6 +51,8 @@ export default function BowelScreen() {
           onToggleBlood={toggleBlood}
           onPainLevel={setPainLevel}
           onNotes={setNotes}
+          onPhotoSelect={handlePhotoSelect}
+          onPhotoRemove={handlePhotoRemove}
         />
 
         <TouchableOpacity

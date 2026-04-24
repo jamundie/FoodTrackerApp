@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, Image, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from './ThemedText';
+import MealPhotoInput from './MealPhotoInput';
 import {
   BristolType,
   BowelUrgency,
@@ -19,6 +20,7 @@ const PAIN_LEVELS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 type Props = {
   form: BowelFormState;
+  photoUri: string | undefined;
   onShowDatePicker: () => void;
   onShowTimePicker: () => void;
   onToggleFalseAlarm: () => void;
@@ -27,10 +29,13 @@ type Props = {
   onToggleBlood: () => void;
   onPainLevel: (level: number) => void;
   onNotes: (notes: string) => void;
+  onPhotoSelect: (uri: string) => void;
+  onPhotoRemove: () => void;
 };
 
 export default function BowelEntryForm({
   form,
+  photoUri,
   onShowDatePicker,
   onShowTimePicker,
   onToggleFalseAlarm,
@@ -39,6 +44,8 @@ export default function BowelEntryForm({
   onToggleBlood,
   onPainLevel,
   onNotes,
+  onPhotoSelect,
+  onPhotoRemove,
 }: Props) {
   const [showChart, setShowChart] = useState(false);
 
@@ -199,6 +206,13 @@ export default function BowelEntryForm({
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Photo — encrypted upload, same pipeline as food entries */}
+      <MealPhotoInput
+        photoUri={photoUri}
+        onPhotoSelect={onPhotoSelect}
+        onPhotoRemove={onPhotoRemove}
+      />
 
       {/* Notes */}
       <View style={styles.inputGroup}>
