@@ -263,7 +263,7 @@ types/
 | Water tracking | Complete | Volume preset selector, optional ingredients, optimistic updates, Supabase-persisted |
 | User profile | Complete | Display name, age, weight, height, daily water goal, default glass size — Supabase-persisted |
 | Auth | Complete | Email/password, session in device keychain |
-| Bowel movement tracking | Complete | Bristol scale 1–7, urgency, pain level 0–10, blood flag, notes — Supabase-persisted via `bowel_entries` |
+| Bowel movement tracking | Complete | Bristol scale 1–7 (optional on false alarm), false alarm flag, urgency, pain level 0–10, blood flag, notes — Supabase-persisted via `bowel_entries` (migration `002_bowel_entries.sql`, applied) |
 
 | Home dashboard | Mostly real | Summary cards + 7-day chart use real data; 2500 kcal reference line is hardcoded (TODO) |
 
