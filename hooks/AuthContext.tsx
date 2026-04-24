@@ -31,8 +31,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Auto-sign-in for local development when no session is cached
       if (!existing && __DEV__ && DEV_EMAIL && DEV_PASSWORD) {
-        await supabase.auth.signInWithPassword({ email: DEV_EMAIL, password: DEV_PASSWORD });
-        // onAuthStateChange above will update session state
+        const { data } = await supabase.auth.signInWithPassword({ email: DEV_EMAIL, password: DEV_PASSWORD });
+        setSession(data.session);
       } else {
         setSession(existing);
       }
