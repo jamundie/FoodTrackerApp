@@ -32,7 +32,9 @@ This is a React Native food tracking app built with Expo Router, TypeScript, and
 - `TrackingContext` uses `user?.id` (not the whole `user` object) as `useEffect` dependency to prevent re-running when the auth provider returns a new object reference on re-render
 
 ### TypeScript Conventions
-- All types live in `types/` directory - import from `types/tracking.ts`
+- All types live in `types/` directory
+- **Ingredient types** (`Unit`, `Ingredient`, `IngredientFormData`) live in `types/ingredient.ts` — import from there directly; `types/tracking.ts` re-exports them for backward compatibility only
+- All other domain types import from `types/tracking.ts`
 - Use strict typing with `const` assertions for readonly arrays (see `FOOD_CATEGORIES`, `VOLUME_PRESETS`)
 - Custom hooks must have proper return types and error boundaries
 - Form data interfaces separate from domain types (e.g., `IngredientFormData` vs `Ingredient`)
@@ -74,6 +76,58 @@ export type Ingredient = {
 - `WaterEntry` carries `volumePresetId` (which preset was selected), `volumeMl` (ml from preset), and `totalVolume` (preset ml + any ml ingredients — always set).
 - Use `WaterVolumeSelector` (modal dropdown) wherever a preset picker is needed. Props: `selectedPresetId` + `onSelect`.
 - `useWaterEntryForm` seeds `volumePresetId` from `userProfile.defaultVolumePresetId` and resets to it on `resetForm()`.
+
+### Nutrition Lookup Pattern (Open Food Facts)
+
+The ingredient name field in the food form is a `FoodSearchInput` component — not a plain `TextInput`. It queries the Open Food Facts free API with a 350 ms debounce and shows a result dropdown.
+
+**Key types in `types/ingredient.ts`:**
+```ts
+NutritionData {
+  caloriesPer100g: number;
+  proteinPer100g?: number;
+  carbsPer100g?:   number;
+  fatPer100g?:     number;
+  fiberPer100g?:   number;
+  sugarPer100g?:   number;
+  saltPer100g?:    number;
+}
+
+Ingredient {
+  ...
+  nutritionData?:     NutritionData;   // from lookup or AI
+  calculatedProtein?: number;
+  calculatedCarbs?:   number;
+  calculatedFat?:     number;
+}
+
+IngredientFormData {
+  ...
+  proteinPer100g?:    string;
+  carbsPer100g?:      string;
+  fatPer100g?:        string;
+  nutritionSource?:   'manual' | 'open_food_facts' | 'gemini_vision';
+}
+```
+
+**Rules:**
+- `FoodSearchResult` and `NutritionData` from `lib/openFoodFactsService.ts` are the shared contract; Gemini Vision (Option B) must produce the same shapes.
+- `useFoodEntryForm` exposes `applyNutritionToIngredient(index, result)` — this is the only way to write a lookup result into an ingredient row.
+- `IngredientForm` receives `onApplyNutrition` and passes it to `FoodSearchInput.onSelectResult`.
+- Macro fields in `IngredientFormData` (`proteinPer100g`, `carbsPer100g`, `fatPer100g`) are strings for the form; `processIngredients()` parses them.
+- `calculateTotals()` in `foodHelpers.ts` returns `MacroTotals`; use it instead of the deprecated `calculateTotalCalories()`.
+- Ingredient name input placeholder is `"Search ingredient or product…"` — update tests accordingly.
+
+### Daily Summary Pattern
+- `DailySummaryCard` on the Home screen reads `data.foodEntries` and `userProfile` goals from `TrackingContext`.
+- It filters entries by today's date using `isSameDay()` from `utils/dateUtils.ts`.
+- The card renders nothing when the user has no entries today and no calorie goal set.
+- Do not pass data into it via props — it is always context-driven.
+
+### Nutrition Goals
+- `UserProfile` carries `dailyCalorieGoal`, `dailyProteinGoal`, `dailyCarbGoal`, `dailyFatGoal` — all optional numbers.
+- These are set in `ProfileForm` and persisted via `upsertUserProfile` in `trackingService.ts`.
+- They have corresponding columns in the `user_profiles` Supabase table (added in `005_macros.sql`).
 
 ### Profile Pattern
 - `ProfileForm` is a self-contained form component: reads an `UserProfile` prop, holds local draft state, calls `onSave(updated)` on submit.
@@ -195,7 +249,7 @@ Documentation must stay current as part of every feature or fix — **not as an 
 - **This file (`.github/copilot-instructions.md`)**: Add or revise the relevant section so the next feature automatically follows the same pattern.
 
 ### When a significant decision is made
-Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-012):
+Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-017):
 
 ```markdown
 ## TDR-XXX: [Title]

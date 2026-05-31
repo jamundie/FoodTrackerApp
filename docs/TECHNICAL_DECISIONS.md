@@ -348,10 +348,6 @@ Use Supabase Auth (email/password) for authentication. Sessions are stored in th
 
 ---
 
-## Decision Template
-
-For future decisions, use this template:
-
 ## TDR-012: Client-Side AES-256-GCM Encryption for Meal Photos
 
 **Date**: 2026-03-28
@@ -387,33 +383,7 @@ New files: `utils/photoEncryption.ts` — `encryptPhoto`, `decryptPhoto`, `getOr
 
 ---
 
-```markdown
-## TDR-XXX: [Decision Title]
-
-**Date**: [Date]  
-**Status**: [Proposed/Accepted/Rejected/Superseded]  
-**Context**: [What situation requires a decision?]
-
-### Decision
-[What is the decision?]
-
-### Alternatives Considered
-- Option 1
-- Option 2
-- Option 3
-
-### Rationale
-- Reason 1
-- Reason 2
-- Reason 3
-
-### Consequences
-- **Positive**: [Benefits]
-- **Negative**: [Drawbacks]
-- **Mitigation**: [How to address drawbacks]
-```
-
-## TDR-012: Bowel Movement Tracking Feature
+## TDR-013: Bowel Movement Tracking Feature
 
 **Date**: 2026-04-24
 **Status**: Accepted
@@ -423,7 +393,7 @@ New files: `utils/photoEncryption.ts` — `encryptPhoto`, `decryptPhoto`, `getOr
 
 ---
 
-## TDR-013: Sleep Data Integration Strategy — Garmin via Platform Health APIs
+## TDR-014: Sleep Data Integration Strategy — Garmin via Platform Health APIs
 
 **Date**: 2026-04-24
 **Status**: Proposed
@@ -469,9 +439,32 @@ Not suitable for a distributed app: using it requires storing and replaying user
 - **Negative**: Garmin-specific fields (HRV epochs, Body Battery) are unavailable; depends on user keeping platform health sync active; adds two new native modules (one per platform) requiring a native rebuild
 - **Mitigation**: The `source` field on `SleepEntry` preserves provenance; the service layer is designed to accept richer Garmin fields in a future extension without breaking the existing type contract. Native module additions should be documented in the contributor setup guide.
 
-## TDR-012: Generic Photo Infrastructure (user-photos bucket + PhotoInput component)
+## TDR-015: Generic Photo Infrastructure (user-photos bucket + PhotoInput component)
 **Date**: 2026-04-24
 **Status**: Accepted
 **Context**: Photo upload was originally built for meal photos only (`meal-photos` bucket, `uploadMealPhoto` function, `MealPhotoInput` component). When bowel entry photos were added, those same food-specific names were reused verbatim. With more entry types planned (sleep, stress), the photo infrastructure needed to be made generic before further coupling occurred.
 **Decision**: Renamed the Supabase Storage bucket from `meal-photos` to `user-photos` (migration `004_user_photos_bucket.sql`). Renamed `uploadMealPhoto` → `uploadPhoto` in `trackingService.ts`; bucket reference updated in both `uploadPhoto` and `getDecryptedPhotoUri`. Replaced `MealPhotoInput.tsx` with `PhotoInput.tsx` — the component now accepts optional props (`label`, `addLabel`, `aspect`, `quality`) so each feature can customise it without forking. Both `MealInfoForm` and `BowelEntryForm` import `PhotoInput`. `jest.setup.ts` mock updated accordingly; test file renamed `PhotoInput.test.tsx` with an additional test for custom label rendering.
 **Consequences**: Any feature adding photos (sleep, body measurements, etc.) imports `PhotoInput` and calls `uploadPhoto` — no food-specific naming to work around. The `user-photos` bucket RLS policy is path-agnostic (`(storage.foldername(name))[1] = auth.uid()::text`) so it covers all features automatically. The old `meal-photos` bucket must be removed from Supabase manually once `004_user_photos_bucket.sql` has been applied and verified.
+
+
+## TDR-016: Dedicated `types/ingredient.ts` Module
+**Date**: 2026-05-31
+**Status**: Accepted
+**Context**: `Unit`, `Ingredient`, and `IngredientFormData` were defined in `types/tracking.ts` alongside food, water, and bowel types. A graphify knowledge-graph analysis flagged these three types as low-cohesion members of the water-form community — they are shared between food and water form code but had no dedicated home. With more entry types planned, leaving shared ingredient types in the monolithic tracking module would increase coupling further.
+**Decision**: Extracted `Unit`, `Ingredient`, and `IngredientFormData` into a new `types/ingredient.ts` module. `types/tracking.ts` imports and re-exports them for backward compatibility. All 11 direct import sites (components, hooks, utilities, and `trackingService`) were updated to import from `types/ingredient.ts` directly. The re-export in `tracking.ts` exists solely for third-party or legacy callers — new code must import from the canonical module.
+**Consequences**: Ingredient-related types have a single, clearly bounded home. Adding new ingredient fields or units is a one-file change. The graphify community structure more accurately reflects the domain split. There is a small ongoing maintenance burden: the re-export in `tracking.ts` must not be removed until all consumers have migrated (currently none remain on the old path).
+
+## TDR-017: Open Food Facts API Integration for Nutrition Lookup
+**Date**: 2026-05-31
+**Status**: Accepted
+**Context**: Food calorie entry was fully manual — users had to type `caloriesPer100g` for every ingredient. This is a high-friction path that most users will skip, leaving the calorie tracking feature unusable in practice.
+**Decision**: Integrate the Open Food Facts (OFF) free API (`world.openfoodfacts.org`) as a live search-as-you-type nutrition lookup. The ingredient name field becomes a `FoodSearchInput` component that debounces keystrokes (350 ms), queries OFF, and presents a dropdown of up to 10 results. Tapping a result auto-fills `caloriesPer100g` and all available macro fields. Manual free-text entry is preserved — typing without selecting a result behaves exactly as before. No API key is required. A `User-Agent` header is sent per OFF guidelines.
+**Alternatives considered**: USDA FoodData Central (requires free API key, better for whole foods), Edamam (free tier at 100 req/day, requires key). OFF was chosen for zero-auth, zero-cost, and its large packaged product database including barcode lookup (reserved for Option C).
+**Consequences**: Network requests are fired on every ingredient name change after debounce; no caching layer exists yet. The `FoodSearchResult` type and `NutritionData` type are designed as a shared contract — Gemini Vision (Option B, future) will write the same shapes so no downstream code changes are needed when that integration is added.
+
+## TDR-018: Full Macro Tracking (Protein, Carbs, Fat)
+**Date**: 2026-05-31
+**Status**: Accepted
+**Context**: The app tracked calories only. Open Food Facts returns a full macro profile; discarding it would waste available data and limit the health-tracking value of the feature.
+**Decision**: Extend `Ingredient` with `calculatedProtein`, `calculatedCarbs`, `calculatedFat`; extend `FoodEntry` with `totalProtein`, `totalCarbs`, `totalFat`; extend `UserProfile` with `dailyCalorieGoal`, `dailyProteinGoal`, `dailyCarbGoal`, `dailyFatGoal`. A `NutritionData` type holds the per-100g reference values. `calculateTotals()` in `foodHelpers.ts` replaces the old `calculateTotalCalories()` (kept as a backward-compatible wrapper). A new `DailySummaryCard` component on the Home screen shows today's intake vs goals with colour-coded progress bars. The DB migration `005_macros.sql` adds the corresponding columns to `food_entries`, `food_ingredients`, and `user_profiles`.
+**Consequences**: All macro fields are optional — entries without nutrition data continue to work. Goal fields in `UserProfile` are also optional; `DailySummaryCard` renders nothing when neither today's data nor a calorie goal is present (no visual noise for new users). The `isSameDay` utility was added to `dateUtils.ts` to support date-boundary filtering in the card.

@@ -188,8 +188,11 @@ styles/
 ### 6. Type Safety
 ```
 types/
-└── tracking.ts       # Domain-specific type definitions
-                      # — FoodEntry, WaterEntry, Ingredient, VolumePreset, UserProfile
+├── tracking.ts       # Domain-specific type definitions
+│                     # — FoodEntry, WaterEntry, VolumePreset, UserProfile, BowelEntry
+│                     # — re-exports Unit, Ingredient, IngredientFormData from ./ingredient
+└── ingredient.ts     # Shared ingredient module — Unit, Ingredient, IngredientFormData
+                      # Imported directly by food/water forms, helpers, and trackingService
 ```
 
 **Implementation:**
@@ -259,13 +262,17 @@ types/
 ### Implemented & Supabase-backed
 | Feature | Status | Notes |
 |---|---|---|
-| Food tracking | Complete | Form, ingredient list, per-ingredient calories, photo (encrypted upload/download), Supabase-persisted |
+| Food tracking | Complete | Form with Open Food Facts live search, per-ingredient macro tracking, daily summary, photo (encrypted upload/download), Supabase-persisted |
+| Nutrition lookup | Complete | `FoodSearchInput` queries Open Food Facts; results auto-fill calories + protein/carbs/fat; manual entry preserved |
+| Macro tracking | Complete | `Ingredient` carries `calculatedProtein/Carbs/Fat`; `FoodEntry` carries `totalProtein/Carbs/Fat`; `calculateTotals()` in `foodHelpers.ts` |
+| Nutrition goals | Complete | `UserProfile` carries `dailyCalorieGoal/ProteinGoal/CarbGoal/FatGoal`; set in Profile tab; shown in `DailySummaryCard` |
+| Daily summary | Complete | `DailySummaryCard` on Home — today's calorie + macro progress bars vs goals; context-driven, no props |
 | Water tracking | Complete | Volume preset selector, optional ingredients, optimistic updates, Supabase-persisted |
-| User profile | Complete | Display name, age, weight, height, daily water goal, default glass size — Supabase-persisted |
+| User profile | Complete | Display name, age, weight, height, water goal, glass size, nutrition goals — Supabase-persisted |
 | Auth | Complete | Email/password, session in device keychain |
-| Bowel movement tracking | Complete | Bristol scale 1–7 (optional on false alarm), false alarm flag, urgency, pain level 0–10, blood flag, notes — Supabase-persisted via `bowel_entries` (migration `002_bowel_entries.sql`, applied) |
+| Bowel movement tracking | Complete | Bristol scale 1–7 (optional on false alarm), false alarm flag, urgency, pain level 0–10, blood flag, notes — Supabase-persisted via `bowel_entries` |
 
-| Home dashboard | Mostly real | Summary cards + 7-day chart use real data; 2500 kcal reference line is hardcoded (TODO) |
+| Home dashboard | Mostly real | `DailySummaryCard` + summary cards + 7-day chart use real data; 2500 kcal reference line in `ProgressChart` is still hardcoded |
 
 ### Stubbed / Not Started
 | Feature | Status | Notes |
@@ -273,18 +280,22 @@ types/
 | Stats tab | Stub | `app/(tabs)/stats.tsx` renders placeholder text only — no charts or calculations |
 | Sleep tracking | Not started | "Coming Soon" card on Home only; no tab, no types, no DB table |
 | Stress tracking | Not started | Same as sleep — card only |
-| AI assessment | Not started | No AI API calls exist; `FoodEntry.photoUri` has a comment noting it is intended for future AI analysis |
+| AI photo analysis (Gemini Vision) | Planned | Architecture ready — `FoodEntry.photoUri` is stored, `NutritionData` type is the shared contract; `lib/geminiVisionService.ts` + `hooks/usePhotoNutritionAnalysis.ts` to be built; no API calls exist yet |
+| Barcode scanning | Planned | `searchFoodByBarcode()` in `lib/openFoodFactsService.ts` is implemented; needs `expo-barcode-scanner` UI |
 
 ### Planned Feature Backlog (priority order)
-1. **Sleep tracking** — new tab, `SleepEntry` type (start/end times, quality rating, notes), DB table, service functions, `TrackingContext` additions
-2. **Stats tab** — meaningful charts correlating food/water/sleep/bowel data over time; trend analysis
-3. **AI bowel assessment** — Supabase Edge Function (to protect API key) that receives recent bowel + food + water + sleep entries and returns dietary/lifestyle improvement suggestions; surface via a dedicated AI Insights screen or inline in Stats
-4. **Configurable calorie target** — wire the 2500 kcal reference line in `ProgressChart` to `userProfile.dailyCalorieGoal` (requires new profile field + migration)
+1. **Gemini Vision AI analysis** — photo → ingredient list with macros; hook writes to `ingredients[]` via `applyNutritionToIngredient`; requires Supabase Edge Function proxy for API key
+2. **Barcode scanning** — wire `searchFoodByBarcode()` to a barcode scanner UI overlay
+3. **Sleep tracking** — new tab, `SleepEntry` type (start/end times, quality rating, notes), DB table, service functions, `TrackingContext` additions
+4. **Stats tab** — meaningful charts correlating food/water/sleep/bowel data over time; trend analysis; wire `ProgressChart` hardcoded 2500 kcal line to `userProfile.dailyCalorieGoal`
 
 ## Known Limitations
 - `stats.tsx` is a stub — not yet implemented
-- Sleep, Stress, and Bowel Movement tracking not yet started
-- No AI integration exists yet
+- Sleep tracking not started (no tab, no types, no DB table; "Coming Soon" card on Home only)
+- Stress tracking not started (no screen, no types, no DB table)
+- Gemini Vision AI integration not yet built — architecture and types are ready, no API calls exist
+- 2500 kcal reference line in `ProgressChart` is hardcoded — not yet wired to `userProfile.dailyCalorieGoal`
+- Photo encryption key tied to device install — reinstalling the app permanently loses access to previously uploaded photos
 - No offline support — app requires network for data operations
 - CI uses Node 18 but `.nvmrc` pins Node 20 — align before changing CI
 
@@ -314,7 +325,7 @@ types/
 ## Getting Started for Contributors
 
 1. **Prerequisites**: Node.js 20, Android Studio, Java 17
-2. **Setup**: `npm install` → copy `.env.example` to `.env.local` and fill in Supabase credentials → run SQL migration in Supabase Dashboard → `npm run android`
+2. **Setup**: `npm install` → copy `.env.example` to `.env.local` and fill in Supabase credentials → run all 4 SQL migrations in order (001 → 004) in Supabase Dashboard SQL Editor → `npm run android`
 3. **Development**: Use development builds, not Expo Go
 4. **Testing**: `npm test` for unit tests (runs fully offline via mocks)
 5. **Architecture**: Follow existing patterns, update this doc for major changes

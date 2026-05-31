@@ -53,7 +53,7 @@ Documentation must be kept current as part of every feature or fix. Apply these 
 - **`.github/copilot-instructions.md`**: Add or revise the relevant section (component patterns, utility conventions, testing rules, etc.) so the next feature follows the same pattern automatically.
 
 ### When a significant decision is made
-Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-012):
+Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-017):
 
 ```markdown
 ## TDR-XXX: [Title]
