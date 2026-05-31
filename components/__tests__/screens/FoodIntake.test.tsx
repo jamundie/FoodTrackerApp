@@ -37,7 +37,7 @@ describe("FoodScreen", () => {
       const { getByText, getByPlaceholderText } = renderFoodScreen();
 
       expect(getByText("Ingredient 1")).toBeTruthy();
-      expect(getByPlaceholderText("Ingredient name")).toBeTruthy();
+      expect(getByPlaceholderText("Search ingredient or product…")).toBeTruthy();
       expect(getByPlaceholderText("Amount")).toBeTruthy();
       expect(getByPlaceholderText("Calories per 100g (optional)")).toBeTruthy();
       expect(getByText("g")).toBeTruthy();
@@ -96,7 +96,7 @@ describe("FoodScreen", () => {
     it("allows typing in ingredient fields", () => {
       const { getByPlaceholderText } = renderFoodScreen();
       
-      const ingredientNameInput = getByPlaceholderText("Ingredient name");
+      const ingredientNameInput = getByPlaceholderText("Search ingredient or product…");
       const amountInput = getByPlaceholderText("Amount");
       const caloriesInput = getByPlaceholderText("Calories per 100g (optional)");
 
@@ -258,7 +258,7 @@ describe("FoodScreen", () => {
       
       // Fill out the form
       const mealNameInput = getByPlaceholderText("e.g., Lasagne, Chicken Salad");
-      const ingredientNameInput = getByPlaceholderText("Ingredient name");
+      const ingredientNameInput = getByPlaceholderText("Search ingredient or product…");
       const amountInput = getByPlaceholderText("Amount");
       const caloriesInput = getByPlaceholderText("Calories per 100g (optional)");
       
@@ -289,7 +289,7 @@ describe("FoodScreen", () => {
       
       // Fill out and submit form
       const mealNameInput = getByPlaceholderText("e.g., Lasagne, Chicken Salad");
-      const ingredientNameInput = getByPlaceholderText("Ingredient name");
+      const ingredientNameInput = getByPlaceholderText("Search ingredient or product…");
       const amountInput = getByPlaceholderText("Amount");
       
       fireEvent.changeText(mealNameInput, "Test Meal");
@@ -328,7 +328,7 @@ describe("FoodScreen", () => {
       
       // Add a food entry first
       const mealNameInput = getByPlaceholderText("e.g., Lasagne, Chicken Salad");
-      const ingredientNameInput = getByPlaceholderText("Ingredient name");
+      const ingredientNameInput = getByPlaceholderText("Search ingredient or product…");
       const amountInput = getByPlaceholderText("Amount");
       
       fireEvent.changeText(mealNameInput, "Test Meal");

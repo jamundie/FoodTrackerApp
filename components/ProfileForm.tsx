@@ -19,6 +19,19 @@ export default function ProfileForm({ profile, onSave }: ProfileFormProps) {
     profile.dailyWaterGoalMl !== undefined ? String(profile.dailyWaterGoalMl) : ""
   );
   const [defaultVolumePresetId, setDefaultVolumePresetId] = useState(profile.defaultVolumePresetId);
+  // Nutrition goals
+  const [dailyCalorieGoal, setDailyCalorieGoal] = useState(
+    profile.dailyCalorieGoal !== undefined ? String(profile.dailyCalorieGoal) : ""
+  );
+  const [dailyProteinGoal, setDailyProteinGoal] = useState(
+    profile.dailyProteinGoal !== undefined ? String(profile.dailyProteinGoal) : ""
+  );
+  const [dailyCarbGoal, setDailyCarbGoal] = useState(
+    profile.dailyCarbGoal !== undefined ? String(profile.dailyCarbGoal) : ""
+  );
+  const [dailyFatGoal, setDailyFatGoal] = useState(
+    profile.dailyFatGoal !== undefined ? String(profile.dailyFatGoal) : ""
+  );
   const [saved, setSaved] = useState(false);
 
   const handleVolumeSelect = (preset: VolumePreset) => {
@@ -33,6 +46,10 @@ export default function ProfileForm({ profile, onSave }: ProfileFormProps) {
       weightKg: weightKg !== "" ? Number(weightKg) : undefined,
       heightCm: heightCm !== "" ? Number(heightCm) : undefined,
       dailyWaterGoalMl: dailyWaterGoalMl !== "" ? Number(dailyWaterGoalMl) : undefined,
+      dailyCalorieGoal: dailyCalorieGoal !== "" ? Number(dailyCalorieGoal) : undefined,
+      dailyProteinGoal: dailyProteinGoal !== "" ? Number(dailyProteinGoal) : undefined,
+      dailyCarbGoal:    dailyCarbGoal    !== "" ? Number(dailyCarbGoal)    : undefined,
+      dailyFatGoal:     dailyFatGoal     !== "" ? Number(dailyFatGoal)     : undefined,
     };
     onSave(updated);
     setSaved(true);
@@ -116,6 +133,61 @@ export default function ProfileForm({ profile, onSave }: ProfileFormProps) {
             <WaterVolumeSelector
               selectedPresetId={defaultVolumePresetId}
               onSelect={handleVolumeSelect}
+            />
+          </View>
+        </View>
+      </View>
+
+      {/* Nutrition goals */}
+      <View style={profileStyles.section}>
+        <Text style={profileStyles.sectionTitle}>Nutrition Goals</Text>
+        <View style={profileStyles.card}>
+          <View style={profileStyles.fieldRow}>
+            <ThemedText style={profileStyles.fieldLabel}>Daily Calories (kcal)</ThemedText>
+            <TextInput
+              style={profileStyles.fieldInput}
+              value={dailyCalorieGoal}
+              onChangeText={setDailyCalorieGoal}
+              placeholder="e.g. 2000"
+              placeholderTextColor="#999"
+              keyboardType="number-pad"
+              testID="profile-calorie-goal-input"
+            />
+          </View>
+          <View style={profileStyles.fieldRow}>
+            <ThemedText style={profileStyles.fieldLabel}>Daily Protein (g)</ThemedText>
+            <TextInput
+              style={profileStyles.fieldInput}
+              value={dailyProteinGoal}
+              onChangeText={setDailyProteinGoal}
+              placeholder="e.g. 150"
+              placeholderTextColor="#999"
+              keyboardType="decimal-pad"
+              testID="profile-protein-goal-input"
+            />
+          </View>
+          <View style={profileStyles.fieldRow}>
+            <ThemedText style={profileStyles.fieldLabel}>Daily Carbs (g)</ThemedText>
+            <TextInput
+              style={profileStyles.fieldInput}
+              value={dailyCarbGoal}
+              onChangeText={setDailyCarbGoal}
+              placeholder="e.g. 250"
+              placeholderTextColor="#999"
+              keyboardType="decimal-pad"
+              testID="profile-carb-goal-input"
+            />
+          </View>
+          <View style={[profileStyles.fieldRow, profileStyles.fieldRowLast]}>
+            <ThemedText style={profileStyles.fieldLabel}>Daily Fat (g)</ThemedText>
+            <TextInput
+              style={profileStyles.fieldInput}
+              value={dailyFatGoal}
+              onChangeText={setDailyFatGoal}
+              placeholder="e.g. 70"
+              placeholderTextColor="#999"
+              keyboardType="decimal-pad"
+              testID="profile-fat-goal-input"
             />
           </View>
         </View>

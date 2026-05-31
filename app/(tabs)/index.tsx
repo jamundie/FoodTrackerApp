@@ -6,6 +6,7 @@ import { styles } from "../../styles/index.styles";
 import PlaceholderCircle from "@/components/PlaceholderCircle";
 import RecentActivities from "@/components/RecentActivities";
 import ProgressChart from "@/components/ProgressChart";
+import DailySummaryCard from "@/components/DailySummaryCard";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -21,6 +22,9 @@ export default function HomeScreen() {
       decelerationRate="normal"
       pagingEnabled={false}
     >
+      {/* Daily nutrition summary */}
+      <DailySummaryCard />
+
       {/* Overview Section */}
       <View style={styles.overview}>
         <Text style={styles.header}>Overview</Text>

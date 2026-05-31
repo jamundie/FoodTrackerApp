@@ -33,6 +33,7 @@ export default function FoodScreen() {
     addIngredient,
     updateIngredient,
     removeIngredient,
+    applyNutritionToIngredient,
     setShowCategoryDropdown,
     setShowDatePicker,
     setShowTimePicker,
@@ -61,6 +62,7 @@ export default function FoodScreen() {
         <IngredientForm
           ingredients={ingredients}
           onUpdateIngredient={updateIngredient}
+          onApplyNutrition={applyNutritionToIngredient}
           onAddIngredient={addIngredient}
           onRemoveIngredient={removeIngredient}
         />

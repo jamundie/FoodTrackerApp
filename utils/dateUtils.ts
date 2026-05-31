@@ -33,3 +33,9 @@ export const createTimestamp = (selectedDate: Date, selectedTime: { hours: numbe
   combinedDateTime.setHours(selectedTime.hours, selectedTime.minutes, 0, 0);
   return combinedDateTime.toISOString();
 };
+
+/** Returns true when two Date objects fall on the same calendar day. */
+export const isSameDay = (a: Date, b: Date): boolean =>
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate();

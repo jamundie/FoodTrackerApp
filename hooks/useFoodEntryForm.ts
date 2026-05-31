@@ -1,10 +1,12 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useTracking } from './TrackingContext';
-import { FoodCategory, IngredientFormData } from '../types/tracking';
+import { IngredientFormData } from '../types/ingredient';
+import { FoodCategory } from '../types/tracking';
 import { MealInfoData } from '../components/MealInfoForm';
 import { processIngredients, createFoodEntry } from '../utils/foodHelpers';
 import { createTimestamp } from '../utils/dateUtils';
+import { FoodSearchResult } from '../lib/openFoodFactsService';
 
 export const useFoodEntryForm = () => {
   const { addFoodEntry } = useTracking();
@@ -45,6 +47,24 @@ export const useFoodEntryForm = () => {
     setIngredients(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  }, []);
+
+  /** Populate an ingredient row from an Open Food Facts (or future Gemini) result. */
+  const applyNutritionToIngredient = useCallback((index: number, result: FoodSearchResult) => {
+    setIngredients(prev => {
+      const updated = [...prev];
+      const nd = result.nutritionData;
+      updated[index] = {
+        ...updated[index],
+        name:           result.productName,
+        caloriesPer100g: String(Math.round(nd.caloriesPer100g)),
+        proteinPer100g:  nd.proteinPer100g !== undefined ? String(nd.proteinPer100g.toFixed(1)) : undefined,
+        carbsPer100g:    nd.carbsPer100g   !== undefined ? String(nd.carbsPer100g.toFixed(1))   : undefined,
+        fatPer100g:      nd.fatPer100g     !== undefined ? String(nd.fatPer100g.toFixed(1))     : undefined,
+        nutritionSource: 'open_food_facts',
+      };
       return updated;
     });
   }, []);
@@ -174,6 +194,7 @@ export const useFoodEntryForm = () => {
     addIngredient,
     updateIngredient,
     removeIngredient,
+    applyNutritionToIngredient,
     
     // Modal controls
     setShowCategoryDropdown,

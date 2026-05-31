@@ -1,3 +1,6 @@
+import type { Unit, Ingredient, IngredientFormData } from './ingredient';
+export type { Unit, Ingredient, IngredientFormData };
+
 export type FoodEntry = {
   id: string;
   mealName: string;          // "Lasagne"
@@ -5,26 +8,10 @@ export type FoodEntry = {
   timestamp: string;         // ISO date-time
   ingredients: Ingredient[]; // list of manually entered ingredients
   totalCalories?: number;    // optional: computed based on ingredients
-  photoUri?: string;         // URI of the meal photo; used for future AI analysis
-};
-
-export type Ingredient = {
-  id: string;
-  name: string;            // "Minced beef", "Cheese", etc.
-  amount: number;          // 100
-  unit: "g" | "ml" | "piece"; // or a more extensible Unit enum
-  caloriesPer100g?: number; // optional, if known
-  calculatedCalories?: number; // amount * (caloriesPer100g / 100)
-};
-
-export type Unit = "g" | "ml" | "piece";
-
-// Shared form data type for ingredient inputs (food and water forms)
-export type IngredientFormData = {
-  name: string;
-  amount: string;
-  unit: Unit;
-  caloriesPer100g: string;
+  totalProtein?:  number;    // g — sum of calculatedProtein across ingredients
+  totalCarbs?:    number;    // g
+  totalFat?:      number;    // g
+  photoUri?: string;         // URI of the meal photo; used for future AI (Gemini Vision) analysis
 };
 
 export type FoodCategory = 
@@ -146,4 +133,9 @@ export type UserProfile = {
   heightCm?: number;
   dailyWaterGoalMl?: number;
   defaultVolumePresetId: VolumePresetId;
+  // Nutrition goals — all optional; UI shows progress only when set
+  dailyCalorieGoal?: number;
+  dailyProteinGoal?: number;  // g
+  dailyCarbGoal?:    number;  // g
+  dailyFatGoal?:     number;  // g
 };

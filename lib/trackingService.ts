@@ -2,9 +2,12 @@
  * Supabase persistence layer — all DB and storage operations.
  * TrackingContext calls these; components never import this directly.
  */
+import { Buffer } from 'buffer';
 import * as FileSystem from 'expo-file-system';
 import { supabase } from '@/lib/supabase';
-import { FoodEntry, WaterEntry, BowelEntry, BristolType, BowelUrgency, UserProfile, Ingredient } from '@/types/tracking';
+import { Ingredient } from '@/types/ingredient';
+import { FoodEntry, WaterEntry, BowelEntry, BristolType, BowelUrgency, UserProfile } from '@/types/tracking';
+import { generateId } from '@/utils/dateUtils';
 import { encryptPhoto, decryptPhoto } from '@/utils/photoEncryption';
 
 // ── helpers ──────────────────────────────────────────────────
@@ -29,6 +32,10 @@ export async function fetchUserProfile(userId: string): Promise<UserProfile | nu
     heightCm: data.height_cm ?? undefined,
     dailyWaterGoalMl: data.daily_water_goal_ml ?? undefined,
     defaultVolumePresetId: data.default_volume_preset_id ?? 'glass',
+    dailyCalorieGoal: data.daily_calorie_goal ?? undefined,
+    dailyProteinGoal: data.daily_protein_goal ?? undefined,
+    dailyCarbGoal:    data.daily_carb_goal    ?? undefined,
+    dailyFatGoal:     data.daily_fat_goal     ?? undefined,
   };
 }
 
@@ -41,6 +48,10 @@ export async function upsertUserProfile(userId: string, profile: UserProfile): P
     height_cm: profile.heightCm ?? null,
     daily_water_goal_ml: profile.dailyWaterGoalMl ?? null,
     default_volume_preset_id: profile.defaultVolumePresetId,
+    daily_calorie_goal: profile.dailyCalorieGoal ?? null,
+    daily_protein_goal: profile.dailyProteinGoal ?? null,
+    daily_carb_goal:    profile.dailyCarbGoal    ?? null,
+    daily_fat_goal:     profile.dailyFatGoal     ?? null,
     updated_at: new Date().toISOString(),
   });
   if (error) throw new Error(`upsertUserProfile failed: ${error.message}`);
@@ -63,6 +74,9 @@ export async function fetchFoodEntries(userId: string): Promise<FoodEntry[]> {
     category: row.category,
     timestamp: row.timestamp,
     totalCalories: row.total_calories ?? undefined,
+    totalProtein:  row.total_protein  ?? undefined,
+    totalCarbs:    row.total_carbs    ?? undefined,
+    totalFat:      row.total_fat      ?? undefined,
     // photo_storage_path stored here; resolved to signed URL by the hook that displays it
     photoUri: row.photo_storage_path ?? undefined,
     ingredients: (row.food_ingredients as any[]).map(mapIngredientRow),
@@ -77,6 +91,9 @@ export async function insertFoodEntry(userId: string, entry: FoodEntry): Promise
     category: entry.category,
     timestamp: toISOString(entry.timestamp),
     total_calories: entry.totalCalories ?? null,
+    total_protein:  entry.totalProtein  ?? null,
+    total_carbs:    entry.totalCarbs    ?? null,
+    total_fat:      entry.totalFat      ?? null,
     photo_storage_path: entry.photoUri ?? null,
   });
   if (error) throw new Error(`insertFoodEntry failed: ${error.message}`);
@@ -253,7 +270,7 @@ export async function getDecryptedPhotoUri(storagePath: string): Promise<string 
   }
 
   // Write decrypted bytes to a temp file so <Image> can read it
-  const tempUri = `${FileSystem.cacheDirectory}photo_${Date.now()}.jpg`;
+  const tempUri = `${FileSystem.cacheDirectory}photo_${generateId()}.jpg`;
   const base64 = Buffer.from(plainBuffer as Buffer).toString('base64');
   await FileSystem.writeAsStringAsync(tempUri, base64, {
     encoding: FileSystem.EncodingType.Base64,
@@ -264,17 +281,32 @@ export async function getDecryptedPhotoUri(storagePath: string): Promise<string 
 // ── private row mappers ───────────────────────────────────────
 
 function mapIngredientRow(row: any): Ingredient {
+  const nd = {
+    caloriesPer100g: row.calories_per_100g ?? undefined,
+    proteinPer100g:  row.protein_per_100g  ?? undefined,
+    carbsPer100g:    row.carbs_per_100g    ?? undefined,
+    fatPer100g:      row.fat_per_100g      ?? undefined,
+    fiberPer100g:    row.fiber_per_100g    ?? undefined,
+    sugarPer100g:    row.sugar_per_100g    ?? undefined,
+    saltPer100g:     row.salt_per_100g     ?? undefined,
+  };
+  const hasNutrition = nd.caloriesPer100g !== undefined;
   return {
     id: row.id,
     name: row.name,
     amount: Number(row.amount),
     unit: row.unit,
-    caloriesPer100g: row.calories_per_100g ?? undefined,
+    nutritionData:      hasNutrition ? nd : undefined,
+    caloriesPer100g:    nd.caloriesPer100g,
     calculatedCalories: row.calculated_calories ?? undefined,
+    calculatedProtein:  row.calculated_protein  ?? undefined,
+    calculatedCarbs:    row.calculated_carbs    ?? undefined,
+    calculatedFat:      row.calculated_fat      ?? undefined,
   };
 }
 
 function mapFoodIngredientToRow(ing: Ingredient, userId: string, entryId: string) {
+  const nd = ing.nutritionData;
   return {
     id: ing.id,
     food_entry_id: entryId,
@@ -282,8 +314,18 @@ function mapFoodIngredientToRow(ing: Ingredient, userId: string, entryId: string
     name: ing.name,
     amount: ing.amount,
     unit: ing.unit,
-    calories_per_100g: ing.caloriesPer100g ?? null,
-    calculated_calories: ing.calculatedCalories ?? null,
+    calories_per_100g:  ing.caloriesPer100g        ?? nd?.caloriesPer100g ?? null,
+    protein_per_100g:   nd?.proteinPer100g          ?? null,
+    carbs_per_100g:     nd?.carbsPer100g            ?? null,
+    fat_per_100g:       nd?.fatPer100g              ?? null,
+    fiber_per_100g:     nd?.fiberPer100g            ?? null,
+    sugar_per_100g:     nd?.sugarPer100g            ?? null,
+    salt_per_100g:      nd?.saltPer100g             ?? null,
+    calculated_calories: ing.calculatedCalories     ?? null,
+    calculated_protein:  ing.calculatedProtein      ?? null,
+    calculated_carbs:    ing.calculatedCarbs        ?? null,
+    calculated_fat:      ing.calculatedFat          ?? null,
+    nutrition_source:    null, // populated by future Gemini hook
   };
 }
 
