@@ -80,9 +80,13 @@ export default function WaterIngredientsForm({
 
             <TextInput
               style={styles.input}
-              value={ingredient.caloriesPer100g}
-              onChangeText={(value) => onUpdateIngredient(index, "caloriesPer100g", value)}
-              placeholder="Calories per 100g (optional)"
+              value={ingredient.caloriesRef}
+              onChangeText={(value) => onUpdateIngredient(index, "caloriesRef", value)}
+              placeholder={
+                ingredient.unit === "piece"
+                  ? "Calories per piece (optional)"
+                  : "Calories per 100g (optional)"
+              }
               placeholderTextColor="#999"
               keyboardType="numeric"
             />

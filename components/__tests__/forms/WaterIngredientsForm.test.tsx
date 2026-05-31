@@ -4,7 +4,7 @@ import WaterIngredientsForm from '../../WaterIngredientsForm';
 import { Unit, IngredientFormData } from '../../../types/ingredient';
 
 const mockIngredients: IngredientFormData[] = [
-  { name: 'Lemon juice', amount: '30', unit: 'ml' as Unit, caloriesPer100g: '22' },
+  { name: 'Lemon juice', amount: '30', unit: 'ml' as Unit, caloriesRef: '22' },
 ];
 
 const mockProps = {
@@ -33,7 +33,7 @@ describe('WaterIngredientsForm', () => {
   });
 
   it('displays water-specific placeholder text', () => {
-    const emptyIngredients = [{ name: '', amount: '', unit: 'ml' as Unit, caloriesPer100g: '' }];
+    const emptyIngredients = [{ name: '', amount: '', unit: 'ml' as Unit, caloriesRef: '' }];
     const { getByPlaceholderText, getByText } = render(
       <WaterIngredientsForm {...mockProps} ingredients={emptyIngredients} />
     );
@@ -91,7 +91,7 @@ describe('WaterIngredientsForm', () => {
   it('calls onRemoveIngredient when remove button is pressed', () => {
     const multipleIngredients = [
       ...mockIngredients,
-      { name: 'Protein powder', amount: '25', unit: 'g' as Unit, caloriesPer100g: '380' },
+      { name: 'Protein powder', amount: '25', unit: 'g' as Unit, caloriesRef: '380' },
     ];
     const { getByTestId, getByText } = render(
       <WaterIngredientsForm {...mockProps} ingredients={multipleIngredients} />
@@ -138,6 +138,6 @@ describe('WaterIngredientsForm', () => {
     
     fireEvent.changeText(getByDisplayValue('22'), '25');
     
-    expect(mockProps.onUpdateIngredient).toHaveBeenCalledWith(0, 'caloriesPer100g', '25');
+    expect(mockProps.onUpdateIngredient).toHaveBeenCalledWith(0, 'caloriesRef', '25');
   });
 });

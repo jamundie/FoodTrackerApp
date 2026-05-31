@@ -46,7 +46,7 @@ export const processIngredients = (ingredients: IngredientFormData[]): Ingredien
 
     // Build NutritionData — prefer manually entered values over the source
     // value when the user has overridden a field after a lookup.
-    const manualCalories = parseFloat(i.caloriesPer100g) || undefined;
+    const manualCalories = parseFloat(i.caloriesRef) || undefined;
     const manualProtein  = i.proteinPer100g ? parseFloat(i.proteinPer100g) || undefined : undefined;
     const manualCarbs    = i.carbsPer100g   ? parseFloat(i.carbsPer100g)   || undefined : undefined;
     const manualFat      = i.fatPer100g     ? parseFloat(i.fatPer100g)     || undefined : undefined;

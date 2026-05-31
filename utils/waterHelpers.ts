@@ -25,7 +25,7 @@ export const processWaterIngredients = (ingredients: IngredientFormData[]): Ingr
 
   return validIngredients.map((ingredient, index) => {
     const amount = parseFloat(ingredient.amount) || 0;
-    const caloriesPer100g = parseFloat(ingredient.caloriesPer100g) || undefined;
+    const caloriesPer100g = parseFloat(ingredient.caloriesRef) || undefined;
 
     let calculatedCalories: number | undefined;
     if (caloriesPer100g && amount > 0) {

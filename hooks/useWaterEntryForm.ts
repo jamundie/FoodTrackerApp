@@ -24,7 +24,7 @@ export const useWaterEntryForm = () => {
   const [showTimePicker, setShowTimePicker] = useState(false);
   
   const [ingredients, setIngredients] = useState<IngredientFormData[]>([
-    { name: "", amount: "", unit: "ml", caloriesPer100g: "" },
+    { name: "", amount: "", unit: "ml", caloriesRef: "" },
   ]);
 
   const handleVolumePresetChange = useCallback((preset: VolumePreset) => {
@@ -34,7 +34,7 @@ export const useWaterEntryForm = () => {
   const addIngredient = useCallback(() => {
     setIngredients(prev => [
       ...prev,
-      { name: "", amount: "", unit: "ml", caloriesPer100g: "" },
+      { name: "", amount: "", unit: "ml", caloriesRef: "" },
     ]);
   }, []);
 
@@ -94,7 +94,7 @@ export const useWaterEntryForm = () => {
       selectedTime: { hours: new Date().getHours(), minutes: 0 },
     });
     setVolumePresetId(defaultPresetId);
-    setIngredients([{ name: "", amount: "", unit: "ml", caloriesPer100g: "" }]);
+    setIngredients([{ name: "", amount: "", unit: "ml", caloriesRef: "" }]);
   }, []);
 
   const handleSubmit = useCallback(() => {

@@ -42,8 +42,9 @@ export type IngredientFormData = {
   name: string;
   amount: string;
   unit: Unit;
-  // Calorie field kept for manual override when no lookup was performed
-  caloriesPer100g: string;
+  // kcal per 100 g for g/ml units; kcal per piece for piece unit.
+  // Kept for manual override when no lookup was performed.
+  caloriesRef: string;
   // Macro overrides — populated from a lookup but remain editable
   proteinPer100g?: string;
   carbsPer100g?:   string;

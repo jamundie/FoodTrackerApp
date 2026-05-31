@@ -4,12 +4,13 @@ import IngredientForm from '../../IngredientForm';
 import { Unit, IngredientFormData } from '../../../types/ingredient';
 
 const mockIngredients: IngredientFormData[] = [
-  { name: 'Chicken', amount: '200', unit: 'g' as Unit, caloriesPer100g: '165' },
+  { name: 'Chicken', amount: '200', unit: 'g' as Unit, caloriesRef: '165' },
 ];
 
 const mockProps = {
   ingredients: mockIngredients,
   onUpdateIngredient: jest.fn(),
+  onApplyNutrition: jest.fn(),
   onAddIngredient: jest.fn(),
   onRemoveIngredient: jest.fn(),
 };
@@ -48,7 +49,7 @@ describe('IngredientForm', () => {
   it('calls onRemoveIngredient when remove button is pressed', () => {
     const multipleIngredients = [
       ...mockIngredients,
-      { name: 'Rice', amount: '100', unit: 'g' as Unit, caloriesPer100g: '130' },
+      { name: 'Rice', amount: '100', unit: 'g' as Unit, caloriesRef: '130' },
     ];
     
     const { getByTestId } = render(
@@ -69,7 +70,7 @@ describe('IngredientForm', () => {
   it('shows remove button for multiple ingredients', () => {
     const multipleIngredients = [
       ...mockIngredients,
-      { name: 'Rice', amount: '100', unit: 'g' as Unit, caloriesPer100g: '130' },
+      { name: 'Rice', amount: '100', unit: 'g' as Unit, caloriesRef: '130' },
     ];
     
     const { getAllByText } = render(

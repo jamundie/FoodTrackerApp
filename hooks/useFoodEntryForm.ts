@@ -23,7 +23,7 @@ export const useFoodEntryForm = () => {
   const [showTimePicker, setShowTimePicker] = useState(false);
   
   const [ingredients, setIngredients] = useState<IngredientFormData[]>([
-    { name: "", amount: "", unit: "g", caloriesPer100g: "" },
+    { name: "", amount: "", unit: "g", caloriesRef: "" },
   ]);
 
   const [photoUri, setPhotoUri] = useState<string | undefined>(undefined);
@@ -39,7 +39,7 @@ export const useFoodEntryForm = () => {
   const addIngredient = useCallback(() => {
     setIngredients(prev => [
       ...prev,
-      { name: "", amount: "", unit: "g", caloriesPer100g: "" },
+      { name: "", amount: "", unit: "g", caloriesRef: "" },
     ]);
   }, []);
 
@@ -58,8 +58,8 @@ export const useFoodEntryForm = () => {
       const nd = result.nutritionData;
       updated[index] = {
         ...updated[index],
-        name:           result.productName,
-        caloriesPer100g: String(Math.round(nd.caloriesPer100g)),
+        name:            result.productName,
+        caloriesRef:     String(Math.round(nd.caloriesPer100g)),
         proteinPer100g:  nd.proteinPer100g !== undefined ? String(nd.proteinPer100g.toFixed(1)) : undefined,
         carbsPer100g:    nd.carbsPer100g   !== undefined ? String(nd.carbsPer100g.toFixed(1))   : undefined,
         fatPer100g:      nd.fatPer100g     !== undefined ? String(nd.fatPer100g.toFixed(1))     : undefined,
@@ -140,7 +140,7 @@ export const useFoodEntryForm = () => {
       selectedTime: { hours: new Date().getHours(), minutes: 0 },
     });
     setShowCategoryDropdown(false);
-    setIngredients([{ name: "", amount: "", unit: "g", caloriesPer100g: "" }]);
+    setIngredients([{ name: "", amount: "", unit: "g", caloriesRef: "" }]);
     setPhotoUri(undefined);
   }, []);
 

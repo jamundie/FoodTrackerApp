@@ -39,8 +39,8 @@ describe('waterHelpers', () => {
   describe('processWaterIngredients', () => {
     test('processes valid ingredients correctly', () => {
       const formData: IngredientFormData[] = [
-        { name: 'Lemon juice', amount: '30', unit: 'ml', caloriesPer100g: '22' },
-        { name: 'Honey', amount: '1', unit: 'piece', caloriesPer100g: '304' },
+        { name: 'Lemon juice', amount: '30', unit: 'ml', caloriesRef: '22' },
+        { name: 'Honey', amount: '1', unit: 'piece', caloriesRef: '304' },
       ];
 
       const result = processWaterIngredients(formData);
@@ -64,10 +64,10 @@ describe('waterHelpers', () => {
 
     test('filters out invalid ingredients', () => {
       const formData: IngredientFormData[] = [
-        { name: 'Lemon juice', amount: '30', unit: 'ml', caloriesPer100g: '22' },
-        { name: '', amount: '50', unit: 'ml', caloriesPer100g: '0' }, // Empty name
-        { name: 'Water', amount: '', unit: 'ml', caloriesPer100g: '' }, // Empty amount
-        { name: '  ', amount: '100', unit: 'ml', caloriesPer100g: '' }, // Whitespace name
+        { name: 'Lemon juice', amount: '30', unit: 'ml', caloriesRef: '22' },
+        { name: '', amount: '50', unit: 'ml', caloriesRef: '0' }, // Empty name
+        { name: 'Water', amount: '', unit: 'ml', caloriesRef: '' }, // Empty amount
+        { name: '  ', amount: '100', unit: 'ml', caloriesRef: '' }, // Whitespace name
       ];
 
       const result = processWaterIngredients(formData);
@@ -78,7 +78,7 @@ describe('waterHelpers', () => {
 
     test('handles ingredients without calories', () => {
       const formData: IngredientFormData[] = [
-        { name: 'Water', amount: '500', unit: 'ml', caloriesPer100g: '' },
+        { name: 'Water', amount: '500', unit: 'ml', caloriesRef: '' },
       ];
 
       const result = processWaterIngredients(formData);
@@ -95,9 +95,9 @@ describe('waterHelpers', () => {
 
     test('calculates calories correctly for different units', () => {
       const formData: IngredientFormData[] = [
-        { name: 'Juice', amount: '250', unit: 'ml', caloriesPer100g: '45' }, // ml
-        { name: 'Powder', amount: '20', unit: 'g', caloriesPer100g: '350' }, // g
-        { name: 'Tablet', amount: '2', unit: 'piece', caloriesPer100g: '50' }, // piece
+        { name: 'Juice', amount: '250', unit: 'ml', caloriesRef: '45' }, // ml
+        { name: 'Powder', amount: '20', unit: 'g', caloriesRef: '350' }, // g
+        { name: 'Tablet', amount: '2', unit: 'piece', caloriesRef: '50' }, // piece
       ];
 
       const result = processWaterIngredients(formData);
@@ -109,8 +109,8 @@ describe('waterHelpers', () => {
 
     test('generates unique IDs for ingredients', () => {
       const formData: IngredientFormData[] = [
-        { name: 'Ingredient 1', amount: '10', unit: 'ml', caloriesPer100g: '' },
-        { name: 'Ingredient 2', amount: '20', unit: 'ml', caloriesPer100g: '' },
+        { name: 'Ingredient 1', amount: '10', unit: 'ml', caloriesRef: '' },
+        { name: 'Ingredient 2', amount: '20', unit: 'ml', caloriesRef: '' },
       ];
 
       const result = processWaterIngredients(formData);
@@ -122,7 +122,7 @@ describe('waterHelpers', () => {
 
     test('handles zero amounts correctly', () => {
       const formData: IngredientFormData[] = [
-        { name: 'Test', amount: '0', unit: 'ml', caloriesPer100g: '100' },
+        { name: 'Test', amount: '0', unit: 'ml', caloriesRef: '100' },
       ];
 
       const result = processWaterIngredients(formData);

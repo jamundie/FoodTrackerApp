@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "./ThemedText";
 import { Unit, IngredientFormData } from "../types/ingredient";
 import { FoodSearchResult } from "../lib/openFoodFactsService";
 import FoodSearchInput from "./FoodSearchInput";
+import BarcodeScannerModal from "./BarcodeScannerModal";
 import { styles as foodStyles } from "../styles/food.styles";
 
 interface IngredientFormProps {
@@ -21,6 +23,18 @@ export default function IngredientForm({
   onAddIngredient,
   onRemoveIngredient,
 }: IngredientFormProps) {
+  const [scannerVisible, setScannerVisible] = useState(false);
+  const [scanTargetIndex, setScanTargetIndex] = useState(0);
+
+  const openScanner = (index: number) => {
+    setScanTargetIndex(index);
+    setScannerVisible(true);
+  };
+
+  const handleScanResult = (result: FoodSearchResult) => {
+    onApplyNutrition(scanTargetIndex, result);
+    setScannerVisible(false);
+  };
   return (
     <View style={foodStyles.ingredientsSection}>
       <ThemedText type="defaultSemiBold" style={foodStyles.sectionTitle}>
@@ -31,16 +45,25 @@ export default function IngredientForm({
         <View key={index} style={foodStyles.ingredientCard}>
           <View style={foodStyles.ingredientHeader}>
             <ThemedText type="default">Ingredient {index + 1}</ThemedText>
-            {ingredients.length > 1 && (
+            <View style={localStyles.headerActions}>
               <TouchableOpacity
-                style={foodStyles.removeButton}
-                onPress={() => onRemoveIngredient(index)}
+                style={localStyles.scanButton}
+                onPress={() => openScanner(index)}
+                testID={`scan-barcode-${index}`}
               >
-                <Text style={foodStyles.removeButtonText} testID={`remove-ingredient-${index}`}>
-                  Remove
-                </Text>
+                <Ionicons name="barcode-outline" size={18} color="#007bff" />
               </TouchableOpacity>
-            )}
+              {ingredients.length > 1 && (
+                <TouchableOpacity
+                  style={foodStyles.removeButton}
+                  onPress={() => onRemoveIngredient(index)}
+                >
+                  <Text style={foodStyles.removeButtonText} testID={`remove-ingredient-${index}`}>
+                    Remove
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
 
           {/* Name — search field with OFF live lookup */}
@@ -86,8 +109,8 @@ export default function IngredientForm({
           {/* Calories — always editable for manual override */}
           <TextInput
             style={foodStyles.input}
-            value={ingredient.caloriesPer100g}
-            onChangeText={(value) => onUpdateIngredient(index, "caloriesPer100g", value)}
+            value={ingredient.caloriesRef}
+            onChangeText={(value) => onUpdateIngredient(index, "caloriesRef", value)}
             placeholder={
               ingredient.unit === "piece"
                 ? "Calories per piece (optional)"
@@ -138,11 +161,25 @@ export default function IngredientForm({
       >
         <Text style={foodStyles.addIngredientButtonText}>+ Add Ingredient</Text>
       </TouchableOpacity>
+
+      <BarcodeScannerModal
+        visible={scannerVisible}
+        onResult={handleScanResult}
+        onClose={() => setScannerVisible(false)}
+      />
     </View>
   );
 }
 
 const localStyles = StyleSheet.create({
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  scanButton: {
+    padding: 4,
+  },
   macroPills: {
     flexDirection: "row",
     flexWrap: "wrap",
