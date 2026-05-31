@@ -32,6 +32,7 @@ export const useBowelEntryForm = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | undefined>(undefined);
+  const [submitting, setSubmitting] = useState(false);
 
   const handlePhotoSelect = useCallback((uri: string) => {
     setPhotoUri(uri);
@@ -86,6 +87,8 @@ export const useBowelEntryForm = () => {
   }, []);
 
   const handleSubmit = useCallback(async () => {
+    if (submitting) return;
+
     const entry: BowelEntry = {
       id: generateId(),
       timestamp: createTimestamp(form.selectedDate, form.selectedTime),
@@ -98,14 +101,23 @@ export const useBowelEntryForm = () => {
       photoUri,
     };
 
-    await addBowelEntry(entry);
-    resetForm();
-    Alert.alert('Logged', 'Bowel movement recorded.');
-  }, [form, photoUri, addBowelEntry, resetForm]);
+    setSubmitting(true);
+    try {
+      await addBowelEntry(entry);
+      resetForm();
+      Alert.alert('Logged', 'Bowel movement recorded.');
+    } catch (err) {
+      console.error('[useBowelEntryForm] handleSubmit:', err);
+      Alert.alert('Error', 'Failed to save entry. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }, [submitting, form, photoUri, addBowelEntry, resetForm]);
 
   return {
     form,
     photoUri,
+    submitting,
     showDatePicker,
     showTimePicker,
     setShowDatePicker,

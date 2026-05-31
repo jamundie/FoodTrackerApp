@@ -12,6 +12,7 @@
  * Key storage key in SecureStore: PHOTO_ENCRYPTION_KEY
  */
 
+import { Buffer } from 'buffer';
 import QuickCrypto from 'react-native-quick-crypto';
 import * as SecureStore from 'expo-secure-store';
 

@@ -109,16 +109,15 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
   const addBowelEntry = useCallback(async (entry: BowelEntry) => {
     if (!userId) return;
 
-    // If a local photo URI was attached, encrypt + upload it first, then replace with the storage path.
-    // Uses the user-photos bucket and AES-256-GCM pipeline shared with food entries.
-    let persistedEntry = entry;
-    if (entry.photoUri && !entry.photoUri.startsWith('http')) {
-      const storagePath = await uploadPhoto(userId, entry.id, entry.photoUri);
-      persistedEntry = { ...entry, photoUri: storagePath ?? undefined };
-    }
-
     // Persist first — local state update after so a concurrent load() cannot race and overwrite
     try {
+      // If a local photo URI was attached, encrypt + upload it first, then replace with the storage path.
+      let persistedEntry = entry;
+      if (entry.photoUri && !entry.photoUri.startsWith('http')) {
+        const storagePath = await uploadPhoto(userId, entry.id, entry.photoUri);
+        persistedEntry = { ...entry, photoUri: storagePath ?? undefined };
+      }
+
       await insertBowelEntry(userId, persistedEntry);
       setData((prev) => ({
         ...prev,
@@ -126,6 +125,7 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
       }));
     } catch (err) {
       console.error('[TrackingContext] addBowelEntry:', err);
+      throw err;
     }
   }, [userId]);
 
