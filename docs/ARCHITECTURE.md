@@ -93,7 +93,7 @@ app/
 │   ├── water.tsx     # Water tracking
 │   ├── bowel.tsx     # Bowel movement tracking
 │   ├── profile.tsx   # User profile + sign-out
-│   └── stats.tsx     # Statistics (stub)
+│   └── stats.tsx     # Statistics — bar charts, macro trends, bowel health
 ├── _layout.tsx       # Root layout: AuthProvider + AuthGate + providers
 └── +not-found.tsx    # 404 handling
 ```
@@ -277,24 +277,22 @@ types/
 ### Stubbed / Not Started
 | Feature | Status | Notes |
 |---|---|---|
-| Stats tab | Stub | `app/(tabs)/stats.tsx` renders placeholder text only — no charts or calculations |
+| Stats tab | Implemented | See `app/(tabs)/stats.tsx` — 7/30-day Skia bar charts for calories and water, average macro bars, Bristol type distribution |
 | Sleep tracking | Not started | "Coming Soon" card on Home only; no tab, no types, no DB table |
 | Stress tracking | Not started | Same as sleep — card only |
-| AI photo analysis (Gemini Vision) | Planned | Architecture ready — `FoodEntry.photoUri` is stored, `NutritionData` type is the shared contract; `lib/geminiVisionService.ts` + `hooks/usePhotoNutritionAnalysis.ts` to be built; no API calls exist yet |
+| AI photo analysis (Gemini Vision) | Implemented | `lib/geminiService.ts` base64-encodes the photo and calls Gemini 2.5 Flash; results fan into ingredient rows via `applyNutritionToIngredient`; "Analyse Photo with AI" button in `MealInfoForm` |
 | Barcode scanning | Planned | `searchFoodByBarcode()` in `lib/openFoodFactsService.ts` is implemented; needs `expo-barcode-scanner` UI |
 
 ### Planned Feature Backlog (priority order)
-1. **Gemini Vision AI analysis** — photo → ingredient list with macros; hook writes to `ingredients[]` via `applyNutritionToIngredient`; requires Supabase Edge Function proxy for API key
-2. **Barcode scanning** — wire `searchFoodByBarcode()` to a barcode scanner UI overlay
-3. **Sleep tracking** — new tab, `SleepEntry` type (start/end times, quality rating, notes), DB table, service functions, `TrackingContext` additions
-4. **Stats tab** — meaningful charts correlating food/water/sleep/bowel data over time; trend analysis; wire `ProgressChart` hardcoded 2500 kcal line to `userProfile.dailyCalorieGoal`
+1. **Sleep tracking** — new tab, `SleepEntry` type (start/end times, quality rating, notes), DB table, service functions, `TrackingContext` additions
+2. **Stats — sleep/stress** — add sleep quality and stress trend charts to the Stats screen once those data sources exist
+3. **ProgressChart goal line** — wire the hardcoded 2500 kcal reference line in `ProgressChart` to `userProfile.dailyCalorieGoal`
 
 ## Known Limitations
-- `stats.tsx` is a stub — not yet implemented
 - Sleep tracking not started (no tab, no types, no DB table; "Coming Soon" card on Home only)
 - Stress tracking not started (no screen, no types, no DB table)
-- Gemini Vision AI integration not yet built — architecture and types are ready, no API calls exist
 - 2500 kcal reference line in `ProgressChart` is hardcoded — not yet wired to `userProfile.dailyCalorieGoal`
+- Stats screen aggregates all data client-side (no date-range DB queries) — fine for personal use; may need pagination if entry counts grow large
 - Photo encryption key tied to device install — reinstalling the app permanently loses access to previously uploaded photos
 - No offline support — app requires network for data operations
 - CI uses Node 18 but `.nvmrc` pins Node 20 — align before changing CI

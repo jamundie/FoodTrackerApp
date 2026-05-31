@@ -93,6 +93,11 @@ export default function FoodSearchInput({
     onChangeText(text);
   };
 
+  const handleBlur = () => {
+    // Small delay so a tap on a dropdown result fires before we close it
+    setTimeout(() => setShowDropdown(false), 150);
+  };
+
   return (
     <View style={styles.wrapper}>
       <View style={styles.inputRow}>
@@ -100,6 +105,7 @@ export default function FoodSearchInput({
           style={styles.input}
           value={value}
           onChangeText={handleChangeText}
+          onBlur={handleBlur}
           placeholder={placeholder}
           placeholderTextColor="#999"
           autoCorrect={false}

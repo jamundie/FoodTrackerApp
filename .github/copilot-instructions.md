@@ -133,6 +133,15 @@ IngredientFormData {
 - The card renders nothing when the user has no entries today and no calorie goal set.
 - Do not pass data into it via props — it is always context-driven.
 
+### Stats Screen Pattern
+- `app/(tabs)/stats.tsx` visualises historical trends across a user-selected 7 or 30-day period.
+- All aggregation is done client-side via `useMemo` against `data.foodEntries`, `data.waterEntries`, and `data.bowelEntries` from `TrackingContext` — no new service calls.
+- Skia `Rect` + `Line` primitives inside a `Canvas` are used for bar charts (daily calorie and water totals). Follow the same primitive pattern as `ProgressChart.tsx`.
+- Macro averages and bowel Bristol-type distribution are rendered with plain React Native `View` progress bars — no Skia needed for horizontal bars.
+- The bowel section is hidden when `bowelInPeriod.length === 0` to avoid noise for users who haven't used bowel tracking.
+- Styles live in `styles/stats.styles.ts`.
+- The screen never receives props — it is always context-driven. Do not add props to `StatsScreen`.
+
 ### Nutrition Goals
 - `UserProfile` carries `dailyCalorieGoal`, `dailyProteinGoal`, `dailyCarbGoal`, `dailyFatGoal` — all optional numbers.
 - These are set in `ProfileForm` and persisted via `upsertUserProfile` in `trackingService.ts`.

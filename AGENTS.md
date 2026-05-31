@@ -159,8 +159,6 @@ window.sb.editorUi.editor.graph.fit();
 Once the app is running on the emulator you can ask OpenCode to take a screenshot, inspect UI elements, or drive interactions to verify behaviour after code changes.
 
 
-
-- `stats.tsx` is a stub — not yet implemented
 - Sleep and Stress tracking not yet started
 - Data persists to Supabase — SQL migration in `supabase/migrations/001_initial_schema.sql` must be run once in Supabase Dashboard before the app works end-to-end
 - CI uses Node 18 but `.nvmrc` pins Node 20 — align before changing CI
