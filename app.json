@@ -34,6 +34,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "fa4fba27-762d-4193-8c5d-3bd318be4778"
+      }
+    },
+    "owner": "james.mundie"
   }
 }

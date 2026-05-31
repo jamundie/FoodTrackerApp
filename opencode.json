@@ -6,6 +6,11 @@
       "type": "local",
       "command": ["npx", "@mobilenext/mobile-mcp@latest"],
       "enabled": true
+    },
+    "graphify": {
+      "type": "local",
+      "command": ["npx", "graphifyy@latest"],
+      "enabled": true
     }
   }
 }
