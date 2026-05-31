@@ -34,6 +34,7 @@ export type Ingredient = {
   calculatedProtein?:  number;
   calculatedCarbs?:    number;
   calculatedFat?:      number;
+  calculatedFiber?:    number;
 };
 
 // Shared form data type for ingredient inputs (food and water forms).
@@ -49,6 +50,7 @@ export type IngredientFormData = {
   proteinPer100g?: string;
   carbsPer100g?:   string;
   fatPer100g?:     string;
+  fiberPer100g?:   string;
   // Tracks whether this row was populated by a nutrition lookup
   nutritionSource?: "manual" | "open_food_facts" | "gemini_vision";
 };

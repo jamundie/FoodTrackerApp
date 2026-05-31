@@ -367,6 +367,23 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
+  analysePhotoButton: {
+    borderColor: "#5856D6",
+    backgroundColor: "#f2f1ff",
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: 10,
+    alignItems: "center",
+    marginTop: 8,
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 6,
+  },
+  analysePhotoButtonText: {
+    color: "#5856D6",
+    fontSize: 14,
+    fontWeight: "600",
+  },
   entryActions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',

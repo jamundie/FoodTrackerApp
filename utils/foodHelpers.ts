@@ -7,6 +7,7 @@ export type MacroTotals = {
   protein:  number;
   carbs:    number;
   fat:      number;
+  fiber:    number;
 };
 
 // ── Per-ingredient calculation ────────────────────────────────────────────────
@@ -50,6 +51,7 @@ export const processIngredients = (ingredients: IngredientFormData[]): Ingredien
     const manualProtein  = i.proteinPer100g ? parseFloat(i.proteinPer100g) || undefined : undefined;
     const manualCarbs    = i.carbsPer100g   ? parseFloat(i.carbsPer100g)   || undefined : undefined;
     const manualFat      = i.fatPer100g     ? parseFloat(i.fatPer100g)     || undefined : undefined;
+    const manualFiber    = i.fiberPer100g   ? parseFloat(i.fiberPer100g)   || undefined : undefined;
 
     // caloriesPer100g must be present for any calculation
     const kcalRef = manualCalories;
@@ -68,6 +70,7 @@ export const processIngredients = (ingredients: IngredientFormData[]): Ingredien
       proteinPer100g:  manualProtein,
       carbsPer100g:    manualCarbs,
       fatPer100g:      manualFat,
+      fiberPer100g:    manualFiber,
     };
 
     return {
@@ -81,6 +84,7 @@ export const processIngredients = (ingredients: IngredientFormData[]): Ingredien
       calculatedProtein:  calcNutrient(manualProtein, factor),
       calculatedCarbs:    calcNutrient(manualCarbs,   factor),
       calculatedFat:      calcNutrient(manualFat,     factor),
+      calculatedFiber:    calcNutrient(manualFiber,   factor),
     };
   });
 };
@@ -95,8 +99,9 @@ export const calculateTotals = (ingredients: Ingredient[]): MacroTotals => {
       protein:  acc.protein  + (ing.calculatedProtein  ?? 0),
       carbs:    acc.carbs    + (ing.calculatedCarbs     ?? 0),
       fat:      acc.fat      + (ing.calculatedFat       ?? 0),
+      fiber:    acc.fiber    + (ing.calculatedFiber     ?? 0),
     }),
-    { calories: 0, protein: 0, carbs: 0, fat: 0 },
+    { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 },
   );
 };
 
@@ -128,6 +133,7 @@ export const createFoodEntry = (
     totalProtein:  totals.protein  > 0 ? totals.protein  : undefined,
     totalCarbs:    totals.carbs    > 0 ? totals.carbs    : undefined,
     totalFat:      totals.fat      > 0 ? totals.fat      : undefined,
+    totalFiber:    totals.fiber    > 0 ? totals.fiber    : undefined,
     photoUri,
   };
 };

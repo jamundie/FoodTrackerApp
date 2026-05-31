@@ -77,6 +77,7 @@ export async function fetchFoodEntries(userId: string): Promise<FoodEntry[]> {
     totalProtein:  row.total_protein  ?? undefined,
     totalCarbs:    row.total_carbs    ?? undefined,
     totalFat:      row.total_fat      ?? undefined,
+    totalFiber:    row.total_fiber    ?? undefined,
     // photo_storage_path stored here; resolved to signed URL by the hook that displays it
     photoUri: row.photo_storage_path ?? undefined,
     ingredients: (row.food_ingredients as any[]).map(mapIngredientRow),
@@ -94,6 +95,7 @@ export async function insertFoodEntry(userId: string, entry: FoodEntry): Promise
     total_protein:  entry.totalProtein  ?? null,
     total_carbs:    entry.totalCarbs    ?? null,
     total_fat:      entry.totalFat      ?? null,
+    total_fiber:    entry.totalFiber    ?? null,
     photo_storage_path: entry.photoUri ?? null,
   });
   if (error) throw new Error(`insertFoodEntry failed: ${error.message}`);
@@ -126,6 +128,7 @@ export async function updateFoodEntry(userId: string, entry: FoodEntry): Promise
     total_protein:  entry.totalProtein  ?? null,
     total_carbs:    entry.totalCarbs    ?? null,
     total_fat:      entry.totalFat      ?? null,
+    total_fiber:    entry.totalFiber    ?? null,
     photo_storage_path: entry.photoUri ?? null,
   }).eq('id', entry.id).eq('user_id', userId);
   if (error) throw new Error(`updateFoodEntry failed: ${error.message}`);
@@ -365,6 +368,7 @@ function mapIngredientRow(row: any): Ingredient {
     calculatedProtein:  row.calculated_protein  ?? undefined,
     calculatedCarbs:    row.calculated_carbs    ?? undefined,
     calculatedFat:      row.calculated_fat      ?? undefined,
+    calculatedFiber:    row.calculated_fiber    ?? undefined,
   };
 }
 
@@ -388,6 +392,7 @@ function mapFoodIngredientToRow(ing: Ingredient, userId: string, entryId: string
     calculated_protein:  ing.calculatedProtein      ?? null,
     calculated_carbs:    ing.calculatedCarbs        ?? null,
     calculated_fat:      ing.calculatedFat          ?? null,
+    calculated_fiber:    ing.calculatedFiber        ?? null,
     nutrition_source:    null, // populated by future Gemini hook
   };
 }

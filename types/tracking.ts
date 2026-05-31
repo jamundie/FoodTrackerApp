@@ -11,6 +11,7 @@ export type FoodEntry = {
   totalProtein?:  number;    // g — sum of calculatedProtein across ingredients
   totalCarbs?:    number;    // g
   totalFat?:      number;    // g
+  totalFiber?:    number;    // g
   photoUri?: string;         // URI of the meal photo; used for future AI (Gemini Vision) analysis
 };
 

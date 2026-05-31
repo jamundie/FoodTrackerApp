@@ -18,6 +18,8 @@ export type FoodSearchResult = {
   brand?: string;
   thumbnailUrl?: string;
   nutritionData: NutritionData;
+  /** Estimated weight in grams — set by Gemini Vision; never set by Open Food Facts. */
+  estimatedWeightG?: number;
 };
 
 // ── Raw OFF API shapes ────────────────────────────────────────────────────────

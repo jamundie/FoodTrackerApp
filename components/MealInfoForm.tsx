@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
 import { ThemedText } from "./ThemedText";
 import PhotoInput from "./PhotoInput";
 import { FoodCategory } from "../types/tracking";
@@ -23,6 +23,8 @@ interface MealInfoFormProps {
   photoUri: string | undefined;
   onPhotoSelect: (uri: string) => void;
   onPhotoRemove: () => void;
+  onAnalysePhoto?: () => void;
+  analysingPhoto?: boolean;
 }
 
 export default function MealInfoForm({
@@ -36,6 +38,8 @@ export default function MealInfoForm({
   photoUri,
   onPhotoSelect,
   onPhotoRemove,
+  onAnalysePhoto,
+  analysingPhoto = false,
 }: MealInfoFormProps) {
   return (
     <>
@@ -98,6 +102,24 @@ export default function MealInfoForm({
         onPhotoSelect={onPhotoSelect}
         onPhotoRemove={onPhotoRemove}
       />
+
+      {photoUri && onAnalysePhoto && (
+        <TouchableOpacity
+          style={[styles.analysePhotoButton, analysingPhoto && { opacity: 0.6 }]}
+          onPress={onAnalysePhoto}
+          disabled={analysingPhoto}
+          testID="analyse-photo-button"
+        >
+          {analysingPhoto ? (
+            <ActivityIndicator size="small" color="#5856D6" />
+          ) : (
+            <Text style={styles.analysePhotoButtonText}>✦</Text>
+          )}
+          <Text style={styles.analysePhotoButtonText}>
+            {analysingPhoto ? 'Analysing...' : 'Analyse Photo with AI'}
+          </Text>
+        </TouchableOpacity>
+      )}
     </>
   );
 }

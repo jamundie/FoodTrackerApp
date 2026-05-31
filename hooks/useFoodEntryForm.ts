@@ -7,6 +7,7 @@ import { MealInfoData } from '../components/MealInfoForm';
 import { processIngredients, createFoodEntry } from '../utils/foodHelpers';
 import { createTimestamp } from '../utils/dateUtils';
 import { FoodSearchResult } from '../lib/openFoodFactsService';
+import { analyseMealPhoto } from '../lib/geminiService';
 
 // Convert a domain Ingredient back to editable form data
 function ingredientToFormData(ing: Ingredient): IngredientFormData {
@@ -74,6 +75,54 @@ export const useFoodEntryForm = (initialEntry?: FoodEntry, onSuccess?: () => voi
     setPhotoUri(undefined);
   }, []);
 
+  const [analysingPhoto, setAnalysingPhoto] = useState(false);
+
+  /**
+   * Calls Gemini Vision on the current photoUri and fans the results into
+   * ingredient rows. Existing rows are replaced only if they are blank; new
+   * rows are appended for any overflow results.
+   */
+  const analysePhoto = useCallback(async () => {
+    if (!photoUri || analysingPhoto) return;
+    setAnalysingPhoto(true);
+    try {
+      const results = await analyseMealPhoto(photoUri);
+      if (results.length === 0) {
+        Alert.alert('No ingredients detected', 'Gemini could not identify any food items in this photo. Try a clearer shot.');
+        return;
+      }
+      setIngredients(prev => {
+        const next = [...prev];
+        results.forEach((result, i) => {
+          const nd = result.nutritionData;
+          const row = {
+            name:            result.productName,
+            amount:          result.estimatedWeightG ? String(result.estimatedWeightG) : '',
+            unit:            'g' as const,
+            caloriesRef:     String(Math.round(nd.caloriesPer100g)),
+            proteinPer100g:  nd.proteinPer100g !== undefined ? String(nd.proteinPer100g.toFixed(1)) : undefined,
+            carbsPer100g:    nd.carbsPer100g   !== undefined ? String(nd.carbsPer100g.toFixed(1))   : undefined,
+            fatPer100g:      nd.fatPer100g     !== undefined ? String(nd.fatPer100g.toFixed(1))     : undefined,
+            fiberPer100g:    nd.fiberPer100g   !== undefined ? String(nd.fiberPer100g.toFixed(1))   : undefined,
+            nutritionSource: 'gemini_vision' as const,
+          };
+          if (i < next.length) {
+            // Replace blank rows in-place; append when there are more results than rows
+            next[i] = next[i].name.trim() === '' ? row : next[i];
+          } else {
+            next.push(row);
+          }
+        });
+        return next;
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      Alert.alert('Analysis failed', message);
+    } finally {
+      setAnalysingPhoto(false);
+    }
+  }, [photoUri, analysingPhoto]);
+
   const addIngredient = useCallback(() => {
     setIngredients(prev => [
       ...prev,
@@ -101,6 +150,7 @@ export const useFoodEntryForm = (initialEntry?: FoodEntry, onSuccess?: () => voi
         proteinPer100g:  nd.proteinPer100g !== undefined ? String(nd.proteinPer100g.toFixed(1)) : undefined,
         carbsPer100g:    nd.carbsPer100g   !== undefined ? String(nd.carbsPer100g.toFixed(1))   : undefined,
         fatPer100g:      nd.fatPer100g     !== undefined ? String(nd.fatPer100g.toFixed(1))     : undefined,
+        fiberPer100g:    nd.fiberPer100g   !== undefined ? String(nd.fiberPer100g.toFixed(1))   : undefined,
         nutritionSource: 'open_food_facts',
       };
       return updated;
@@ -232,6 +282,7 @@ export const useFoodEntryForm = (initialEntry?: FoodEntry, onSuccess?: () => voi
     ingredients,
     photoUri,
     submitting,
+    analysingPhoto,
     showCategoryDropdown,
     showDatePicker,
     showTimePicker,
@@ -244,6 +295,7 @@ export const useFoodEntryForm = (initialEntry?: FoodEntry, onSuccess?: () => voi
     handleTimeSelect,
     handlePhotoSelect,
     handlePhotoRemove,
+    analysePhoto,
     addIngredient,
     updateIngredient,
     removeIngredient,
