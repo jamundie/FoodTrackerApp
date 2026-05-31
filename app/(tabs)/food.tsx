@@ -24,6 +24,7 @@ export default function FoodScreen() {
     ingredients,
     photoUri,
     submitting,
+    analysingPhoto,
     showCategoryDropdown,
     showDatePicker,
     showTimePicker,
@@ -34,6 +35,7 @@ export default function FoodScreen() {
     handleTimeSelect,
     handlePhotoSelect,
     handlePhotoRemove,
+    analysePhoto,
     addIngredient,
     updateIngredient,
     removeIngredient,
@@ -61,6 +63,8 @@ export default function FoodScreen() {
           photoUri={photoUri}
           onPhotoSelect={handlePhotoSelect}
           onPhotoRemove={handlePhotoRemove}
+          onAnalysePhoto={analysePhoto}
+          analysingPhoto={analysingPhoto}
         />
 
         <IngredientForm
