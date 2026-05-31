@@ -30,7 +30,14 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-build-properties"
+      "expo-build-properties",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow FoodTracker to access your camera to scan food barcodes.",
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

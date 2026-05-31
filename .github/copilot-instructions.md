@@ -59,7 +59,8 @@ export type IngredientFormData = {
   name: string;
   amount: string; // Always string in forms
   unit: Unit;
-  caloriesPer100g: string; // String until parsed
+  // kcal per 100g for g/ml units; kcal per piece for piece unit
+  caloriesRef: string;
 };
 
 // Domain types use proper types
@@ -68,9 +69,16 @@ export type Ingredient = {
   name: string;
   amount: number; // Parsed number
   unit: Unit;
-  caloriesPer100g?: number; // Optional parsed number
+  caloriesPer100g?: number; // Optional parsed number (always per-100g; piece semantics handled by scalingFactor)
 };
 ```
+
+### Barcode Scanning Pattern
+- `BarcodeScannerModal` wraps `expo-camera`'s `CameraView` with a viewfinder overlay and handles camera permissions at runtime.
+- `IngredientForm` renders a `barcode-outline` icon button in each ingredient row header; pressing it opens `BarcodeScannerModal` targeted at that row index.
+- On a successful scan the modal calls `searchFoodByBarcode()` from `openFoodFactsService.ts`; the result is passed to `onResult` which calls `applyNutritionToIngredient(index, result)`.
+- The `scanning` boolean gate in the modal prevents duplicate scan events; it resets each time the modal opens.
+- Do NOT add `expo-barcode-scanner` — it is deprecated; use `expo-camera` only.
 
 ### Water Entry Patterns
 - `WaterEntry` carries `volumePresetId` (which preset was selected), `volumeMl` (ml from preset), and `totalVolume` (preset ml + any ml ingredients — always set).
@@ -103,6 +111,7 @@ Ingredient {
 
 IngredientFormData {
   ...
+  caloriesRef:        string;   // kcal per 100g for g/ml; kcal per piece for piece unit
   proteinPer100g?:    string;
   carbsPer100g?:      string;
   fatPer100g?:        string;
