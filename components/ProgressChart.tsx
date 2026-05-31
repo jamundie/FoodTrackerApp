@@ -7,14 +7,13 @@ import { styles } from '@/styles/progressChart.styles';
 interface ProgressChartProps {
   foodEntries: FoodEntry[];
   waterEntries: WaterEntry[];
+  dailyCalorieGoal?: number;
 }
 
-export default function ProgressChart({ foodEntries, waterEntries }: ProgressChartProps) {
+export default function ProgressChart({ foodEntries, waterEntries, dailyCalorieGoal }: ProgressChartProps) {
   const { width } = Dimensions.get('window');
-  
-  // Recommended daily calorie intake for 6ft 30-year-old man (moderate activity)
-  // TODO: Make this user-configurable based on personal data
-  const RECOMMENDED_DAILY_CALORIES = 2500;
+
+  const RECOMMENDED_DAILY_CALORIES = dailyCalorieGoal ?? 2500;
 
   // Calculate daily calorie totals for the last 7 days
   const getDailyCalories = () => {
@@ -100,7 +99,7 @@ export default function ProgressChart({ foodEntries, waterEntries }: ProgressCha
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendLine, { backgroundColor: '#B8CCE8' }]} />
-          <Text style={styles.legendText}>Target (2500 cal)</Text>
+          <Text style={styles.legendText}>Target ({RECOMMENDED_DAILY_CALORIES} cal)</Text>
         </View>
       </View>
       

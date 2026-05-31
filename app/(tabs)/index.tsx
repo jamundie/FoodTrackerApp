@@ -10,7 +10,7 @@ import DailySummaryCard from "@/components/DailySummaryCard";
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { data } = useTracking();
+  const { data, userProfile } = useTracking();
 
   return (
     <ScrollView 
@@ -69,7 +69,7 @@ export default function HomeScreen() {
       </View>
       <View style={styles.progressSnapshot}>
         <Text style={styles.header}>Progress Snapshot</Text>
-        <ProgressChart foodEntries={data.foodEntries} waterEntries={data.waterEntries} />
+        <ProgressChart foodEntries={data.foodEntries} waterEntries={data.waterEntries} dailyCalorieGoal={userProfile.dailyCalorieGoal} />
       </View>
       <RecentActivities 
         foodEntries={data.foodEntries} 

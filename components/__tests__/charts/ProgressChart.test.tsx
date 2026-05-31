@@ -81,6 +81,7 @@ describe('ProgressChart', () => {
     
     expect(getByText('Calories')).toBeTruthy();
     expect(getByText('Water (ml)')).toBeTruthy();
+    // Default goal is 2500 when no prop passed
     expect(getByText('Target (2500 cal)')).toBeTruthy();
   });
 
@@ -105,5 +106,12 @@ describe('ProgressChart', () => {
     const { getByText } = render(<ProgressChart foodEntries={mockFoodEntries} waterEntries={mockWaterEntries} />);
     
     expect(getByText('Target (2500 cal)')).toBeTruthy();
+  });
+
+  it('uses custom dailyCalorieGoal when provided', () => {
+    const { getByText } = render(
+      <ProgressChart foodEntries={mockFoodEntries} waterEntries={mockWaterEntries} dailyCalorieGoal={2000} />,
+    );
+    expect(getByText('Target (2000 cal)')).toBeTruthy();
   });
 });
