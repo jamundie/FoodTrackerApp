@@ -1,4 +1,5 @@
-import { Ingredient, WaterEntry, IngredientFormData, VolumePresetId } from '../types/tracking';
+import { Ingredient, IngredientFormData } from '../types/ingredient';
+import { WaterEntry, VolumePresetId } from '../types/tracking';
 import { generateId } from './dateUtils';
 
 /**

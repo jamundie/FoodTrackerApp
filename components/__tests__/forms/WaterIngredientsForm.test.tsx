@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import WaterIngredientsForm from '../../WaterIngredientsForm';
-import { Unit, IngredientFormData } from '../../../types/tracking';
+import { Unit, IngredientFormData } from '../../../types/ingredient';
 
 const mockIngredients: IngredientFormData[] = [
   { name: 'Lemon juice', amount: '30', unit: 'ml' as Unit, caloriesPer100g: '22' },

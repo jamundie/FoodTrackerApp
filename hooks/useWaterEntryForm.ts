@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useTracking } from './TrackingContext';
-import { IngredientFormData, VolumePreset, VolumePresetId, VOLUME_PRESETS } from '../types/tracking';
+import { IngredientFormData } from '../types/ingredient';
+import { VolumePreset, VolumePresetId, VOLUME_PRESETS } from '../types/tracking';
 import { WaterInfoData } from '../components/WaterInfoForm';
 import { processWaterIngredients, createWaterEntry } from '../utils/waterHelpers';
 import { createTimestamp } from '../utils/dateUtils';

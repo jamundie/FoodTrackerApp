@@ -1,5 +1,5 @@
 import { calculateTotalVolume, processWaterIngredients, createWaterEntry } from '../waterHelpers';
-import { IngredientFormData } from '../../types/tracking';
+import { IngredientFormData } from '../../types/ingredient';
 
 describe('waterHelpers', () => {
   describe('calculateTotalVolume', () => {

@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
-import { Unit, IngredientFormData } from "../types/tracking";
+import { Unit, IngredientFormData } from "../types/ingredient";
 import { styles } from "../styles/food.styles";
 import { Collapsible } from "./Collapsible";
 
