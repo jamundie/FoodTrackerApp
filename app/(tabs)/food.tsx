@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Text, ScrollView, TouchableOpacity } from "react-native";
 import { ThemedView } from "../../components/ThemedView";
 import { ThemedText } from "../../components/ThemedText";
@@ -8,13 +8,17 @@ import DatePickerModal from "../../components/DatePickerModal";
 import TimePickerModal from "../../components/TimePickerModal";
 import CategoryModal from "../../components/CategoryModal";
 import FoodEntriesList from "../../components/FoodEntriesList";
+import EditFoodEntryModal from "../../components/EditFoodEntryModal";
 import { useTracking } from "../../hooks/TrackingContext";
 import { useFoodEntryForm } from "../../hooks/useFoodEntryForm";
 import { formatDisplayDate, formatDisplayTime } from "../../utils/dateUtils";
 import { styles } from "../../styles/food.styles";
+import { FoodEntry } from "../../types/tracking";
 
 export default function FoodScreen() {
-  const { data } = useTracking();
+  const { data, deleteFoodEntry } = useTracking();
+  const [editingEntry, setEditingEntry] = useState<FoodEntry | null>(null);
+
   const {
     mealInfo,
     ingredients,
@@ -67,8 +71,8 @@ export default function FoodScreen() {
           onRemoveIngredient={removeIngredient}
         />
 
-        <TouchableOpacity 
-          style={[styles.submitButton, submitting && styles.submitButtonDisabled]} 
+        <TouchableOpacity
+          style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
           onPress={handleSubmit}
           disabled={submitting}
           testID="submit-food-entry-button"
@@ -83,7 +87,11 @@ export default function FoodScreen() {
           onClose={() => setShowCategoryDropdown(false)}
         />
 
-        <FoodEntriesList foodEntries={data.foodEntries} />
+        <FoodEntriesList
+          foodEntries={data.foodEntries}
+          onEditEntry={setEditingEntry}
+          onDeleteEntry={deleteFoodEntry}
+        />
       </ThemedView>
 
       <DatePickerModal
@@ -98,6 +106,15 @@ export default function FoodScreen() {
         onTimeSelect={handleTimeSelect}
         onClose={() => setShowTimePicker(false)}
       />
+
+      {editingEntry && (
+        <EditFoodEntryModal
+          key={editingEntry.id}
+          entry={editingEntry}
+          visible={true}
+          onClose={() => setEditingEntry(null)}
+        />
+      )}
     </ScrollView>
   );
 }

@@ -143,6 +143,15 @@ IngredientFormData {
 - The profile screen (`app/(tabs)/profile.tsx`) wires `ProfileForm` directly to `useTracking()`.
 - `ProfileForm` embeds `WaterVolumeSelector` for the default glass size field.
 
+### Edit Entry Modal Pattern
+- `EditFoodEntryModal` / `EditWaterEntryModal` are full-screen `Modal` components with a Cancel/Save header, a `ScrollView` body, and nested picker modals.
+- They pass `initialEntry` and an `onSuccess` callback to the respective form hook (`useFoodEntryForm` / `useWaterEntryForm`). The hook seeds all form state from the entry and switches `handleSubmit` to call `updateFoodEntry` / `updateWaterEntry`.
+- The parent screen passes `key={entry.id}` on the modal so the hook remounts with fresh state each time a different entry is selected for editing.
+- `onSuccess` is wired to `onClose` so the modal closes automatically on a successful save.
+- Storage-path `photoUri` values (non-`file://`) are dropped when seeding the edit form — only local `file://` URIs are displayable.
+- `FoodEntriesList` / `WaterEntriesList` render Edit/Delete buttons only when the optional `onEditEntry` / `onDeleteEntry` props are provided. Delete confirmation is handled inside the list component via `Alert.alert`.
+- The entry list no longer caps at 3 — all entries are shown in reverse-chronological order.
+
 
 ### Key Commands
 ```bash

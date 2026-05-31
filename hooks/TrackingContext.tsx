@@ -11,6 +11,10 @@ import {
   insertBowelEntry,
   upsertUserProfile,
   uploadPhoto,
+  deleteFoodEntry as svcDeleteFoodEntry,
+  deleteWaterEntry as svcDeleteWaterEntry,
+  updateFoodEntry as svcUpdateFoodEntry,
+  updateWaterEntry as svcUpdateWaterEntry,
 } from '../lib/trackingService';
 
 const DEFAULT_USER_PROFILE: UserProfile = {
@@ -28,6 +32,10 @@ type TrackingContextValue = {
   addWaterEntry: (waterEntry: WaterEntry) => Promise<void>;
   addBowelEntry: (bowelEntry: BowelEntry) => Promise<void>;
   updateUserProfile: (profile: UserProfile) => Promise<void>;
+  deleteFoodEntry: (id: string) => Promise<void>;
+  deleteWaterEntry: (id: string) => Promise<void>;
+  updateFoodEntry: (entry: FoodEntry) => Promise<void>;
+  updateWaterEntry: (entry: WaterEntry) => Promise<void>;
 };
 
 const TrackingContext = createContext<TrackingContextValue | undefined>(undefined);
@@ -139,8 +147,44 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [userId]);
 
+  const deleteFoodEntry = useCallback(async (id: string) => {
+    if (!userId) return;
+    await svcDeleteFoodEntry(userId, id);
+    setData((prev) => ({
+      ...prev,
+      foodEntries: prev.foodEntries.filter((e) => e.id !== id),
+    }));
+  }, [userId]);
+
+  const deleteWaterEntry = useCallback(async (id: string) => {
+    if (!userId) return;
+    await svcDeleteWaterEntry(userId, id);
+    setData((prev) => ({
+      ...prev,
+      waterEntries: prev.waterEntries.filter((e) => e.id !== id),
+    }));
+  }, [userId]);
+
+  const updateFoodEntry = useCallback(async (entry: FoodEntry) => {
+    if (!userId) return;
+    await svcUpdateFoodEntry(userId, entry);
+    setData((prev) => ({
+      ...prev,
+      foodEntries: prev.foodEntries.map((e) => e.id === entry.id ? entry : e),
+    }));
+  }, [userId]);
+
+  const updateWaterEntry = useCallback(async (entry: WaterEntry) => {
+    if (!userId) return;
+    await svcUpdateWaterEntry(userId, entry);
+    setData((prev) => ({
+      ...prev,
+      waterEntries: prev.waterEntries.map((e) => e.id === entry.id ? entry : e),
+    }));
+  }, [userId]);
+
   return (
-    <TrackingContext.Provider value={{ data, userProfile, loading, addFoodEntry, addWaterEntry, addBowelEntry, updateUserProfile }}>
+    <TrackingContext.Provider value={{ data, userProfile, loading, addFoodEntry, addWaterEntry, addBowelEntry, updateUserProfile, deleteFoodEntry, deleteWaterEntry, updateFoodEntry, updateWaterEntry }}>
       {children}
     </TrackingContext.Provider>
   );

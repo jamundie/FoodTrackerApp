@@ -1,32 +1,70 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useTracking } from './TrackingContext';
-import { IngredientFormData } from '../types/ingredient';
-import { FoodCategory } from '../types/tracking';
+import { Ingredient, IngredientFormData } from '../types/ingredient';
+import { FoodEntry, FoodCategory } from '../types/tracking';
 import { MealInfoData } from '../components/MealInfoForm';
 import { processIngredients, createFoodEntry } from '../utils/foodHelpers';
 import { createTimestamp } from '../utils/dateUtils';
 import { FoodSearchResult } from '../lib/openFoodFactsService';
 
-export const useFoodEntryForm = () => {
-  const { addFoodEntry } = useTracking();
-  
-  const [mealInfo, setMealInfo] = useState<MealInfoData>({
-    mealName: "",
-    category: "",
+// Convert a domain Ingredient back to editable form data
+function ingredientToFormData(ing: Ingredient): IngredientFormData {
+  return {
+    name: ing.name,
+    amount: String(ing.amount),
+    unit: ing.unit,
+    caloriesRef: ing.caloriesPer100g !== undefined ? String(Math.round(ing.caloriesPer100g)) : '',
+    proteinPer100g: ing.nutritionData?.proteinPer100g !== undefined
+      ? String(ing.nutritionData.proteinPer100g.toFixed(1)) : undefined,
+    carbsPer100g: ing.nutritionData?.carbsPer100g !== undefined
+      ? String(ing.nutritionData.carbsPer100g.toFixed(1)) : undefined,
+    fatPer100g: ing.nutritionData?.fatPer100g !== undefined
+      ? String(ing.nutritionData.fatPer100g.toFixed(1)) : undefined,
+  };
+}
+
+function defaultMealInfo(): MealInfoData {
+  return {
+    mealName: '',
+    category: '',
     selectedDate: new Date(),
     selectedTime: { hours: new Date().getHours(), minutes: 0 },
-  });
+  };
+}
+
+function entryToMealInfo(entry: FoodEntry): MealInfoData {
+  const ts = new Date(entry.timestamp);
+  return {
+    mealName: entry.mealName,
+    category: entry.category,
+    selectedDate: ts,
+    selectedTime: { hours: ts.getHours(), minutes: ts.getMinutes() },
+  };
+}
+
+export const useFoodEntryForm = (initialEntry?: FoodEntry, onSuccess?: () => void) => {
+  const { addFoodEntry, updateFoodEntry } = useTracking();
+  const isEditing = !!initialEntry;
+  
+  const [mealInfo, setMealInfo] = useState<MealInfoData>(
+    initialEntry ? entryToMealInfo(initialEntry) : defaultMealInfo()
+  );
   
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   
-  const [ingredients, setIngredients] = useState<IngredientFormData[]>([
-    { name: "", amount: "", unit: "g", caloriesRef: "" },
-  ]);
+  const [ingredients, setIngredients] = useState<IngredientFormData[]>(
+    initialEntry && initialEntry.ingredients.length > 0
+      ? initialEntry.ingredients.map(ingredientToFormData)
+      : [{ name: '', amount: '', unit: 'g', caloriesRef: '' }]
+  );
 
-  const [photoUri, setPhotoUri] = useState<string | undefined>(undefined);
+  const [photoUri, setPhotoUri] = useState<string | undefined>(
+    // Don't pre-fill storage paths (encrypted blobs); only local file:// URIs are displayable
+    initialEntry?.photoUri?.startsWith('http') ? undefined : initialEntry?.photoUri,
+  );
 
   const handlePhotoSelect = useCallback((uri: string) => {
     setPhotoUri(uri);
@@ -152,26 +190,41 @@ export const useFoodEntryForm = () => {
 
     const processedIngredients = processIngredients(ingredients);
     const timestamp = createTimestamp(mealInfo.selectedDate, mealInfo.selectedTime);
-    const foodEntry = createFoodEntry(
-      mealInfo.mealName,
-      mealInfo.category as FoodCategory,
-      timestamp,
-      processedIngredients,
-      photoUri
-    );
 
     setSubmitting(true);
     try {
-      await addFoodEntry(foodEntry);
-      resetForm();
-      Alert.alert("Success", "Food entry added successfully!");
+      if (isEditing && initialEntry) {
+        // Reuse createFoodEntry for calorie recalculation, then restore the original ID
+        const baseEntry = createFoodEntry(
+          mealInfo.mealName,
+          mealInfo.category as FoodCategory,
+          timestamp,
+          processedIngredients,
+          photoUri,
+        );
+        const updatedEntry: FoodEntry = { ...baseEntry, id: initialEntry.id };
+        await updateFoodEntry(updatedEntry);
+        Alert.alert('Success', 'Food entry updated successfully!');
+      } else {
+        const foodEntry = createFoodEntry(
+          mealInfo.mealName,
+          mealInfo.category as FoodCategory,
+          timestamp,
+          processedIngredients,
+          photoUri,
+        );
+        await addFoodEntry(foodEntry);
+        resetForm();
+        Alert.alert('Success', 'Food entry added successfully!');
+      }
+      onSuccess?.();
     } catch (err) {
       console.error('[useFoodEntryForm] handleSubmit:', err);
-      Alert.alert("Error", "Failed to save entry. Please try again.");
+      Alert.alert('Error', 'Failed to save entry. Please try again.');
     } finally {
       setSubmitting(false);
     }
-  }, [submitting, mealInfo, ingredients, photoUri, addFoodEntry, validateForm, resetForm]);
+  }, [submitting, mealInfo, ingredients, photoUri, isEditing, initialEntry, addFoodEntry, updateFoodEntry, validateForm, resetForm, onSuccess]);
 
   return {
     // State

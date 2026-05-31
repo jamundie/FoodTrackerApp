@@ -367,4 +367,34 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
+  entryActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 8,
+    marginTop: 8,
+  },
+  entryActionButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  editButton: {
+    borderColor: '#007AFF',
+    backgroundColor: '#f0f8ff',
+  },
+  editButtonText: {
+    color: '#007AFF',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  deleteButton: {
+    borderColor: '#ff4444',
+    backgroundColor: '#fff5f5',
+  },
+  deleteButtonText: {
+    color: '#ff4444',
+    fontSize: 13,
+    fontWeight: '600',
+  },
 });

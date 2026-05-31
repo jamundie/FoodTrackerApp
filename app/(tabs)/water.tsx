@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Text, ScrollView, TouchableOpacity } from "react-native";
 import { ThemedView } from "../../components/ThemedView";
 import { ThemedText } from "../../components/ThemedText";
@@ -7,14 +7,18 @@ import WaterIngredientsForm from "../../components/WaterIngredientsForm";
 import DatePickerModal from "../../components/DatePickerModal";
 import TimePickerModal from "../../components/TimePickerModal";
 import WaterEntriesList from "../../components/WaterEntriesList";
+import EditWaterEntryModal from "../../components/EditWaterEntryModal";
 import { useTracking } from "../../hooks/TrackingContext";
 import { useWaterEntryForm } from "../../hooks/useWaterEntryForm";
 import { formatDisplayDate, formatDisplayTime } from "../../utils/dateUtils";
 import { styles } from "../../styles/food.styles";
 import { waterStyles } from "../../styles/water.styles";
+import { WaterEntry } from "../../types/tracking";
 
 export default function WaterScreen() {
-  const { data } = useTracking();
+  const { data, deleteWaterEntry } = useTracking();
+  const [editingEntry, setEditingEntry] = useState<WaterEntry | null>(null);
+
   const {
     waterInfo,
     volumePresetId,
@@ -58,15 +62,19 @@ export default function WaterScreen() {
           onRemoveIngredient={removeIngredient}
         />
 
-        <TouchableOpacity 
-          style={styles.submitButton} 
+        <TouchableOpacity
+          style={styles.submitButton}
           onPress={handleSubmit}
           testID="submit-water-entry-button"
         >
           <Text style={styles.submitButtonText}>Add Water Entry</Text>
         </TouchableOpacity>
 
-        <WaterEntriesList waterEntries={data.waterEntries} />
+        <WaterEntriesList
+          waterEntries={data.waterEntries}
+          onEditEntry={setEditingEntry}
+          onDeleteEntry={deleteWaterEntry}
+        />
       </ThemedView>
 
       <DatePickerModal
@@ -81,6 +89,15 @@ export default function WaterScreen() {
         onTimeSelect={handleTimeSelect}
         onClose={() => setShowTimePicker(false)}
       />
+
+      {editingEntry && (
+        <EditWaterEntryModal
+          key={editingEntry.id}
+          entry={editingEntry}
+          visible={true}
+          onClose={() => setEditingEntry(null)}
+        />
+      )}
     </ScrollView>
   );
 }

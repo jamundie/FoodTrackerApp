@@ -106,6 +106,40 @@ export async function insertFoodEntry(userId: string, entry: FoodEntry): Promise
   }
 }
 
+export async function deleteFoodEntry(userId: string, entryId: string): Promise<void> {
+  // Delete child rows first (safety net in case CASCADE is not set)
+  await supabase.from('food_ingredients').delete().eq('food_entry_id', entryId);
+  const { error } = await supabase
+    .from('food_entries')
+    .delete()
+    .eq('id', entryId)
+    .eq('user_id', userId);
+  if (error) throw new Error(`deleteFoodEntry failed: ${error.message}`);
+}
+
+export async function updateFoodEntry(userId: string, entry: FoodEntry): Promise<void> {
+  const { error } = await supabase.from('food_entries').update({
+    meal_name: entry.mealName,
+    category: entry.category,
+    timestamp: toISOString(entry.timestamp),
+    total_calories: entry.totalCalories ?? null,
+    total_protein:  entry.totalProtein  ?? null,
+    total_carbs:    entry.totalCarbs    ?? null,
+    total_fat:      entry.totalFat      ?? null,
+    photo_storage_path: entry.photoUri ?? null,
+  }).eq('id', entry.id).eq('user_id', userId);
+  if (error) throw new Error(`updateFoodEntry failed: ${error.message}`);
+
+  // Replace ingredients: delete old, insert new
+  await supabase.from('food_ingredients').delete().eq('food_entry_id', entry.id);
+  if (entry.ingredients.length > 0) {
+    const { error: ingError } = await supabase.from('food_ingredients').insert(
+      entry.ingredients.map((ing) => mapFoodIngredientToRow(ing, userId, entry.id))
+    );
+    if (ingError) throw new Error(`updateFoodIngredients failed: ${ingError.message}`);
+  }
+}
+
 // ── water entries ─────────────────────────────────────────────
 
 export async function fetchWaterEntries(userId: string): Promise<WaterEntry[]> {
@@ -145,6 +179,35 @@ export async function insertWaterEntry(userId: string, entry: WaterEntry): Promi
       entry.ingredients.map((ing) => mapWaterIngredientToRow(ing, userId, entry.id))
     );
     if (ingError) throw new Error(`insertWaterIngredients failed: ${ingError.message}`);
+  }
+}
+
+export async function deleteWaterEntry(userId: string, entryId: string): Promise<void> {
+  await supabase.from('water_ingredients').delete().eq('water_entry_id', entryId);
+  const { error } = await supabase
+    .from('water_entries')
+    .delete()
+    .eq('id', entryId)
+    .eq('user_id', userId);
+  if (error) throw new Error(`deleteWaterEntry failed: ${error.message}`);
+}
+
+export async function updateWaterEntry(userId: string, entry: WaterEntry): Promise<void> {
+  const { error } = await supabase.from('water_entries').update({
+    entry_name: entry.entryName,
+    timestamp: toISOString(entry.timestamp),
+    volume_preset_id: entry.volumePresetId,
+    volume_ml: entry.volumeMl,
+    total_volume: entry.totalVolume ?? null,
+  }).eq('id', entry.id).eq('user_id', userId);
+  if (error) throw new Error(`updateWaterEntry failed: ${error.message}`);
+
+  await supabase.from('water_ingredients').delete().eq('water_entry_id', entry.id);
+  if (entry.ingredients.length > 0) {
+    const { error: ingError } = await supabase.from('water_ingredients').insert(
+      entry.ingredients.map((ing) => mapWaterIngredientToRow(ing, userId, entry.id))
+    );
+    if (ingError) throw new Error(`updateWaterIngredients failed: ${ingError.message}`);
   }
 }
 
