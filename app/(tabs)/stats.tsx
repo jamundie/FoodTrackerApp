@@ -9,8 +9,8 @@ import {
 import { Canvas, Rect, Line } from '@shopify/react-native-skia';
 import { useTracking } from '@/hooks/TrackingContext';
 import { BristolType } from '@/types/tracking';
-import { isSameDay } from '@/utils/dateUtils';
 import { statsStyles as styles } from '@/styles/stats.styles';
+import { buildDateRange, aggregateDailyStats } from '@/lib/insightsEngine';
 
 type Period = 7 | 30;
 
@@ -23,17 +23,6 @@ const BRISTOL_COLORS: Record<BristolType, string> = {
   6: '#ca8a04',
   7: '#dc2626',
 };
-
-// Past `days` calendar days, oldest first, each at midnight local time
-function buildDateRange(days: number): Date[] {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return Array.from({ length: days }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - (days - 1 - i));
-    return d;
-  });
-}
 
 const SHORT_DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
@@ -145,83 +134,20 @@ export default function StatsScreen() {
   const canvasWidth = screenWidth - 32;
   const dates = useMemo(() => buildDateRange(period), [period]);
 
-  // Calorie totals per day
-  const dailyCalories = useMemo(
-    () =>
-      dates.map(d =>
-        data.foodEntries
-          .filter(e => isSameDay(new Date(e.timestamp), d))
-          .reduce((sum, e) => sum + (e.totalCalories ?? 0), 0),
-      ),
-    [dates, data.foodEntries],
-  );
-
-  const avgCalories = useMemo(() => {
-    const days = dailyCalories.filter(v => v > 0);
-    return days.length ? Math.round(days.reduce((a, b) => a + b, 0) / days.length) : 0;
-  }, [dailyCalories]);
-
-  // Water totals per day (ml)
-  const dailyWater = useMemo(
-    () =>
-      dates.map(d =>
-        data.waterEntries
-          .filter(e => isSameDay(new Date(e.timestamp), d))
-          .reduce((sum, e) => sum + (e.totalVolume ?? e.volumeMl ?? 0), 0),
-      ),
-    [dates, data.waterEntries],
-  );
-
-  const avgWater = useMemo(() => {
-    const days = dailyWater.filter(v => v > 0);
-    return days.length ? Math.round(days.reduce((a, b) => a + b, 0) / days.length) : 0;
-  }, [dailyWater]);
-
-  // Average daily macros across the period
-  const macroAvgs = useMemo(() => {
-    const entries = data.foodEntries.filter(e =>
-      dates.some(d => isSameDay(new Date(e.timestamp), d)),
-    );
-    const daysWithData = new Set(entries.map(e => new Date(e.timestamp).toDateString())).size || 1;
-    const totals = entries.reduce(
-      (acc, e) => ({
-        protein: acc.protein + (e.totalProtein ?? 0),
-        carbs: acc.carbs + (e.totalCarbs ?? 0),
-        fat: acc.fat + (e.totalFat ?? 0),
-      }),
-      { protein: 0, carbs: 0, fat: 0 },
-    );
-    return {
-      protein: totals.protein / daysWithData,
-      carbs: totals.carbs / daysWithData,
-      fat: totals.fat / daysWithData,
-    };
-  }, [dates, data.foodEntries]);
+  const {
+    dailyCalories,
+    avgCalories,
+    dailyWater,
+    avgWater,
+    macroAvgs,
+    bowelInPeriod,
+    bristolDist,
+    avgBristol,
+  } = useMemo(() => aggregateDailyStats(dates, data), [dates, data]);
 
   const hasMacros = macroAvgs.protein > 0 || macroAvgs.carbs > 0 || macroAvgs.fat > 0;
   const hasMacroGoals =
     userProfile?.dailyProteinGoal || userProfile?.dailyCarbGoal || userProfile?.dailyFatGoal;
-
-  // Bowel data for the period
-  const bowelInPeriod = useMemo(
-    () => data.bowelEntries.filter(e => dates.some(d => isSameDay(new Date(e.timestamp), d))),
-    [dates, data.bowelEntries],
-  );
-
-  const bristolDist = useMemo(() => {
-    const counts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
-    bowelInPeriod.forEach(e => {
-      if (e.bristolType != null) counts[e.bristolType]++;
-    });
-    return counts;
-  }, [bowelInPeriod]);
-
-  const avgBristol = useMemo(() => {
-    const withType = bowelInPeriod.filter(e => e.bristolType != null);
-    if (!withType.length) return null;
-    const sum = withType.reduce((acc, e) => acc + (e.bristolType as number), 0);
-    return (sum / withType.length).toFixed(1);
-  }, [bowelInPeriod]);
 
   const maxBristolCount = Math.max(...Object.values(bristolDist), 1);
 
@@ -327,7 +253,7 @@ export default function StatsScreen() {
         <SectionCard title="Bowel Health">
           <View style={styles.bowelSummaryRow}>
             <View style={styles.summaryPill}>
-              <Text style={styles.summaryValue}>{avgBristol ?? '—'}</Text>
+              <Text style={styles.summaryValue}>{avgBristol != null ? avgBristol.toFixed(1) : '—'}</Text>
               <Text style={styles.summaryLabel}>Avg Bristol type</Text>
             </View>
             <View style={styles.summaryPill}>
