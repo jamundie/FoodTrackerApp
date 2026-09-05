@@ -1,4 +1,4 @@
-import { formatDisplayDate, formatDisplayTime, createTimestamp } from '../dateUtils';
+import { formatDisplayDate, formatDisplayTime, createTimestamp, toDateOnly, getPeriodDateRange } from '../dateUtils';
 
 describe('dateUtils', () => {
   describe('formatDisplayDate', () => {
@@ -101,6 +101,48 @@ describe('dateUtils', () => {
       expect(parsedDate.getDate()).toBe(25);
       expect(parsedDate.getHours()).toBe(10);
       expect(parsedDate.getMinutes()).toBe(15);
+    });
+  });
+
+  describe('toDateOnly', () => {
+    test('formats a date as YYYY-MM-DD', () => {
+      expect(toDateOnly(new Date(2026, 0, 5))).toBe('2026-01-05');
+    });
+
+    test('pads single-digit month and day', () => {
+      expect(toDateOnly(new Date(2026, 8, 9))).toBe('2026-09-09');
+    });
+
+    test('handles December correctly', () => {
+      expect(toDateOnly(new Date(2025, 11, 25))).toBe('2025-12-25');
+    });
+  });
+
+  describe('getPeriodDateRange', () => {
+    test('7-day period ends on the reference date and starts 6 days earlier', () => {
+      const reference = new Date(2026, 8, 10); // 10 Sep 2026
+      const { periodStart, periodEnd } = getPeriodDateRange(7, reference);
+      expect(periodEnd).toBe('2026-09-10');
+      expect(periodStart).toBe('2026-09-04');
+    });
+
+    test('30-day period spans 30 calendar days inclusive', () => {
+      const reference = new Date(2026, 8, 30);
+      const { periodStart, periodEnd } = getPeriodDateRange(30, reference);
+      expect(periodEnd).toBe('2026-09-30');
+      expect(periodStart).toBe('2026-09-01');
+    });
+
+    test('90-day period crosses a year boundary correctly', () => {
+      const reference = new Date(2026, 0, 15); // 15 Jan 2026
+      const { periodStart, periodEnd } = getPeriodDateRange(90, reference);
+      expect(periodEnd).toBe('2026-01-15');
+      expect(periodStart).toBe('2025-10-18');
+    });
+
+    test('defaults to the current date when no reference is given', () => {
+      const { periodEnd } = getPeriodDateRange(7);
+      expect(periodEnd).toBe(toDateOnly(new Date()));
     });
   });
 });

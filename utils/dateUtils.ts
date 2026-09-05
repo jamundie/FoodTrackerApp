@@ -39,3 +39,19 @@ export const isSameDay = (a: Date, b: Date): boolean =>
   a.getFullYear() === b.getFullYear() &&
   a.getMonth() === b.getMonth() &&
   a.getDate() === b.getDate();
+
+/** Local calendar date as YYYY-MM-DD — the format the health-report Edge Function expects. */
+export const toDateOnly = (date: Date): string => {
+  const y = date.getFullYear();
+  const m = (date.getMonth() + 1).toString().padStart(2, '0');
+  const d = date.getDate().toString().padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
+/** `days`-long period ending today, as YYYY-MM-DD strings for generateHealthReport(periodStart, periodEnd). */
+export const getPeriodDateRange = (days: number, referenceDate: Date = new Date()): { periodStart: string; periodEnd: string } => {
+  const end = new Date(referenceDate);
+  const start = new Date(end);
+  start.setDate(end.getDate() - (days - 1));
+  return { periodStart: toDateOnly(start), periodEnd: toDateOnly(end) };
+};

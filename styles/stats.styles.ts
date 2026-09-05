@@ -201,4 +201,58 @@ export const statsStyles = StyleSheet.create({
     width: 20,
     textAlign: 'right',
   },
+
+  // Health report generator
+  reportGeneratorContainer: {
+    marginBottom: 16,
+  },
+  generateButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#007bff',
+    borderRadius: 10,
+    paddingVertical: 12,
+  },
+  generateButtonDisabled: {
+    opacity: 0.6,
+  },
+  generateButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+
+  // Health report history
+  reportsHistory: {
+    marginTop: 4,
+  },
+  reportCard: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#eee',
+  },
+  reportCardPeriod: {
+    fontSize: 14,
+    color: '#11181C',
+  },
+  reportCardText: {
+    fontSize: 13,
+    color: '#333',
+    marginTop: 10,
+    lineHeight: 19,
+  },
+  correlationsBlock: {
+    marginTop: 10,
+  },
+  correlationLine: {
+    fontSize: 12,
+    color: '#555',
+    marginBottom: 4,
+    lineHeight: 17,
+  },
 });
