@@ -27,9 +27,14 @@ This is a React Native food tracking app built with Expo Router, TypeScript, and
 - Provider order in `app/_layout.tsx`: `AuthProvider` → `TrackingProvider` → `ThemeProvider`
 
 ### Persistence Pattern
-- All Supabase DB and storage calls go through `lib/trackingService.ts` — never call `supabase.from()` or `supabase.storage` directly from components or hooks
+- All Supabase DB, storage, and Edge Function calls go through `lib/trackingService.ts` — never call `supabase.from()`, `supabase.storage`, or `supabase.functions.invoke()` directly from components or hooks
 - Supabase client singleton is in `lib/supabase.ts` — import from there, never instantiate inline
 - `TrackingContext` uses `user?.id` (not the whole `user` object) as `useEffect` dependency to prevent re-running when the auth provider returns a new object reference on re-render
+
+### Standalone Data Hooks (outside TrackingContext)
+- Not every feature belongs in `TrackingContext`'s boot-time `Promise.all` load. Opt-in/infrequently-visited data (e.g. `hooks/useHealthReports.ts`) should be its own hook with its own `useState`/`useEffect`, fetching only when mounted — this keeps `TrackingContext`'s shape stable and avoids growing every app-start load for features most sessions won't touch
+- Pattern: `loading` (fetch-on-mount state) + a separate `generating`/`submitting`-style busy flag for user-triggered async actions, guarded at the top of the action (`if (!x || generating) return`), `try { await service call } catch { Alert.alert(...) } finally { setGenerating(false) }`
+- Still call through `lib/trackingService.ts` only — the hook itself never imports `lib/supabase.ts`
 
 ### TypeScript Conventions
 - All types live in `types/` directory

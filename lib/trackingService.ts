@@ -6,7 +6,7 @@ import { Buffer } from 'buffer';
 import * as FileSystem from 'expo-file-system';
 import { supabase } from '@/lib/supabase';
 import { Ingredient } from '@/types/ingredient';
-import { FoodEntry, WaterEntry, BowelEntry, BristolType, BowelUrgency, UserProfile } from '@/types/tracking';
+import { FoodEntry, WaterEntry, BowelEntry, BristolType, BowelUrgency, UserProfile, HealthReport } from '@/types/tracking';
 import { generateId } from '@/utils/dateUtils';
 import { encryptPhoto, decryptPhoto } from '@/utils/photoEncryption';
 
@@ -254,6 +254,29 @@ export async function insertBowelEntry(userId: string, entry: BowelEntry): Promi
   if (error) throw new Error(`insertBowelEntry failed: ${error.message}`);
 }
 
+// ── health reports ────────────────────────────────────────────
+
+/** Invokes the generate-health-report Edge Function and returns the newly created report. */
+export async function generateHealthReport(periodStart: string, periodEnd: string): Promise<HealthReport> {
+  const { data, error } = await supabase.functions.invoke('generate-health-report', {
+    body: { periodStart, periodEnd },
+  });
+  if (error) throw new Error(`generateHealthReport failed: ${error.message}`);
+  return mapHealthReportRow(data.report);
+}
+
+export async function fetchHealthReports(userId: string): Promise<HealthReport[]> {
+  const { data, error } = await supabase
+    .from('health_reports')
+    .select('*')
+    .eq('user_id', userId)
+    .order('period_start', { ascending: false });
+
+  if (error || !data) return [];
+
+  return data.map(mapHealthReportRow);
+}
+
 // ── photo storage ─────────────────────────────────────────────
 
 /**
@@ -345,6 +368,19 @@ export async function getDecryptedPhotoUri(storagePath: string): Promise<string 
 }
 
 // ── private row mappers ───────────────────────────────────────
+
+function mapHealthReportRow(row: any): HealthReport {
+  return {
+    id: row.id,
+    periodStart: row.period_start,
+    periodEnd: row.period_end,
+    generatedAt: row.generated_at,
+    summaryStats: row.summary_stats,
+    correlations: row.correlations,
+    aiReportText: row.ai_report_text,
+    model: row.model,
+  };
+}
 
 function mapIngredientRow(row: any): Ingredient {
   const nd = {

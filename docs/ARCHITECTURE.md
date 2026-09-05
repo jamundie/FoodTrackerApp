@@ -169,6 +169,8 @@ components/
 4. `hooks/useSignedPhotoUrl.ts` calls `getDecryptedPhotoUri`: downloads ciphertext via signed URL, decrypts on-device, writes to a temp `file://` URI for `<Image>` to render
 5. Encryption key (`PHOTO_ENCRYPTION_KEY`) lives only in `expo-secure-store` — never leaves the device
 
+**Health reports:** `hooks/useHealthReports.ts` is a standalone hook (own `useState`/`useEffect`, not folded into `TrackingContext`) — reports are opt-in and infrequent, so eagerly loading them in the boot-time `Promise.all` would grow every app-start load for a feature most sessions won't touch. It fetches `fetchHealthReports(userId)` on mount and exposes `generateReport(periodStart, periodEnd)`, which calls `generateHealthReport` (invokes the `generate-health-report` Edge Function via `supabase.functions.invoke`) and prepends the result to local state on success.
+
 ### 4a. Health Report Generation (Edge Function)
 
 `supabase/functions/generate-health-report` — the app's first Supabase Edge Function (Deno runtime), introduced to fix the pre-existing security gap where the Gemini key was bundled client-side (`EXPO_PUBLIC_GEMINI_API_KEY`, see TDR-021) with no rate limiting.
@@ -207,7 +209,7 @@ styles/
 ```
 types/
 ├── tracking.ts       # Domain-specific type definitions
-│                     # — FoodEntry, WaterEntry, VolumePreset, UserProfile, BowelEntry
+│                     # — FoodEntry, WaterEntry, VolumePreset, UserProfile, BowelEntry, HealthReport
 │                     # — re-exports Unit, Ingredient, IngredientFormData from ./ingredient
 └── ingredient.ts     # Shared ingredient module — Unit, Ingredient, IngredientFormData
                       # Imported directly by food/water forms, helpers, and trackingService
@@ -289,7 +291,7 @@ types/
 | User profile | Complete | Display name, age, weight, height, water goal, glass size, nutrition goals — Supabase-persisted |
 | Auth | Complete | Email/password, session in device keychain |
 | Bowel movement tracking | Complete | Bristol scale 1–7 (optional on false alarm), false alarm flag, urgency, pain level 0–10, blood flag, notes — Supabase-persisted via `bowel_entries` |
-| Health reports (Edge Function) | Backend complete, no UI yet | `supabase/functions/generate-health-report` computes deterministic stats/correlations via `lib/insightsEngine.ts`, sends only that compact payload to Gemini, and persists to `health_reports`. No client integration or report-viewing UI yet — see Planned Feature Backlog |
+| Health reports (Edge Function + client) | Backend + client integration complete, no UI yet | `supabase/functions/generate-health-report` computes deterministic stats/correlations via `lib/insightsEngine.ts`, sends only that compact payload to Gemini, and persists to `health_reports`. Client-side: `HealthReport` type, `trackingService.generateHealthReport`/`fetchHealthReports`, and the standalone `hooks/useHealthReports.ts` hook are wired up. No report-viewing UI yet — see Planned Feature Backlog |
 
 | Home dashboard | Mostly real | `DailySummaryCard` + summary cards + 7-day chart use real data; 2500 kcal reference line in `ProgressChart` is still hardcoded |
 
@@ -303,9 +305,10 @@ types/
 | Barcode scanning | Planned | `searchFoodByBarcode()` in `lib/openFoodFactsService.ts` is implemented; needs `expo-barcode-scanner` UI |
 
 ### Planned Feature Backlog (priority order)
-1. **Sleep tracking** — new tab, `SleepEntry` type (start/end times, quality rating, notes), DB table, service functions, `TrackingContext` additions
-2. **Stats — sleep/stress** — add sleep quality and stress trend charts to the Stats screen once those data sources exist
-3. **ProgressChart goal line** — wire the hardcoded 2500 kcal reference line in `ProgressChart` to `userProfile.dailyCalorieGoal`
+1. **Health reports UI** — Reports screen/tab consuming `hooks/useHealthReports.ts` to list past reports and trigger generation for a selected date range
+2. **Sleep tracking** — new tab, `SleepEntry` type (start/end times, quality rating, notes), DB table, service functions, `TrackingContext` additions
+3. **Stats — sleep/stress** — add sleep quality and stress trend charts to the Stats screen once those data sources exist
+4. **ProgressChart goal line** — wire the hardcoded 2500 kcal reference line in `ProgressChart` to `userProfile.dailyCalorieGoal`
 
 ## Known Limitations
 - Sleep tracking not started (no tab, no types, no DB table; "Coming Soon" card on Home only)

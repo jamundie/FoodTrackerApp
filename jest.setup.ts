@@ -27,6 +27,9 @@ jest.mock('./lib/supabase', () => ({
         createSignedUrl: jest.fn().mockResolvedValue({ data: { signedUrl: 'https://mock.url/photo.jpg' }, error: null }),
       }),
     },
+    functions: {
+      invoke: jest.fn().mockResolvedValue({ data: { report: null }, error: null }),
+    },
   },
 }));
 
@@ -42,6 +45,8 @@ jest.mock('./lib/trackingService', () => ({
   upsertUserProfile: jest.fn().mockResolvedValue(undefined),
   uploadPhoto: jest.fn().mockResolvedValue(null),
   getDecryptedPhotoUri: jest.fn().mockResolvedValue('file:///mock/decrypted-photo.jpg'),
+  generateHealthReport: jest.fn().mockResolvedValue(null),
+  fetchHealthReports: jest.fn().mockResolvedValue([]),
   deleteFoodEntry: jest.fn().mockResolvedValue(undefined),
   deleteWaterEntry: jest.fn().mockResolvedValue(undefined),
   updateFoodEntry: jest.fn().mockResolvedValue(undefined),

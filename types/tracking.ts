@@ -128,6 +128,19 @@ export type TrackingData = {
   bowelEntries: BowelEntry[];
 };
 
+// ── Health reports ─────────────────────────────────────────────
+
+export type HealthReport = {
+  id: string;
+  periodStart: string; // ISO date
+  periodEnd: string;   // ISO date
+  generatedAt: string; // ISO date-time
+  summaryStats: Record<string, unknown>;   // shape produced by lib/insightsEngine.ts
+  correlations: Record<string, unknown>[]; // shape produced by lib/insightsEngine.ts
+  aiReportText: string;
+  model: string;
+};
+
 export type UserProfile = {
   displayName: string;
   age?: number;
