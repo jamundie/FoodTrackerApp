@@ -27,6 +27,7 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 - **Supabase Storage**: Private `user-photos` bucket; photos are AES-256-GCM encrypted on-device before upload — server holds only opaque ciphertext
 - **Supabase Auth**: Email/password authentication; session stored in device keychain via `expo-secure-store`
 - **Row Level Security (RLS)**: All tables scoped to `auth.uid() = user_id` — data isolation enforced at DB layer
+- **Supabase Edge Functions**: `generate-health-report` (Deno) — first backend compute layer; JWT-scoped, no service-role key
 
 ## Architecture Patterns
 
@@ -168,6 +169,23 @@ components/
 4. `hooks/useSignedPhotoUrl.ts` calls `getDecryptedPhotoUri`: downloads ciphertext via signed URL, decrypts on-device, writes to a temp `file://` URI for `<Image>` to render
 5. Encryption key (`PHOTO_ENCRYPTION_KEY`) lives only in `expo-secure-store` — never leaves the device
 
+### 4a. Health Report Generation (Edge Function)
+
+`supabase/functions/generate-health-report` — the app's first Supabase Edge Function (Deno runtime), introduced to fix the pre-existing security gap where the Gemini key was bundled client-side (`EXPO_PUBLIC_GEMINI_API_KEY`, see TDR-021) with no rate limiting.
+
+**Flow:**
+1. Client calls the function with `{ periodStart, periodEnd }` (`YYYY-MM-DD`), authenticated via the user's session JWT — no service-role key, RLS applies throughout
+2. Rate limit check: rejects with `429` if the caller already has ≥5 `health_reports` rows generated in the last 24h
+3. Fetches `food_entries`, `water_entries`, `bowel_entries` for the period, widened by a 2-day lookback buffer on food/water only (so a bowel entry near the period start can still see triggers just before it)
+4. Computes `summary_stats` and `correlations` via `lib/insightsEngine.ts` — the **same shared module** used by the Stats screen, imported by relative path into the Deno function (see below)
+5. Sends only that compact JSON (never raw entry logs) to Gemini (`gemini-2.5-flash`, thinking disabled to avoid output truncation) with a report-writing prompt hard-coding the "not medical advice" and correlation-≠-causation framing
+6. A code-level backstop (`ensureBloodCallout`) appends a doctor recommendation if the model's own text somehow omits it despite `hasBlood === true` in the period's data — the mandatory safety call-out never depends solely on prompt compliance
+7. Inserts the result into `health_reports` and returns it to the caller
+
+**Sharing `lib/insightsEngine.ts` and `lib/ingredientTags.ts` with Deno:** both files use explicit `.ts` extensions on their relative imports (`allowImportingTsExtensions` in `tsconfig.json`), since Deno's module resolution — unlike Metro/tsc's bundler mode — does not infer extensions. This lets the Edge Function import them unmodified with **zero logic duplication** between client and server. `supabase/functions` is excluded from the root `tsconfig.json` — it has its own Deno runtime, module specifiers (`npm:`/`jsr:`), and globals (`Deno.env`), and is type-checked separately by the Deno LSP / `supabase functions serve`, not `tsc`.
+
+**Secrets:** the Gemini key is stored as an Edge Function secret (`GEMINI_API_KEY`, via `supabase secrets set`), never `EXPO_PUBLIC_*`. Local dev reads it from `supabase/functions/.env` (gitignored).
+
 ### 5. Styling Architecture
 ```
 styles/
@@ -271,7 +289,7 @@ types/
 | User profile | Complete | Display name, age, weight, height, water goal, glass size, nutrition goals — Supabase-persisted |
 | Auth | Complete | Email/password, session in device keychain |
 | Bowel movement tracking | Complete | Bristol scale 1–7 (optional on false alarm), false alarm flag, urgency, pain level 0–10, blood flag, notes — Supabase-persisted via `bowel_entries` |
-| Health reports (schema only) | DB ready, no app code yet | `health_reports` table + date-range indexes on `food_entries`/`water_entries`/`bowel_entries` (008/009 migrations) — lays groundwork for server-side AI correlation report generation; no report generator or UI implemented yet |
+| Health reports (Edge Function) | Backend complete, no UI yet | `supabase/functions/generate-health-report` computes deterministic stats/correlations via `lib/insightsEngine.ts`, sends only that compact payload to Gemini, and persists to `health_reports`. No client integration or report-viewing UI yet — see Planned Feature Backlog |
 
 | Home dashboard | Mostly real | `DailySummaryCard` + summary cards + 7-day chart use real data; 2500 kcal reference line in `ProgressChart` is still hardcoded |
 

@@ -104,6 +104,20 @@ This creates the `food_entries`, `water_entries`, and `user_profiles` tables, en
 
 Migrations pushed to `main` are applied automatically to the production Supabase project via `.github/workflows/supabase-migrations.yml` (using the Supabase CLI's `db push`) — manual SQL Editor runs are only needed for local/first-time setup. See that workflow file for the required repo secrets.
 
+### 3a. Edge Functions (health reports)
+
+`supabase/functions/generate-health-report` requires the Supabase CLI and Docker (for local testing via `supabase functions serve`). It reads the Gemini key from an **Edge Function secret**, not `EXPO_PUBLIC_GEMINI_API_KEY`:
+
+```bash
+# Local dev — create supabase/functions/.env (gitignored) with:
+GEMINI_API_KEY=your-gemini-key
+supabase start
+supabase functions serve --env-file supabase/functions/.env
+
+# Production — set the secret on the linked project once:
+supabase secrets set GEMINI_API_KEY=your-gemini-key
+```
+
 ### 4. Dev Auto-Sign-In (optional but recommended)
 
 To skip the sign-in screen on every dev build, create a Supabase Auth user once (via the Supabase Dashboard → Authentication → Users → Add user → Create new user), then add their credentials to `.env.local`:

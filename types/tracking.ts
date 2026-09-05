@@ -1,4 +1,5 @@
-import type { Unit, Ingredient, IngredientFormData } from './ingredient';
+// Explicit .ts extension required for Deno resolution (supabase/functions/generate-health-report imports this file).
+import type { Unit, Ingredient, IngredientFormData } from './ingredient.ts';
 export type { Unit, Ingredient, IngredientFormData };
 
 export type FoodEntry = {

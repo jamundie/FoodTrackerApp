@@ -3,6 +3,11 @@
   "compilerOptions": {
     "jsx": "react",
     "strict": true,
+    // lib/insightsEngine.ts and types/tracking.ts use explicit .ts extensions
+    // on relative imports so they load unmodified under Deno (see
+    // supabase/functions/generate-health-report) — Metro/Jest already resolve
+    // extensioned specifiers fine, this just lets tsc accept them too.
+    "allowImportingTsExtensions": true,
     "paths": {
       "@/*": [
         "./*"
@@ -14,5 +19,12 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+  ],
+  // supabase/functions runs on Deno, not Metro/Node — it has its own runtime,
+  // module resolution (npm:/jsr: specifiers), and globals (Deno.env). It is
+  // type-checked separately by the Deno LSP / `supabase functions serve`, not tsc.
+  "exclude": [
+    "node_modules",
+    "supabase/functions"
   ]
 }

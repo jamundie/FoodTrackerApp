@@ -32,6 +32,7 @@ ios/build/
 # Environment variables (local overrides — never commit real credentials)
 .env.local
 .env*.local
+supabase/functions/.env
 
 # Security files
 *.jks
