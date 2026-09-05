@@ -23,7 +23,7 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 - **Local Component State**: For UI-specific state
 
 ### Backend & Persistence
-- **Supabase (Postgres)**: Cloud database — `food_entries`, `food_ingredients`, `water_entries`, `water_ingredients`, `bowel_entries`, `user_profiles`
+- **Supabase (Postgres)**: Cloud database — `food_entries`, `food_ingredients`, `water_entries`, `water_ingredients`, `bowel_entries`, `user_profiles`, `health_reports`
 - **Supabase Storage**: Private `user-photos` bucket; photos are AES-256-GCM encrypted on-device before upload — server holds only opaque ciphertext
 - **Supabase Auth**: Email/password authentication; session stored in device keychain via `expo-secure-store`
 - **Row Level Security (RLS)**: All tables scoped to `auth.uid() = user_id` — data isolation enforced at DB layer
@@ -235,7 +235,7 @@ types/
 - **Development**: `expo start` with development build
 - **Android**: `npm run android`
 - **iOS**: `npm run ios`
-- **Supabase migration**: SQL in `supabase/migrations/001_initial_schema.sql` — run once in Supabase Dashboard SQL Editor
+- **Supabase migrations**: SQL files in `supabase/migrations/`, numbered sequentially (001 → 009). Local/first-time setup runs them manually in the Supabase Dashboard SQL Editor; pushes to `main` deploy them automatically to production via `.github/workflows/supabase-migrations.yml` (Supabase CLI `db push`)
 
 ## Scalability Considerations
 
@@ -271,6 +271,7 @@ types/
 | User profile | Complete | Display name, age, weight, height, water goal, glass size, nutrition goals — Supabase-persisted |
 | Auth | Complete | Email/password, session in device keychain |
 | Bowel movement tracking | Complete | Bristol scale 1–7 (optional on false alarm), false alarm flag, urgency, pain level 0–10, blood flag, notes — Supabase-persisted via `bowel_entries` |
+| Health reports (schema only) | DB ready, no app code yet | `health_reports` table + date-range indexes on `food_entries`/`water_entries`/`bowel_entries` (008/009 migrations) — lays groundwork for server-side AI correlation report generation; no report generator or UI implemented yet |
 
 | Home dashboard | Mostly real | `DailySummaryCard` + summary cards + 7-day chart use real data; 2500 kcal reference line in `ProgressChart` is still hardcoded |
 
@@ -323,7 +324,7 @@ types/
 ## Getting Started for Contributors
 
 1. **Prerequisites**: Node.js 20, Android Studio, Java 17
-2. **Setup**: `npm install` → copy `.env.example` to `.env.local` and fill in Supabase credentials → run all 4 SQL migrations in order (001 → 004) in Supabase Dashboard SQL Editor → `npm run android`
+2. **Setup**: `npm install` → copy `.env.example` to `.env.local` and fill in Supabase credentials → run all SQL migrations in order (001 → 009) in Supabase Dashboard SQL Editor → `npm run android`
 3. **Development**: Use development builds, not Expo Go
 4. **Testing**: `npm test` for unit tests (runs fully offline via mocks)
 5. **Architecture**: Follow existing patterns, update this doc for major changes

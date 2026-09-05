@@ -94,13 +94,15 @@ Both values are available in your Supabase project under **Settings → API**.
 
 ### 3. Run the Database Migration
 
-In your Supabase project, open the **SQL Editor** and run the contents of:
+For local development, run all SQL files under `supabase/migrations/` in order (001 → 009) in your Supabase project's **SQL Editor**, starting with:
 
 ```
 supabase/migrations/001_initial_schema.sql
 ```
 
 This creates the `food_entries`, `water_entries`, and `user_profiles` tables, enables RLS, and creates the private `meal-photos` storage bucket.
+
+Migrations pushed to `main` are applied automatically to the production Supabase project via `.github/workflows/supabase-migrations.yml` (using the Supabase CLI's `db push`) — manual SQL Editor runs are only needed for local/first-time setup. See that workflow file for the required repo secrets.
 
 ### 4. Dev Auto-Sign-In (optional but recommended)
 
