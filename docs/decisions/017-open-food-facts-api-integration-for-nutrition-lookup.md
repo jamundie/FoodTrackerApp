@@ -1,0 +1,7 @@
+## TDR-017: Open Food Facts API Integration for Nutrition Lookup
+**Date**: 2026-05-31
+**Status**: Accepted
+**Context**: Food calorie entry was fully manual — users had to type `caloriesPer100g` for every ingredient. This is a high-friction path that most users will skip, leaving the calorie tracking feature unusable in practice.
+**Decision**: Integrate the Open Food Facts (OFF) free API (`world.openfoodfacts.org`) as a live search-as-you-type nutrition lookup. The ingredient name field becomes a `FoodSearchInput` component that debounces keystrokes (350 ms), queries OFF, and presents a dropdown of up to 10 results. Tapping a result auto-fills `caloriesPer100g` and all available macro fields. Manual free-text entry is preserved — typing without selecting a result behaves exactly as before. No API key is required. A `User-Agent` header is sent per OFF guidelines.
+**Alternatives considered**: USDA FoodData Central (requires free API key, better for whole foods), Edamam (free tier at 100 req/day, requires key). OFF was chosen for zero-auth, zero-cost, and its large packaged product database including barcode lookup (reserved for Option C).
+**Consequences**: Network requests are fired on every ingredient name change after debounce; no caching layer exists yet. The `FoodSearchResult` type and `NutritionData` type are designed as a shared contract — Gemini Vision (Option B, future) will write the same shapes so no downstream code changes are needed when that integration is added.

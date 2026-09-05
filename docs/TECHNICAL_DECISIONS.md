@@ -1,529 +1,60 @@
 # Technical Decision Records (TDRs)
 
-This document tracks major technical decisions made during the development of the Food Tracker App.
+This directory tracks major technical decisions made during the development of the Food Tracker App. Each TDR is its own file — read only the ones relevant to your task rather than the whole set (use `graphify explain "TDR-XXX"` or `minimal-context` first to find the relevant entries; see `AGENTS.md`'s Graphify section).
 
-## TDR-001: Expo Router over React Navigation
+**Next number: TDR-027**
 
-**Date**: August 2025  
-**Status**: Accepted  
-**Context**: Need for navigation system in React Native app
+## Template for new TDRs
 
-### Decision
-Use Expo Router (v5.1.3) for navigation instead of React Navigation.
-
-### Alternatives Considered
-- React Navigation v7
-- Manual navigation implementation
-
-### Rationale
-- **File-based routing**: More intuitive project structure
-- **Type safety**: Automatic TypeScript integration
-- **Deep linking**: Built-in support with minimal configuration
-- **Code splitting**: Automatic with Expo Router
-- **Developer experience**: Familiar to web developers
-
-### Consequences
-- **Positive**: Better DX, type safety, automatic route generation
-- **Negative**: Newer technology, smaller community than React Navigation
-- **Mitigation**: Well-documented by Expo team, active development
-
----
-
-## TDR-002: React Context API for State Management
-
-**Date**: August 2025  
-**Status**: Accepted  
-**Context**: Need for global state management for tracking data
-
-### Decision
-Use React Context API with custom hooks instead of Redux or other state management libraries.
-
-### Alternatives Considered
-- Redux Toolkit
-- Zustand
-- Jotai
-- Local state only
-
-### Rationale
-- **Simplicity**: Built into React, no additional dependencies
-- **Scale appropriate**: Current app scope doesn't require Redux complexity
-- **Performance**: Adequate for current data flow patterns
-- **Learning curve**: Team familiar with React patterns
-
-### Consequences
-- **Positive**: Smaller bundle, simpler debugging, native React patterns
-- **Negative**: May need refactoring if app grows significantly
-- **Mitigation**: Context can be migrated to other solutions if needed
-
----
-
-## TDR-003: React Native Skia for Charts
-
-**Date**: August 2025  
-**Status**: Accepted  
-**Context**: Need for high-performance charts and data visualization
-
-### Decision
-Use @shopify/react-native-skia for charts and data visualization.
-
-### Alternatives Considered
-- Victory Native
-- React Native Chart Kit
-- D3 with react-native-svg
-- Custom canvas implementation
-
-### Rationale
-- **Performance**: 60fps animations, GPU acceleration
-- **Flexibility**: Full control over graphics rendering
-- **Future-proof**: Shopify's active development and maintenance
-- **Capabilities**: Supports complex visualizations needed for health data
-
-### Consequences
-- **Positive**: Excellent performance, unlimited customization
-- **Negative**: Requires native builds, larger bundle size, steeper learning curve
-- **Mitigation**: Development builds required, but acceptable trade-off for UX
-
----
-
-## TDR-004: TypeScript Strict Mode
-
-**Date**: August 2025  
-**Status**: Accepted  
-**Context**: Code quality and maintainability requirements
-
-### Decision
-Use TypeScript in strict mode across the entire application.
-
-### Alternatives Considered
-- JavaScript with JSDoc
-- TypeScript with loose configuration
-- Gradual TypeScript adoption
-
-### Rationale
-- **Error prevention**: Catch errors at compile time
-- **Developer experience**: Better IDE support, autocomplete
-- **Maintainability**: Self-documenting code, easier refactoring
-- **Team productivity**: Clearer interfaces and contracts
-
-### Consequences
-- **Positive**: Fewer runtime errors, better code quality, improved DX
-- **Negative**: Initial learning curve, more verbose code
-- **Mitigation**: Team training, gradual adoption of advanced features
-
----
-
-## TDR-005: Native Builds Required
-
-**Date**: August 2025  
-**Status**: Accepted  
-**Context**: Skia dependency requires native compilation
-
-### Decision
-Require development builds instead of supporting Expo Go for development.
-
-### Alternatives Considered
-- Use Expo Go-compatible chart library
-- Conditional rendering for development vs production
-- Web-only development with mobile testing later
-
-### Rationale
-- **Feature requirements**: Skia charts are core to the app experience
-- **Testing accuracy**: Development builds closer to production
-- **Performance**: Native builds perform better than Expo Go
-
-### Consequences
-- **Positive**: Better development/production parity, access to native features
-- **Negative**: Longer development setup, slower iteration cycle
-- **Mitigation**: Clear setup documentation, CI/CD for automated builds
-
----
-
-## TDR-006: Styles Directory Structure
-
-**Date**: August 2025  
-**Status**: Accepted  
-**Context**: Expo Router treating styles as routes when in app/ directory
-
-### Decision
-Move styles directory from `app/styles/` to root-level `styles/` directory.
-
-### Alternatives Considered
-- Rename files with underscore prefix (app/styles/_index.styles.ts)
-- Use .styles suffix in component directories
-- Inline styles only
-
-### Rationale
-- **Routing conflicts**: Expo Router treats all app/ files as potential routes
-- **Organization**: Central location for global styles
-- **Imports**: Clear distinction between routes and styles
-
-### Consequences
-- **Positive**: No routing conflicts, clearer project structure
-- **Negative**: Import paths need updating
-- **Mitigation**: IDE-assisted refactoring, updated documentation
-
----
-
-## TDR-007: Split Date/Time Picker with Calendar Interface
-
-**Date**: August 2025  
-**Status**: Accepted  
-**Context**: Users need intuitive date/time selection for meal logging with both quick access and precise control
-
-### Decision
-Implement a dual-picker system with separate date and time selectors, featuring an expandable calendar interface for date selection.
-
-### Alternatives Considered
-- **Single ISO timestamp input**: Manual entry of full ISO format
-- **Native date/time pickers**: Platform-specific date/time components
-- **Third-party date picker library**: External dependency like react-native-date-picker
-- **Simple dropdown lists**: Basic day/time selection without calendar
-
-### Rationale
-- **User Experience**: Split interface is more intuitive than single timestamp input
-- **Quick Access**: "Today"/"Yesterday" options for common use cases
-- **Precision Control**: Full calendar allows selection of any past date
-- **Visual Clarity**: Calendar grid provides clear date context and navigation
-- **Consistent Styling**: Custom implementation matches app design system
-- **No Dependencies**: Avoids external libraries and platform inconsistencies
-
-### Implementation Details
-```typescript
-// Dual state management
-const [selectedDate, setSelectedDate] = useState(new Date());
-const [selectedTime, setSelectedTime] = useState({ 
-  hours: new Date().getHours(), 
-  minutes: 0 
-});
-
-// Calendar generation with metadata
-const generateCalendarDays = (year: number, month: number) => {
-  // 42-day grid with isSelectable, isToday, isCurrentMonth flags
-};
-
-// Smart time intervals
-const timeOptions = Array.from({ length: 24 }, (_, hour) =>
-  [0, 15, 30, 45].map(minute => ({ hour, minute }))
-);
+```markdown
+## TDR-XXX: [Title]
+**Date**: YYYY-MM-DD
+**Status**: Accepted
+**Context**: Why this change was needed
+**Decision**: What was decided and why; alternatives considered
+**Consequences**: Trade-offs and implications
 ```
 
-### Date Picker Features
-- **Quick Selection**: Today/Yesterday buttons for common scenarios
-- **Expandable Calendar**: Traditional month grid with navigation
-- **Smart Restrictions**: Only past dates selectable, future dates disabled
-- **Visual Indicators**: Today highlighted, selected date emphasized
-- **Month Navigation**: Previous/next with intelligent boundary handling
-
-### Time Picker Features
-- **Structured Intervals**: 15-minute increments (00, 15, 30, 45)
-- **Complete Coverage**: All 24 hours × 4 intervals = 96 time slots
-- **User-Friendly Display**: 12-hour AM/PM format in UI
-- **ISO Timestamp Output**: Combined date/time for consistent storage
-
-### Consequences
-- **Positive**: 
-  - Intuitive user experience with both quick and precise options
-  - No external dependencies or platform-specific behavior
-  - Consistent visual design with app theme
-  - Comprehensive test coverage possible with testID attributes
-  - Flexible architecture for future enhancements
-- **Negative**: 
-  - Custom implementation requires more initial development time
-  - Additional state management complexity
-  - Larger component file size
-- **Mitigation**: 
-  - Well-structured helper functions keep code maintainable
-  - Comprehensive test suite ensures reliability
-  - Clear documentation for future developers
-
-### Testing Strategy
-- Unit tests for calendar generation logic
-- Integration tests for date/time selection flow
-- Accessibility testing for keyboard navigation
-- Visual regression testing for calendar display
-
----
-
-## TDR-008: Meal Photo Feature with expo-image-picker
-
-**Date**: 2026-03-13
-**Status**: Accepted
-**Context**: Users want to attach a photo to a meal entry for reference. A future goal is to run AI analysis on the photo to auto-populate estimated ingredients, so the architecture must support that hook without requiring a redesign.
-
-**Decision**: Add an optional `photoUri?: string` field to `FoodEntry`. Introduce a `MealPhotoInput` presentational component that uses `expo-image-picker` to let the user take a photo or pick from the library (one photo per meal). Photo state is kept separate from ingredient state in `useFoodEntryForm` so AI analysis can overwrite ingredients without touching the photo. The photo is rendered in `MealInfoForm` between the Date & Time and Ingredients sections.
-
-**Alternatives considered**:
-- `expo-camera` directly — more control but higher complexity; `expo-image-picker` covers both camera and library with one API
-- Storing photos in the Context/global state — rejected; photo URI lives only in form state until the entry is submitted, keeping global state minimal
-- Embedding the photo in `MealInfoData` — rejected; photo is independent of meal metadata and must survive ingredient resets from AI analysis
-
-**Consequences**:
-- `expo-image-picker` is now a runtime dependency (requires camera and media library permissions on device)
-- `FoodEntry.photoUri` is optional — existing entries without photos are unaffected
-- AI analysis hook: call `analyzePhoto(entry.photoUri)` post-submit and pipe result to `setIngredients()`; no architectural change needed
-- Tests mock `expo-image-picker` globally in `jest.setup.ts`
-
----
-
-## TDR-009: User Profile Tab and Volume Preset Feature
-
-**Date**: 2026-03-13
-**Status**: Accepted
-**Context**: Water entries had no way to record volume, and there was no persistent user identity or per-user defaults. Two related features were added together: a drink-size preset selector on the water entry form, and a new Profile tab where users configure personal details and their default glass size.
-
-**Decision**:
-1. Add `VolumePresetId`, `VolumePreset`, and `VOLUME_PRESETS` to `types/tracking.ts`. Extend `WaterEntry` with `volumePresetId`, `volumeMl`, and `totalVolume` (always set = preset ml + ingredient ml).
-2. Add `UserProfile` type to `types/tracking.ts` (display name, age, weight, height, daily water goal, default volume preset ID).
-3. Add `userProfile` state and `updateUserProfile` action to `TrackingContext`. Default preset is `'glass'` (250 ml).
-4. Create `WaterVolumeSelector` — a modal dropdown component — used inline on the water entry form alongside the entry name field.
-5. Create `ProfileForm` component (wraps `WaterVolumeSelector` for default glass selection) and `profile.tsx` screen.
-6. Add "Profile" tab (Ionicons `person` icon) between Water and Stats in `_layout.tsx`.
-7. `useWaterEntryForm` seeds its initial `volumePresetId` from `userProfile.defaultVolumePresetId` and resets to it on `resetForm()`.
-
-**Alternatives considered**:
-- Custom ml entry field instead of presets — rejected for simplicity; presets cover common cases
-- Storing `UserProfile` outside Context (e.g. AsyncStorage only) — rejected; in-memory Context is consistent with existing state strategy; persistence can be added later
-- Inline unit picker instead of modal for volume — rejected; modal keeps the name-row uncluttered on small screens
-
-**Consequences**:
-- `WaterEntry` now always carries `totalVolume`; existing mock entries updated accordingly
-- `TrackingContext` shape expanded — any snapshot tests on raw context value would need updating (none exist currently)
-- `useWaterEntryForm` now reads from context at hook init; tests that render the hook must wrap with `TrackingProvider`
-- `stats.tsx` remains a stub — the Profile tab is inserted before it, shifting its tab index
-
----
-
-## TDR-010: Supabase for Cloud Persistence
-
-**Date**: 2026-03-28
-**Status**: Accepted
-**Context**: The app had no data persistence — all state was in-memory and lost on restart. A backend was needed for database storage, file storage (meal photos), and user authentication in a single, cohesive platform.
-
-### Decision
-Use Supabase (Postgres + Row Level Security + Storage + Auth) as the backend. Persistence is isolated in `lib/trackingService.ts`; the Supabase client singleton lives in `lib/supabase.ts`.
-
-### Alternatives Considered
-- **Firebase/Firestore**: NoSQL, strong ecosystem, but vendor lock-in and no SQL query power
-- **AWS Amplify**: Very capable but heavyweight config overhead for a solo project
-- **SQLite (local-only)**: Considered as a first step, rejected because multi-device sync would require a rewrite
-
-### Rationale
-- **Single platform**: DB, storage, and auth in one service — no gluing separate tools
-- **Row Level Security**: Per-user data isolation enforced at the DB layer, not in application code
-- **Private photo bucket**: Signed URL access (60-second expiry) — meal photo URLs are never public
-- **Postgres**: Relational model fits the entry → ingredients relationship cleanly
-- **Open source / self-hostable**: Reduces vendor risk vs Firebase
-
-### Consequences
-- **Positive**: Data persists across sessions; multi-device access; photos safely stored; RLS means even direct DB access is user-scoped
-- **Negative**: Requires network access; adds Supabase dependency; SQL migration must be run manually in dashboard
-- **Mitigation**: `lib/trackingService.ts` isolation means the persistence layer can be swapped; all Supabase calls are mocked globally in `jest.setup.ts` so tests run offline
-
----
-
-## TDR-011: Supabase Auth + expo-secure-store for Session Persistence
-
-**Date**: 2026-03-28
-**Status**: Accepted
-**Context**: With cloud persistence added, user identity is required to scope data. A secure, low-friction auth approach was needed that integrates naturally with Expo and Supabase.
-
-### Decision
-Use Supabase Auth (email/password) for authentication. Sessions are stored in the device keychain/keystore via `expo-secure-store` instead of AsyncStorage. Auth state is managed in `hooks/AuthContext.tsx` (`AuthProvider` + `useAuth`). Route guarding via `AuthGate` in `app/_layout.tsx`.
-
-### Alternatives Considered
-- **AsyncStorage for session**: Easier but insecure — tokens in plaintext on the filesystem
-- **Custom JWT backend**: Too much infrastructure for a solo project
-- **OAuth-only (Google/Apple)**: Better UX but higher setup complexity; can be added later on top of this
-
-### Rationale
-- **Keychain storage**: `expo-secure-store` uses iOS Keychain / Android Keystore — session tokens are encrypted at rest, never in plaintext
-- **Supabase Auth integration**: The Supabase JS client accepts a custom storage adapter; `ExpoSecureStoreAdapter` drops in with no other changes
-- **AuthProvider pattern**: Isolates auth concerns; `TrackingContext` depends on `useAuth()` to scope data fetches to the signed-in user
-- **Auth route group**: `app/(auth)/` follows Expo Router conventions; `AuthGate` in root layout handles redirects declaratively
-
-### Consequences
-- **Positive**: Session tokens encrypted on device; clean separation of auth vs data concerns; auth screens follow app design language
-- **Negative**: `expo-secure-store` is a native module — `npx expo install` required (not `npm install`); cannot be tested without mocking
-- **Mitigation**: `expo-secure-store` globally mocked in `jest.setup.ts`; `AuthContext` globally mocked so all tests work without real credentials
-
----
-
-## TDR-012: Client-Side AES-256-GCM Encryption for Meal Photos
-
-**Date**: 2026-03-28
-**Status**: Accepted
-**Context**: The app will track bowel movements and other sensitive health data. Meal (and future stool) photos stored in Supabase Storage were readable by the project owner and any party with access to the Supabase dashboard. For data in the GDPR Special Category and potential HIPAA PHI territory, server-visible plaintext photos are not acceptable even in a private bucket.
-
-### Decision
-Encrypt every photo on-device using AES-256-GCM before it is uploaded to Supabase Storage. The encryption key is a 256-bit random value generated once per user, stored exclusively in the device keychain via `expo-secure-store`, and never transmitted to the server. Supabase Storage receives and stores only opaque ciphertext (`*.enc` files with `application/octet-stream` content type).
-
-On read, `getDecryptedPhotoUri` downloads the ciphertext, decrypts it on-device, writes the plaintext bytes to a short-lived temp file in `FileSystem.cacheDirectory`, and returns a `file://` URI that `<Image>` can consume. The `useSignedPhotoUrl` hook was updated to call `getDecryptedPhotoUri` instead of the former `getPhotoSignedUrl`.
-
-The crypto implementation uses `react-native-quick-crypto` (`createCipheriv` / `createDecipheriv` with `aes-256-gcm`) because Hermes does not expose `crypto.subtle` and `expo-crypto` provides only hashing. Each photo gets a fresh 12-byte random IV prepended to the ciphertext; the 16-byte GCM auth tag is appended, providing authenticated encryption.
-
-Key management: device-only, no server escrow. If the user reinstalls the app or moves to a new device, encrypted photos become permanently unreadable. This is an explicit trade-off accepted for the privacy guarantee.
-
-New files: `utils/photoEncryption.ts` — `encryptPhoto`, `decryptPhoto`, `getOrCreateEncryptionKey`.
-
-### Alternatives Considered
-- **Supabase Vault (pgsodium column encryption)**: Covers DB fields but not Storage files; transparent to the project owner via dashboard — insufficient for photos
-- **Password-derived key (PBKDF2)**: Allows cross-device recovery but key strength depends on password quality; deferred for a future iteration
-- **No encryption, rely on private bucket + RLS**: Adequate for general food data; not sufficient for stool/bowel movement photos under GDPR Special Category
-
-### Rationale
-- Bowel movement photos are unambiguously sensitive health data (GDPR Special Category; HIPAA PHI in clinical contexts)
-- AES-256-GCM provides authenticated encryption — tampering with the ciphertext is detectable
-- Device-only key means zero-knowledge storage: even a full Supabase compromise exposes no readable photos
-- `react-native-quick-crypto` is the only option that provides AES-GCM in the Hermes JS environment
-
-### Consequences
-- **Positive**: Photos are unreadable server-side; strong basis for GDPR/HIPAA compliance claims around photo data
-- **Negative**: Key loss (reinstall/new device) means permanent photo loss; no admin recovery path; `npm run android` rebuild required for the native module
-- **Mitigation**: Surface a clear in-app warning when photos are present that uninstalling will permanently delete them; document the key-escrow gap for future consideration
-
----
-
-## TDR-013: Bowel Movement Tracking Feature
-
-**Date**: 2026-04-24
-**Status**: Accepted
-**Context**: The app's end goal is to correlate bowel health with food, water, and sleep habits, then use AI to provide dietary improvement suggestions. Bowel movement tracking is the core differentiating feature and must be implemented first to start collecting the data the AI will rely on.
-**Decision**: Added a dedicated `bowel` tab with full Supabase persistence. The `BowelEntry` type captures: a `falseAlarm` flag (sensation to go but no movement — shown early in the form so it collapses irrelevant fields), the clinically-recognised Bristol Stool Scale (types 1–7, optional when `falseAlarm` is true), urgency (none/mild/moderate/urgent), pain level (0–10), blood presence (hidden when `falseAlarm` is true), and freeform notes. A new `bowel_entries` table was added via migration `002_bowel_entries.sql` (applied) with RLS policies mirroring the food and water tables. `bristol_type` is nullable in the DB with a check constraint (1–7) that only fires when a value is present. The `TrackingContext` was extended with `bowelEntries: BowelEntry[]` and `addBowelEntry` (optimistic update pattern, same as water). The home dashboard Stress placeholder card was replaced with a live Bowel card.
-**Consequences**: `TrackingData` now carries a third array (`bowelEntries`), which is a breaking change to the type — all existing consumers (tests, context) updated. `BowelEntry.bristolType` is `BristolType | undefined`; consumers must guard against `undefined` before indexing `BRISTOL_DESCRIPTIONS`. Data is immediately useful for future AI analysis once sleep tracking is also in place.
-
----
-
-## TDR-014: Sleep Data Integration Strategy — Garmin via Platform Health APIs
-
-**Date**: 2026-04-24
-**Status**: Proposed
-**Context**: Sleep tracking is the next planned feature and a prerequisite for the AI bowel assessment, which needs sleep data correlated with food, water, and bowel entries. The primary wearable target is a Garmin watch. Three integration paths were evaluated.
-
-### Options Considered
-
-#### Option A — Garmin Health API (Official, Cloud-to-Cloud)
-Garmin's official REST API, protected by OAuth 2.0. Delivers a rich sleep payload after the user syncs their watch with Garmin Connect. Data fields include: `sleepStartTimestampGMT`, `sleepEndTimestampGMT`, deep/light/REM/awake seconds, `totalSleepTimeInSeconds`, SpO2 (avg/min/max), respiration rate, composite `sleepScores`, Body Battery delta, and per-epoch HRV via a separate `/hrv-service/hrv/{date}` endpoint.
-
-Access is free for approved businesses but requires a formal application to the Garmin Connect Developer Programme (`developer.garmin.com/gc-developer-program`). Not open to individual developers. Requires a backend webhook receiver to accept push notifications when a user syncs. Garmin-specific fields (HRV detail, Body Battery, eBBI) are only available through this path.
-
-#### Option B — Apple Health / Google Fit Relay (Indirect)
-Garmin Connect natively syncs sleep data to Apple Health (iOS) and Google Fit / Health Connect (Android). A React Native app reads the data from the platform health store using HealthKit or the Health Connect API — no Garmin partnership required, no backend webhook infrastructure.
-
-Fields available via this path are normalised to the platform schema: sleep start/end, sleep stages (deep/light/REM/awake), and a quality score. Garmin-specific metadata (HRV epochs, Body Battery, eBBI) is not exposed. Depends on the user having Garmin Connect installed with platform health sync enabled.
-
-#### Option C — Unofficial Reverse-Engineered API (python-garminconnect)
-A community Python library (`github.com/cyberjunky/python-garminconnect`, 2.2k stars, actively maintained) that mimics Garmin's SSO login flow to access the same undocumented endpoints the Garmin Connect app uses. Exposes `get_sleep_data(date)` and `get_hrv_data(date)`. Full Garmin field access without a partnership.
-
-Not suitable for a distributed app: using it requires storing and replaying user credentials (Garmin's SSO does not issue tokens for third-party apps), which violates Garmin's Terms of Service. Appropriate only for personal dashboards or local prototyping.
-
-### Decision
-**Proceed with Option B (platform health relay) as the implementation target for the initial sleep tracking feature.** Apply to the Garmin Connect Developer Programme in parallel if the app is published to external users and richer Garmin data (HRV, Body Battery) becomes a product requirement.
-
-### Rationale
-- No partnership or backend infrastructure required — unblocks feature development immediately
-- Covers the core sleep primitives (`SleepEntry` type: start time, end time, duration, sleep stages, quality score) needed for AI correlation
-- Works for users of any sleep-tracking device that syncs to Apple Health or Health Connect — not limited to Garmin
-- Garmin Connect already syncs sleep to both platforms out of the box; no user setup beyond enabling the sync toggle in Garmin Connect settings
-- If/when the Garmin Developer Programme is approved, the `trackingService` layer can be extended to pull Garmin-specific fields (HRV, Body Battery) without changing the `SleepEntry` type visible to the rest of the app
-
-### Implementation Notes
-- **iOS**: `HealthKit` via `react-native-health` or an Expo plugin (e.g. `expo-health`). Requires `NSHealthShareUsageDescription` in `Info.plist` and a runtime permissions prompt.
-- **Android**: `Health Connect` API (successor to Google Fit) via `react-native-health-connect`. Requires `HEALTH_CONNECT_CLIENT_ID` and runtime permissions.
-- **`SleepEntry` type** (to be added to `types/tracking.ts`): `id`, `userId`, `startTime` (ISO string), `endTime` (ISO string), `totalMinutes`, `deepSleepMinutes?`, `lightSleepMinutes?`, `remSleepMinutes?`, `awakeMinutes?`, `qualityScore?` (0–100), `notes?`, `source` (`'manual' | 'apple_health' | 'health_connect'`), `createdAt`.
-- All Supabase calls go through `lib/trackingService.ts` (`fetchSleepEntries`, `insertSleepEntry`). A new migration `003_sleep_entries.sql` is required.
-- `TrackingContext` gains `sleepEntries: SleepEntry[]` and `addSleepEntry`.
-- Manual entry must also be supported for users without a compatible wearable.
-
-### Consequences
-- **Positive**: Feature can be built without waiting for Garmin partnership approval; works across wearable brands; `SleepEntry` type is device-agnostic
-- **Negative**: Garmin-specific fields (HRV epochs, Body Battery) are unavailable; depends on user keeping platform health sync active; adds two new native modules (one per platform) requiring a native rebuild
-- **Mitigation**: The `source` field on `SleepEntry` preserves provenance; the service layer is designed to accept richer Garmin fields in a future extension without breaking the existing type contract. Native module additions should be documented in the contributor setup guide.
-
-## TDR-015: Generic Photo Infrastructure (user-photos bucket + PhotoInput component)
-**Date**: 2026-04-24
-**Status**: Accepted
-**Context**: Photo upload was originally built for meal photos only (`meal-photos` bucket, `uploadMealPhoto` function, `MealPhotoInput` component). When bowel entry photos were added, those same food-specific names were reused verbatim. With more entry types planned (sleep, stress), the photo infrastructure needed to be made generic before further coupling occurred.
-**Decision**: Renamed the Supabase Storage bucket from `meal-photos` to `user-photos` (migration `004_user_photos_bucket.sql`). Renamed `uploadMealPhoto` → `uploadPhoto` in `trackingService.ts`; bucket reference updated in both `uploadPhoto` and `getDecryptedPhotoUri`. Replaced `MealPhotoInput.tsx` with `PhotoInput.tsx` — the component now accepts optional props (`label`, `addLabel`, `aspect`, `quality`) so each feature can customise it without forking. Both `MealInfoForm` and `BowelEntryForm` import `PhotoInput`. `jest.setup.ts` mock updated accordingly; test file renamed `PhotoInput.test.tsx` with an additional test for custom label rendering.
-**Consequences**: Any feature adding photos (sleep, body measurements, etc.) imports `PhotoInput` and calls `uploadPhoto` — no food-specific naming to work around. The `user-photos` bucket RLS policy is path-agnostic (`(storage.foldername(name))[1] = auth.uid()::text`) so it covers all features automatically. The old `meal-photos` bucket must be removed from Supabase manually once `004_user_photos_bucket.sql` has been applied and verified.
-
-
-## TDR-016: Dedicated `types/ingredient.ts` Module
-**Date**: 2026-05-31
-**Status**: Accepted
-**Context**: `Unit`, `Ingredient`, and `IngredientFormData` were defined in `types/tracking.ts` alongside food, water, and bowel types. A graphify knowledge-graph analysis flagged these three types as low-cohesion members of the water-form community — they are shared between food and water form code but had no dedicated home. With more entry types planned, leaving shared ingredient types in the monolithic tracking module would increase coupling further.
-**Decision**: Extracted `Unit`, `Ingredient`, and `IngredientFormData` into a new `types/ingredient.ts` module. `types/tracking.ts` imports and re-exports them for backward compatibility. All 11 direct import sites (components, hooks, utilities, and `trackingService`) were updated to import from `types/ingredient.ts` directly. The re-export in `tracking.ts` exists solely for third-party or legacy callers — new code must import from the canonical module.
-**Consequences**: Ingredient-related types have a single, clearly bounded home. Adding new ingredient fields or units is a one-file change. The graphify community structure more accurately reflects the domain split. There is a small ongoing maintenance burden: the re-export in `tracking.ts` must not be removed until all consumers have migrated (currently none remain on the old path).
-
-## TDR-017: Open Food Facts API Integration for Nutrition Lookup
-**Date**: 2026-05-31
-**Status**: Accepted
-**Context**: Food calorie entry was fully manual — users had to type `caloriesPer100g` for every ingredient. This is a high-friction path that most users will skip, leaving the calorie tracking feature unusable in practice.
-**Decision**: Integrate the Open Food Facts (OFF) free API (`world.openfoodfacts.org`) as a live search-as-you-type nutrition lookup. The ingredient name field becomes a `FoodSearchInput` component that debounces keystrokes (350 ms), queries OFF, and presents a dropdown of up to 10 results. Tapping a result auto-fills `caloriesPer100g` and all available macro fields. Manual free-text entry is preserved — typing without selecting a result behaves exactly as before. No API key is required. A `User-Agent` header is sent per OFF guidelines.
-**Alternatives considered**: USDA FoodData Central (requires free API key, better for whole foods), Edamam (free tier at 100 req/day, requires key). OFF was chosen for zero-auth, zero-cost, and its large packaged product database including barcode lookup (reserved for Option C).
-**Consequences**: Network requests are fired on every ingredient name change after debounce; no caching layer exists yet. The `FoodSearchResult` type and `NutritionData` type are designed as a shared contract — Gemini Vision (Option B, future) will write the same shapes so no downstream code changes are needed when that integration is added.
-
-## TDR-019: expo-camera for Barcode Scanning
-**Date**: 2026-05-31
-**Status**: Accepted
-**Context**: `searchFoodByBarcode()` in `openFoodFactsService.ts` existed but had no UI. Barcode scanning was listed as Option C in the planned feature set.
-**Decision**: Install `expo-camera` (the Expo-recommended package; `expo-barcode-scanner` is deprecated). A `BarcodeScannerModal` component wraps `CameraView` from `expo-camera` with a viewfinder overlay, handles camera permissions, calls `searchFoodByBarcode()` on a successful scan, and feeds the result to `applyNutritionToIngredient` via `onResult`. A scan-barcode icon button (Ionicons `barcode-outline`) is placed in each ingredient row header in `IngredientForm`, opening the modal targeted at that row index.
-**Consequences**: Camera permission is requested at runtime on first scan — no additional app.json manifest changes required for development builds. The modal resets `scanning` state each time it opens so consecutive scans work without reopening. Not wired to `WaterIngredientsForm` (water additives are rarely barcoded).
-
-## TDR-018: Full Macro Tracking (Protein, Carbs, Fat)
-**Date**: 2026-05-31
-**Status**: Accepted
-**Context**: The app tracked calories only. Open Food Facts returns a full macro profile; discarding it would waste available data and limit the health-tracking value of the feature.
-**Decision**: Extend `Ingredient` with `calculatedProtein`, `calculatedCarbs`, `calculatedFat`; extend `FoodEntry` with `totalProtein`, `totalCarbs`, `totalFat`; extend `UserProfile` with `dailyCalorieGoal`, `dailyProteinGoal`, `dailyCarbGoal`, `dailyFatGoal`. A `NutritionData` type holds the per-100g reference values. `calculateTotals()` in `foodHelpers.ts` replaces the old `calculateTotalCalories()` (kept as a backward-compatible wrapper). A new `DailySummaryCard` component on the Home screen shows today's intake vs goals with colour-coded progress bars. The DB migration `005_macros.sql` adds the corresponding columns to `food_entries`, `food_ingredients`, and `user_profiles`.
-**Consequences**: All macro fields are optional — entries without nutrition data continue to work. Goal fields in `UserProfile` are also optional; `DailySummaryCard` renders nothing when neither today's data nor a calorie goal is present (no visual noise for new users). The `isSameDay` utility was added to `dateUtils.ts` to support date-boundary filtering in the card.
-
-## TDR-020: Entry History with Full CRUD (Edit and Delete)
-**Date**: 2026-05-31
-**Status**: Accepted
-**Context**: The food and water entry lists displayed a maximum of 3 entries (read-only). Users had no way to correct a mistake or remove a stale entry.
-**Decision**: Remove the `.slice(0, 3)` cap from both `FoodEntriesList` and `WaterEntriesList` — all entries are shown in reverse-chronological order. Each list card gains optional `onEditEntry` and `onDeleteEntry` props; when provided, Edit and Delete buttons appear. Delete shows an `Alert.alert` confirmation before calling the callback. The edit path opens a full-screen `EditFoodEntryModal` / `EditWaterEntryModal` — a `Modal` wrapping the existing form components (`MealInfoForm` + `IngredientForm` for food; `WaterInfoForm` + `WaterIngredientsForm` for water) with a Cancel/Save header. Both modals use the existing form hooks (`useFoodEntryForm` / `useWaterEntryForm`) with a new optional `initialEntry` parameter that seeds all form state and switches `handleSubmit` to call `updateFoodEntry` / `updateWaterEntry` rather than the add path. The screen passes `key={entry.id}` on the modal so the hook remounts fresh when a different entry is selected. Four new service functions (`deleteFoodEntry`, `deleteWaterEntry`, `updateFoodEntry`, `updateWaterEntry`) are added to `trackingService.ts` and mirrored as context actions in `TrackingContext`.
-**Consequences**: The "3 most recent" summary is now a full scrollable history. Edit logic shares all validation and calorie-calculation code from the add path via `createFoodEntry` (ID overridden after creation). Storage-path photo URIs (encrypted blobs) are not pre-filled in the edit form — only local `file://` URIs are displayable; users must re-add a photo if they edit an entry that already has one stored remotely.
-
-## TDR-021: Gemini Vision AI Photo Analysis
-**Date**: 2026-05-31
-**Status**: Accepted
-**Context**: Users attach meal photos when logging food but still have to enter every ingredient manually. Automating ingredient detection from the photo removes the most tedious part of the logging flow.
-**Decision**: Add `lib/geminiService.ts` which base64-encodes a local `file://` URI via `expo-file-system`, sends it to the Gemini 1.5 Flash vision API, and returns `FoodSearchResult[]` — the same contract used by Open Food Facts, so nothing downstream changes. `useFoodEntryForm` gains `analysePhoto` (async handler) and `analysingPhoto` (loading boolean). Calling `analysePhoto` fans the results into ingredient rows: blank rows are filled in-place; surplus results are appended. `MealInfoForm` gains optional `onAnalysePhoto` / `analysingPhoto` props and renders an "Analyse Photo with AI" button below the photo preview whenever a photo is attached. The button is purple (`#5856D6`) to visually distinguish it from the standard photo actions. The API key is stored as `EXPO_PUBLIC_GEMINI_API_KEY` in `.env.local` (never committed). Free-tier model chosen (gemini-1.5-flash) for the 1,500 req/day allowance which comfortably covers personal use.
-**Consequences**: Nutrition estimates from Gemini are AI-generated approximations — amounts are left blank so the user must confirm portion sizes before saving. The `nutritionSource` field is set to `'gemini_vision'` so results can be distinguished from manual entry and Open Food Facts lookups. The feature degrades gracefully: if the API key is missing, or the model returns an empty array, an Alert is shown and the form is unchanged. `expo-file-system` was already a transitive Expo dependency — no new package install required.
-
-## TDR-022: Stats Screen Implementation
-**Date**: 2026-05-31
-**Status**: Accepted
-**Context**: `app/(tabs)/stats.tsx` was a placeholder stub. The app accumulates food, water, and bowel entries over time but provided no way to visualise trends across days.
-**Decision**: Implement the Stats screen with a 7/30-day period selector and four sections: (1) Daily Calories — Skia `Rect` bar chart with an optional goal reference line; (2) Daily Water Intake — same pattern in teal; (3) Average Macros (per day) — horizontal React Native progress bars for protein, carbs, and fat vs profile goals; (4) Bowel Health — summary pills (average Bristol type, entry count) and a Bristol type 1–7 distribution bar chart, visible only when entries exist in the selected period. All aggregation is done client-side against the in-memory `TrackingContext` data (no new DB queries). A summary row at the top shows at-a-glance averages. The screen follows the existing Skia pattern from `ProgressChart.tsx` — `Canvas` + `Rect` + `Line` primitives only. Styles go in `styles/stats.styles.ts`.
-**Consequences**: Client-side aggregation over all entries is sufficient for personal-use data volumes. If entry counts grow large, a date-range filter in `trackingService.ts` would be the correct fix point — the Stats screen would need no changes beyond its `useMemo` dependencies. The bowel section is hidden when there are no entries in the period, keeping the screen clean for users who haven't used bowel tracking.
-
-## TDR-023: CI-Driven Supabase Migrations
-**Date**: 2026-09-05
-**Status**: Accepted
-**Context**: All 7 existing migrations (001–007) required a manual copy-paste into the Supabase Dashboard SQL Editor. This doesn't scale to the health-reports feature, which needs migrations applied reliably as part of merging to `main`, and manual application is error-prone (easy to skip a file or apply out of order).
-**Decision**: Add `.github/workflows/supabase-migrations.yml`, which triggers on push to `main` when files under `supabase/migrations/` change, and runs `supabase link` + `supabase db push` via the official `supabase/setup-cli` action against the production project. Requires three repo/environment secrets: `SUPABASE_ACCESS_TOKEN` (personal access token), `SUPABASE_PROJECT_ID` (production project ref), and `SUPABASE_DB_PASSWORD` (production DB password) — added to the existing `production` GitHub environment alongside `EXPO_PUBLIC_SUPABASE_URL`/`EXPO_PUBLIC_SUPABASE_ANON_KEY`. Manual SQL Editor application remains documented in the README for local/first-time setup only, since there's no local Supabase stack (`supabase start`) configured for this project.
-**Consequences**: Merging a migration file to `main` now applies it to production automatically — no more manual dashboard step for new schema changes. `supabase db push` applies migrations in filename order and is idempotent per-migration (tracked via Supabase's internal migration history table), so re-runs on unrelated pushes to `main` are safe. This does not set up a staging environment or local dev database (`supabase start`) — those remain future enhancements if the single-developer workflow outgrows direct-to-production pushes.
-
-## TDR-024: `generate-health-report` Supabase Edge Function
-**Date**: 2026-09-05
-**Status**: Accepted
-**Context**: TDR-023 (the decision record, #1) established that AI health reports must be generated server-side from pre-computed statistics — never raw entry logs — and that the Gemini key must move off the client to close the gap flagged in TDR-021 (bundled `EXPO_PUBLIC_GEMINI_API_KEY`, no rate limiting). `lib/insightsEngine.ts` and `lib/ingredientTags.ts` (the deterministic stats/correlation layer) already existed as plain, dependency-free TypeScript. No Edge Function infrastructure existed in the repo (`supabase/functions/`, `supabase/config.toml` did not exist).
-**Decision**: Ran `supabase init` to scaffold `supabase/config.toml`, then `supabase functions new generate-health-report --auth user` to scaffold the function using the `@supabase/server` `withSupabase({ auth: 'user' })` wrapper — this gives an RLS-scoped `ctx.supabase` client from the caller's JWT with no service-role key, matching the app's existing RLS-first design. `verify_jwt` left at its default `true` in `config.toml` (function is user-JWT-only; no publishable/secret key path). The handler: validates `{ periodStart, periodEnd }`, rejects with `429` if the caller has ≥5 `health_reports` rows in the last 24h, fetches `food_entries`/`water_entries` widened by a 2-day lookback buffer (bowel entries are not buffered — they are the outcome events, not triggers), computes `summary_stats`/`correlations` via the shared `lib/insightsEngine.ts`, sends only that compact payload to Gemini (`gemini-2.5-flash`, `thinkingConfig: { thinkingBudget: 0 }` — 2.5 Flash's internal thinking tokens otherwise eat into `maxOutputTokens` and truncate the visible report), and inserts the result into `health_reports`. A code-level backstop (`ensureBloodCallout`) appends a doctor recommendation if the model's response somehow omits it despite `hasBlood === true` in the period — the safety-critical call-out does not depend solely on prompt compliance. The Gemini key is read from the `GEMINI_API_KEY` Edge Function secret (`supabase secrets set`), distinct from the client's `EXPO_PUBLIC_GEMINI_API_KEY`.
-**Sharing `lib/insightsEngine.ts` with Deno**: Deno's module resolution does not infer file extensions on relative imports the way Metro/tsc's bundler mode does. Rather than duplicate the file or maintain a Deno-specific fork, `lib/insightsEngine.ts`, `lib/ingredientTags.ts`, and `types/tracking.ts` were updated to use explicit `.ts` extensions on their relative imports — valid syntax under both resolution modes. `tsconfig.json` gained `allowImportingTsExtensions: true` so `tsc` accepts them, and `supabase/functions` was added to `tsconfig.json`'s `exclude` (it has its own runtime, `npm:`/`jsr:` specifiers, and globals like `Deno.env`, and is type-checked separately by the Deno LSP / `supabase functions serve`). An initial attempt to solve this with Deno's `sloppy-imports` unstable flag in the function's own `deno.json` was tried and reverted — it satisfies the Deno LSP but the Supabase Edge Runtime's module graph construction (verified via `supabase functions serve`) does not honour it, producing a boot-time `Module not found` error.
-**Verified locally**: `supabase start` + `supabase functions serve --env-file supabase/functions/.env` against the local Postgres stack (migrations 001–009 applied cleanly). Confirmed: full request → Gemini → insert round-trip; validation errors (400) for malformed/missing/inverted dates; auth rejection (401) with no JWT; rate limit rejection (429) on the 6th call within the window; correlation math and lift clamping (`Infinity` → 999 for jsonb/JSON compatibility) against seeded dairy/Bristol-6-7 and `hasBlood` data; both the model-generated and code-backstop paths for the mandatory doctor call-out.
-**Consequences**: This is the first Edge Function in the repo, establishing the `supabase/functions/<name>/{index.ts,deno.json,.npmrc}` + per-function secrets pattern for any future server-side compute (e.g. the eventual sleep/stress correlation work). Client integration (`trackingService.generateHealthReport`/`fetchHealthReports`, the `HealthReport` type, and the standalone `hooks/useHealthReports.ts` hook — issue #5) has since been completed, following existing service-layer and hook conventions; only the report-viewing UI itself remains outstanding. The rate limit (5/24h) and lookback buffer (2 days) were the two "proposed, confirm during implementation" values from #1/#4 — both were accepted as-is; revisit if real usage patterns suggest otherwise. `supabase/functions/.env` (local Gemini secret for `supabase functions serve`) is gitignored alongside `.env.local`.
-
-## TDR-025: Health Report UI Placement — Stats Tab Section
-**Date**: 2026-09-05
-**Status**: Accepted
-**Context**: Issue #6 required a placement decision before implementation: extend the existing Stats tab with a new section, or add a dedicated screen (and a 7th tab, since none of the existing 6 tabs were a natural fit). This was called out explicitly as a blocking acceptance criterion in the issue.
-**Decision**: Extend the Stats tab. A new "Health Reports" `SectionCard` was added to the bottom of `app/(tabs)/stats.tsx`, after the Bowel Health section, containing `HealthReportGenerator` (period picker + generate button) and `HealthReportsList` (report history). This matches the issue's own recommendation — report generation sits next to the aggregate charts users already look at, with zero routing changes (`app/(tabs)/_layout.tsx` untouched). Report generation uses its own 7/30/90-day period selection (`HealthReportGenerator`'s local `ReportPeriod` type), independent of the Stats charts' existing 7/30-day `Period` — the two are visually adjacent but functionally separate; widening the charts' own period type to include 90 was out of scope and not requested.
-**Consequences**: No new tab, route, or `styles/*.styles.ts` file — new styles were added to the existing `styles/stats.styles.ts`, keeping one stylesheet per screen. `HealthReportGenerator` and `HealthReportsList` are pure presentational components (tests in `components/__tests__/forms/` and `components/__tests__/lists/` respectively, matching existing category conventions) — `StatsScreen` alone calls `useHealthReports()` and passes state/callbacks down. If health reports later need a full dedicated history view (filtering, search, pagination) as usage grows, that would be a separate future decision — the current placement optimizes for the common case of "look at charts, occasionally generate/review a report" in one screen.
-
-## TDR-026: AI Health Report Generation via Supabase Edge Function
-**Date**: 2026-09-05
-**Status**: Accepted
-**Context**: Users want month-over-month correlation reports (e.g. "does loose stools correlate with dairy intake?"). `FoodEntry`, `WaterEntry`, and `BowelEntry` already carry per-entry ISO timestamps, but there was no aggregation or correlation layer, and no ingredient trigger-tagging of any kind (`food_ingredients.name` is free text). Handing raw entry logs to an LLM was rejected outright: it's expensive at scale, unreliable for anything requiring exact arithmetic (correlation/lift math), and gives no basis to trust the model's aggregate claims over a full month of entries. Separately, Gemini Vision (TDR-021) was already calling the Gemini API **directly from the device** using a bundled `EXPO_PUBLIC_GEMINI_API_KEY` — visible client-side, with no rate limiting — a gap this feature needed to close rather than compound.
-**Decision**: A deterministic statistics/correlation layer computes contingency-table-style lift ratios (rate of an adverse outcome in a trigger's lookback window vs baseline) first; the LLM is only ever given a compact, pre-computed JSON summary to narrate — never asked to compute correlations itself. This layer is `lib/insightsEngine.ts`, backed by a static, hand-maintained ingredient → trigger-tag lookup (`lib/ingredientTags.ts`, name-substring matching, e.g. `milk|cheese|yogurt` → `dairy`) rather than a schema change or backfill. Both are plain, dependency-free TypeScript so they can be imported unmodified by both the client and the Deno Edge Function runtime — the repo's first cross-runtime shared module. Generation itself moved server-side into `generate-health-report`, the repo's first Supabase Edge Function, which holds the Gemini key as a Deno secret instead of an `EXPO_PUBLIC_*` client bundle, and applies a 5-reports/24h rate limit per user. Reports are persisted (not generated-on-demand-only) in a new `health_reports` table (`summary_stats` and `correlations` as `jsonb`, plus the generated `ai_report_text`) — the repo's first `jsonb` columns — enabling future "improved vs last month" trend views. The correlation payload shape keys on a generic `entry_type` rather than being food/water/bowel-specific, so sleep and activity tracking (once built) can feed the same report engine without a second migration. The AI prompt mandates explicit "not medical advice" / correlation-≠-causation framing, plus a hard-coded call-out to see a doctor if `hasBlood` appears anywhere in the reported period — enforced with a code-level backstop (`ensureBloodCallout`) so the safety-critical text never depends solely on prompt compliance.
-**Alternatives considered**: Client-only aggregation (compute stats and call Gemini directly from the device, as Gemini Vision already did) — rejected because it does not fix the exposed `EXPO_PUBLIC_GEMINI_API_KEY` or add any rate limiting, and does not scale past pulling a user's entire history into memory (the existing `TrackingContext` limitation flagged in TDR-022); a month-plus of entries fetched and aggregated on-device on every report generation was judged too wasteful and insecure to build on further.
-**Consequences**: This is the first non-`EXPO_PUBLIC` secret in the repo (`GEMINI_API_KEY` as an Edge Function secret via `supabase secrets set`), the first `jsonb` columns (`health_reports.summary_stats`/`correlations`), the first cross-runtime shared module pair (`lib/insightsEngine.ts` + `lib/ingredientTags.ts`, both requiring explicit `.ts` import extensions for Deno compatibility), and a new rate-limiting surface (5 reports/24h, enforced in the Edge Function, not the DB). Implementation specifics — the Edge Function's exact request/response contract and the `health_reports` schema — are captured in TDR-024 and TDR-025 above; this entry is the umbrella architectural decision they implement. TDR-023 (CI-driven Supabase migrations) is unrelated in subject but landed in the same body of work, since the `health_reports` table and reporting indexes needed a reliable migration path.
+**A TDR is required for:**
+- New external dependency added
+- New screen, tab, or navigation pattern
+- New global state shape (context fields added/removed/renamed)
+- Data persistence introduced or changed
+- New component category or test subfolder added
+- Architectural pattern changed (styling, typing, ID generation, etc.)
+
+**A TDR is NOT required for:**
+- Bug fixes and refactors that don't change patterns
+- Adding a new component that follows an existing pattern
+- Style or copy changes
+
+## Index
+
+| TDR | Title | Date | Status |
+|---|---|---|---|
+| [TDR-001](./decisions/001-expo-router-over-react-navigation.md) | Expo Router over React Navigation | August 2025 | Accepted |
+| [TDR-002](./decisions/002-react-context-api-for-state-management.md) | React Context API for State Management | August 2025 | Accepted |
+| [TDR-003](./decisions/003-react-native-skia-for-charts.md) | React Native Skia for Charts | August 2025 | Accepted |
+| [TDR-004](./decisions/004-typescript-strict-mode.md) | TypeScript Strict Mode | August 2025 | Accepted |
+| [TDR-005](./decisions/005-native-builds-required.md) | Native Builds Required | August 2025 | Accepted |
+| [TDR-006](./decisions/006-styles-directory-structure.md) | Styles Directory Structure | August 2025 | Accepted |
+| [TDR-007](./decisions/007-split-date-time-picker-with-calendar-interface.md) | Split Date/Time Picker with Calendar Interface | August 2025 | Accepted |
+| [TDR-008](./decisions/008-meal-photo-feature-with-expo-image-picker.md) | Meal Photo Feature with expo-image-picker | 2026-03-13 | Accepted |
+| [TDR-009](./decisions/009-user-profile-tab-and-volume-preset-feature.md) | User Profile Tab and Volume Preset Feature | 2026-03-13 | Accepted |
+| [TDR-010](./decisions/010-supabase-for-cloud-persistence.md) | Supabase for Cloud Persistence | 2026-03-28 | Accepted |
+| [TDR-011](./decisions/011-supabase-auth-expo-secure-store-for-session-persistence.md) | Supabase Auth + expo-secure-store for Session Persistence | 2026-03-28 | Accepted |
+| [TDR-012](./decisions/012-client-side-aes-256-gcm-encryption-for-meal-photos.md) | Client-Side AES-256-GCM Encryption for Meal Photos | 2026-03-28 | Accepted |
+| [TDR-013](./decisions/013-bowel-movement-tracking-feature.md) | Bowel Movement Tracking Feature | 2026-04-24 | Accepted |
+| [TDR-014](./decisions/014-sleep-data-integration-strategy-garmin-via-platform-health-apis.md) | Sleep Data Integration Strategy — Garmin via Platform Health APIs | 2026-04-24 | Proposed |
+| [TDR-015](./decisions/015-generic-photo-infrastructure-user-photos-bucket-photoinput-component.md) | Generic Photo Infrastructure (user-photos bucket + PhotoInput component) | 2026-04-24 | Accepted |
+| [TDR-016](./decisions/016-dedicated-types-ingredient-ts-module.md) | Dedicated `types/ingredient.ts` Module | 2026-05-31 | Accepted |
+| [TDR-017](./decisions/017-open-food-facts-api-integration-for-nutrition-lookup.md) | Open Food Facts API Integration for Nutrition Lookup | 2026-05-31 | Accepted |
+| [TDR-018](./decisions/018-full-macro-tracking-protein-carbs-fat.md) | Full Macro Tracking (Protein, Carbs, Fat) | 2026-05-31 | Accepted |
+| [TDR-019](./decisions/019-expo-camera-for-barcode-scanning.md) | expo-camera for Barcode Scanning | 2026-05-31 | Accepted |
+| [TDR-020](./decisions/020-entry-history-with-full-crud-edit-and-delete.md) | Entry History with Full CRUD (Edit and Delete) | 2026-05-31 | Accepted |
+| [TDR-021](./decisions/021-gemini-vision-ai-photo-analysis.md) | Gemini Vision AI Photo Analysis | 2026-05-31 | Accepted |
+| [TDR-022](./decisions/022-stats-screen-implementation.md) | Stats Screen Implementation | 2026-05-31 | Accepted |
+| [TDR-023](./decisions/023-ci-driven-supabase-migrations.md) | CI-Driven Supabase Migrations | 2026-09-05 | Accepted |
+| [TDR-024](./decisions/024-generate-health-report-supabase-edge-function.md) | `generate-health-report` Supabase Edge Function | 2026-09-05 | Accepted |
+| [TDR-025](./decisions/025-health-report-ui-placement-stats-tab-section.md) | Health Report UI Placement — Stats Tab Section | 2026-09-05 | Accepted |
+| [TDR-026](./decisions/026-ai-health-report-generation-via-supabase-edge-function.md) | AI Health Report Generation via Supabase Edge Function | 2026-09-05 | Accepted |

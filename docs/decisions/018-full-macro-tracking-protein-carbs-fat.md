@@ -1,0 +1,6 @@
+## TDR-018: Full Macro Tracking (Protein, Carbs, Fat)
+**Date**: 2026-05-31
+**Status**: Accepted
+**Context**: The app tracked calories only. Open Food Facts returns a full macro profile; discarding it would waste available data and limit the health-tracking value of the feature.
+**Decision**: Extend `Ingredient` with `calculatedProtein`, `calculatedCarbs`, `calculatedFat`; extend `FoodEntry` with `totalProtein`, `totalCarbs`, `totalFat`; extend `UserProfile` with `dailyCalorieGoal`, `dailyProteinGoal`, `dailyCarbGoal`, `dailyFatGoal`. A `NutritionData` type holds the per-100g reference values. `calculateTotals()` in `foodHelpers.ts` replaces the old `calculateTotalCalories()` (kept as a backward-compatible wrapper). A new `DailySummaryCard` component on the Home screen shows today's intake vs goals with colour-coded progress bars. The DB migration `005_macros.sql` adds the corresponding columns to `food_entries`, `food_ingredients`, and `user_profiles`.
+**Consequences**: All macro fields are optional — entries without nutrition data continue to work. Goal fields in `UserProfile` are also optional; `DailySummaryCard` renders nothing when neither today's data nor a calorie goal is present (no visual noise for new users). The `isSameDay` utility was added to `dateUtils.ts` to support date-boundary filtering in the card.

@@ -12,18 +12,16 @@ Welcome to the Food Tracker App documentation! This directory contains comprehen
   - Component hierarchies
 
 ### Technical Decisions
-- **[TECHNICAL_DECISIONS.md](./TECHNICAL_DECISIONS.md)** - Decision records (TDRs)
+- **[TECHNICAL_DECISIONS.md](./TECHNICAL_DECISIONS.md)** - Index of decision records (TDRs), one per file under **[decisions/](./decisions/)**
   - Major architectural choices
   - Alternative evaluations
   - Rationale and trade-offs
   - Future decision template
 
 ### Component Documentation
-- **[COMPONENT_DIAGRAMS.md](./COMPONENT_DIAGRAMS.md)** - Visual component architecture
-  - Component structure diagrams
-  - Integration flows
-  - Development roadmap
-  - Enhancement plans
+- **[diagrams/](./diagrams/)** - Architecture diagrams (Mermaid `.mmd` and draw.io `.xml`)
+  - System overview and component hierarchy
+  - Data-flow diagrams
 
 ## 🏗️ Quick Architecture Overview
 
@@ -33,9 +31,10 @@ Welcome to the Food Tracker App documentation! This directory contains comprehen
 ## �🔧 For Developers
 
 ### Getting Started
-1. Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
-2. Check [TECHNICAL_DECISIONS.md](./TECHNICAL_DECISIONS.md) for context
-3. Review [COMPONENT_DIAGRAMS.md](./COMPONENT_DIAGRAMS.md) for implementation details
+1. Query the graphify knowledge graph first (`.graphify/graph.json`) — see `AGENTS.md`'s Graphify section
+2. Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system overview
+3. Check [TECHNICAL_DECISIONS.md](./TECHNICAL_DECISIONS.md) for relevant TDRs
+4. Review [diagrams/](./diagrams/) for visual architecture
 
 ### Making Changes
 - Update relevant documentation when making architectural changes
@@ -53,8 +52,8 @@ Welcome to the Food Tracker App documentation! This directory contains comprehen
 | Document | Update Trigger | Frequency |
 |----------|---------------|-----------|
 | ARCHITECTURE.md | New major features, tech stack changes | As needed |
-| TECHNICAL_DECISIONS.md | Major technical decisions | Per decision |
-| COMPONENT_DIAGRAMS.md | New components, UI changes | Sprint cycles |
+| TECHNICAL_DECISIONS.md + decisions/ | Major technical decisions | Per decision |
+| diagrams/ | New components, UI changes | As needed |
 
 ## 🚀 TODO: Future Features
 
