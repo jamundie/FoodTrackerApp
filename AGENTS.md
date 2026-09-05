@@ -42,18 +42,35 @@ docs/         # ARCHITECTURE.md, TECHNICAL_DECISIONS.md, TDRs
 - **Async context pattern**: tests rendering `TrackingProvider` must wait for the initial `load()` to settle before asserting on state (`await waitFor(() => loading === 'ready')`).
 - Run tests: `npm test`
 
+## Graphify — Orient Before Reading Docs
+
+This repo has a pre-built, committed knowledge graph at `.graphify/` (`graph.json`, `GRAPH_REPORT.md`). A `.husky/post-commit` hook keeps it structurally current automatically — do not rebuild it manually unless `graphify` reports it stale.
+
+**Before reading `docs/ARCHITECTURE.md`, `docs/TECHNICAL_DECISIONS.md`, or grepping across the codebase for context on existing code**, query the graph first — it's cheaper and more targeted:
+
+```
+npx graphifyy@latest summary .graphify/graph.json          # first-hop orientation: hubs, communities
+npx graphifyy@latest explain "<NodeName>" --graph .graphify/graph.json   # connections for one node
+npx graphifyy@latest minimal-context <file> --graph .graphify/graph.json # compact context + risk for a file
+npx graphifyy@latest path <source> <target> --graph .graphify/graph.json # how two nodes connect
+```
+
+Fall back to reading full docs/source only when the graph doesn't answer the question (e.g. it lacks semantic/conceptual detail, or `check-update` reports it stale relative to `HEAD`).
+
+**If a task introduces a new pattern or concept** (new hook category, new architectural pattern, new domain type) that the graph should know about semantically — not just structurally — update `.graphify/.graphify_semantic.json` per `.opencode/skills/graphify/SKILL.md`'s incremental workflow, then re-run `extract --semantic`, before closing the task. The post-commit hook only handles structural (AST-derived) freshness; semantic authoring is a judgment call the hook can't make.
+
 ## Documentation Protocol
 
-Documentation must be kept current as part of every feature or fix. Apply these rules **before marking a task done**.
+Documentation must be kept current as part of every feature or fix. Apply these rules **before marking a task done** — scoped to files actually touched by the change, not a full-document review pass.
 
 ### Always — every non-trivial change
-- **`docs/ARCHITECTURE.md`**: Update any section that is no longer accurate. This includes component lists, data-flow diagrams, tech-stack versions, styling architecture, and known limitations. Remove stale content; do not just append.
+- **`docs/ARCHITECTURE.md`**: Update only the sections affected by the files you changed (use `graphify affected-flows`/`review-context` to scope this). This includes component lists, data-flow diagrams, tech-stack versions, styling architecture, and known limitations. Remove stale content; do not just append.
 
 ### When a new coding pattern is introduced
 - **`.github/copilot-instructions.md`**: Add or revise the relevant section (component patterns, utility conventions, testing rules, etc.) so the next feature follows the same pattern automatically.
 
 ### When a significant decision is made
-Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-027):
+TDRs live one-per-file in **`docs/decisions/NNN-slug.md`**, indexed at **`docs/TECHNICAL_DECISIONS.md`** (check that index for the next number — do not hardcode it here, it changes every time a TDR is added). Add a new file following the existing naming pattern (`NNN-slug.md`, zero-padded) and add a row to the index table:
 
 ```markdown
 ## TDR-XXX: [Title]

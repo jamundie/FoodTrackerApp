@@ -298,18 +298,32 @@ npm run ios            # iOS build
 4. **Calorie calculations**: Handle missing nutritional data gracefully
 5. **Date/time precision**: Use 15-minute intervals for time selections
 
+## Graphify — Orient Before Reading Docs
+
+This repo has a pre-built, committed knowledge graph at `.graphify/` (`graph.json`, `GRAPH_REPORT.md`). A `.husky/post-commit` hook keeps it structurally current automatically.
+
+**Before reading `docs/ARCHITECTURE.md`, `docs/TECHNICAL_DECISIONS.md`, or grepping across the codebase for context on existing code**, query the graph first:
+
+```
+npx graphifyy@latest summary .graphify/graph.json
+npx graphifyy@latest explain "<NodeName>" --graph .graphify/graph.json
+npx graphifyy@latest minimal-context <file> --graph .graphify/graph.json
+```
+
+Fall back to full docs/source reads only when the graph doesn't answer the question. See `AGENTS.md`'s Graphify section for the full workflow, including semantic authoring for new patterns/concepts.
+
 ## Documentation Protocol
 
-Documentation must stay current as part of every feature or fix — **not as an afterthought**.
+Documentation must stay current as part of every feature or fix — **not as an afterthought** — but scoped to files actually touched, not a full-document review pass.
 
 ### Always — every non-trivial change
-- **`docs/ARCHITECTURE.md`**: Update any section that is no longer accurate (component lists, data-flow, tech-stack versions, styling architecture, known limitations). Remove stale content; do not just append.
+- **`docs/ARCHITECTURE.md`**: Update only the sections affected by the files you changed (component lists, data-flow, tech-stack versions, styling architecture, known limitations). Remove stale content; do not just append.
 
 ### When a new coding pattern is introduced
 - **This file (`.github/copilot-instructions.md`)**: Add or revise the relevant section so the next feature automatically follows the same pattern.
 
 ### When a significant decision is made
-Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-027):
+TDRs live one-per-file in **`docs/decisions/NNN-slug.md`**, indexed at **`docs/TECHNICAL_DECISIONS.md`** (check that index for the next number). Add a new file and a row to the index table:
 
 ```markdown
 ## TDR-XXX: [Title]
