@@ -201,4 +201,26 @@ export const statsStyles = StyleSheet.create({
     width: 20,
     textAlign: 'right',
   },
+
+  // Health report generator
+  reportGeneratorContainer: {
+    marginBottom: 16,
+  },
+  generateButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#007bff',
+    borderRadius: 10,
+    paddingVertical: 12,
+  },
+  generateButtonDisabled: {
+    opacity: 0.6,
+  },
+  generateButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
+  },
 });
