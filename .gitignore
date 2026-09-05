@@ -51,4 +51,12 @@ expo-env.d.ts
 supabase/.temp/
 
 # Graphify — generated knowledge-graph analysis artefacts (not source)
-.graphify/
+# Portable summary files are committed (graph.json, GRAPH_REPORT.md, manifest.json,
+# scope.json) so a fresh clone/session has a queryable graph immediately; everything
+# else (semantic authoring source, AST/analysis caches, machine-local lifecycle state,
+# and the graph.html visualisation) stays local and regenerable.
+.graphify/*
+!.graphify/graph.json
+!.graphify/GRAPH_REPORT.md
+!.graphify/manifest.json
+!.graphify/scope.json

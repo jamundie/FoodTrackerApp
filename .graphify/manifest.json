@@ -1,0 +1,662 @@
+{
+  "android/app/build.gradle": {
+    "mtime": 1751708853392.0981,
+    "hash": "8ef6bf3ddc15e38f47b6f76a92cf1fe9"
+  },
+  "android/app/src/main/java/com/anonymous/FoodTrackerApp/MainActivity.kt": {
+    "mtime": 1751708853389.5735,
+    "hash": "20c24ac8e40e2c14178649185084a0db"
+  },
+  "android/app/src/main/java/com/anonymous/FoodTrackerApp/MainApplication.kt": {
+    "mtime": 1751708852733.9592,
+    "hash": "7d812bd6216d818653085ec657d2bec7"
+  },
+  "android/build.gradle": {
+    "mtime": 1751708853391.358,
+    "hash": "ef56afb240fbe33c221191bc9706cc86"
+  },
+  "android/gradlew": {
+    "mtime": 1751708852332.19,
+    "hash": "cf6bb46b25d0768b3929c9b1377bf481"
+  },
+  "android/settings.gradle": {
+    "mtime": 1751708853390.8953,
+    "hash": "2e230ea80b3865ce7877f3cf26425f75"
+  },
+  "app/(auth)/_layout.tsx": {
+    "mtime": 1774715396686.8228,
+    "hash": "9a489204b1581e4e017aeb78e7d0653c"
+  },
+  "app/(auth)/sign-in.tsx": {
+    "mtime": 1774715430944.1355,
+    "hash": "22557a24d7eeddb3361277c2ed7903cd"
+  },
+  "app/(auth)/sign-up.tsx": {
+    "mtime": 1774715424671.5625,
+    "hash": "85b18ac1054c249cac471f0ba1b85e87"
+  },
+  "app/(tabs)/__tests__/water.test.tsx": {
+    "mtime": 1774716193949.3774,
+    "hash": "c1f7a14841460dff5894fb3332031a3c"
+  },
+  "app/(tabs)/_layout.tsx": {
+    "mtime": 1777059561638.3164,
+    "hash": "7176fa5426fc15dc8c267e50b6280ed3"
+  },
+  "app/(tabs)/bowel.tsx": {
+    "mtime": 1777061867594.66,
+    "hash": "c73d1f0c6196abb7c862d994db2329ea"
+  },
+  "app/(tabs)/food.tsx": {
+    "mtime": 1780241643353.8542,
+    "hash": "acc7a274930a126b31b08c698ab4bc76"
+  },
+  "app/(tabs)/index.tsx": {
+    "mtime": 1780234145132.4102,
+    "hash": "20068b5f8d64be70ebd098e418129300"
+  },
+  "app/(tabs)/profile.tsx": {
+    "mtime": 1774715577203.9285,
+    "hash": "0d5ea1fc1215b3bc521997d42d7b9c8e"
+  },
+  "app/(tabs)/stats.tsx": {
+    "mtime": 1788640906863.6863,
+    "hash": "9df283fe6175412952d42c1f59c0d06c"
+  },
+  "app/(tabs)/water.tsx": {
+    "mtime": 1780240172604.3257,
+    "hash": "8b70a2bfa9c44021fdce000b781ed710"
+  },
+  "app/+html.tsx": {
+    "mtime": 1751643241106.9565,
+    "hash": "a6963766bdc0178082b2288b83fb97f5"
+  },
+  "app/+not-found.tsx": {
+    "mtime": 1751643245905.8284,
+    "hash": "f929b16aa5d4f9fe79e5467b536d57a7"
+  },
+  "app/_layout.tsx": {
+    "mtime": 1774715536152.4983,
+    "hash": "93d3de9a73179f606ab4aea79369149f"
+  },
+  "babel.config.js": {
+    "mtime": 1720024016146.091,
+    "hash": "8fc7a520543679a79421ba4e2dbcfe90"
+  },
+  "components/BowelEntriesList.tsx": {
+    "mtime": 1777060183844.5137,
+    "hash": "480385d09cb407134ff875f5d7621025"
+  },
+  "components/BowelEntryForm.tsx": {
+    "mtime": 1777062565593.851,
+    "hash": "85d85ad0defec216254d9d3dc0363fb0"
+  },
+  "components/CategoryModal.tsx": {
+    "mtime": 1754326256799.773,
+    "hash": "1d4e07d04ed30c6dbdb27b9c438c6754"
+  },
+  "components/Collapsible.tsx": {
+    "mtime": 1751643129119.585,
+    "hash": "e663261dd43127c0f2ae4dc98c77d73f"
+  },
+  "components/DatePickerModal.tsx": {
+    "mtime": 1754325580606.4265,
+    "hash": "6343ca33245b6447b12b435fe50baddd"
+  },
+  "components/FoodEntriesList.tsx": {
+    "mtime": 1780240430571.17,
+    "hash": "b0c6c97b7b2d3576b0cb70325c9c5ab5"
+  },
+  "components/IngredientForm.tsx": {
+    "mtime": 1780234400420.9282,
+    "hash": "0c82b377c22bd00f4bfdde8dc551058f"
+  },
+  "components/MealInfoForm.tsx": {
+    "mtime": 1780241617022.2727,
+    "hash": "7fd772517451f2dd69a3064e552aae28"
+  },
+  "components/PhotoInput.tsx": {
+    "mtime": 1777062552699.3801,
+    "hash": "53d0e1aa7c13d7a321dbb405ff40504d"
+  },
+  "components/PlaceholderCircle/index.tsx": {
+    "mtime": 1751654543680.7874,
+    "hash": "d5ca0a9af40bd3c8f471919f0baf2720"
+  },
+  "components/ProfileForm.tsx": {
+    "mtime": 1780232159486.1338,
+    "hash": "a65ae658b74351ea5f3deedc510219c4"
+  },
+  "components/ProgressChart.tsx": {
+    "mtime": 1780234134455.911,
+    "hash": "de833a978e0fef77e15670b6f23eb75a"
+  },
+  "components/RecentActivities.tsx": {
+    "mtime": 1761320229771.5789,
+    "hash": "5afc6e3d3f7d1d9ee753be12eb6c4f39"
+  },
+  "components/ThemedText.tsx": {
+    "mtime": 1751643182231.5327,
+    "hash": "fab14339441bf2a71d06dc68ff2882fb"
+  },
+  "components/ThemedView.tsx": {
+    "mtime": 1751643192313.962,
+    "hash": "e8e425b789800098a85a1384b67b45d8"
+  },
+  "components/TimePickerModal.tsx": {
+    "mtime": 1754325755796.5093,
+    "hash": "ef046c5702ef16d2e80898d9f33b399d"
+  },
+  "components/WaterEntriesList.tsx": {
+    "mtime": 1780240436654.1353,
+    "hash": "2154c5d61480521a03ccd3ab64ee5548"
+  },
+  "components/WaterInfoForm.tsx": {
+    "mtime": 1773412602452.202,
+    "hash": "a519fe711f53fd9d2c8b1a2298d9ee8c"
+  },
+  "components/WaterIngredientsForm.tsx": {
+    "mtime": 1780234239969.8225,
+    "hash": "3f23cfbcaa263a3129ecb2749acb93dc"
+  },
+  "components/WaterVolumeSelector.tsx": {
+    "mtime": 1773413721568.2834,
+    "hash": "849955a8c57032a17f9ae50a7f0ab9c8"
+  },
+  "components/__tests__/charts/ProgressChart.test.tsx": {
+    "mtime": 1780234159279.8833,
+    "hash": "7444a3dc6177665ad578169fc1cec6e1"
+  },
+  "components/__tests__/forms/IngredientForm.test.tsx": {
+    "mtime": 1780234262542.8271,
+    "hash": "62cd330ec6e16aa9b05e21a9bc287e4d"
+  },
+  "components/__tests__/forms/MealInfoForm.test.tsx": {
+    "mtime": 1773410974244.7659,
+    "hash": "914c6c7afabb4b8139293567c32f0f89"
+  },
+  "components/__tests__/forms/PhotoInput.test.tsx": {
+    "mtime": 1777062610209.2126,
+    "hash": "2b3d933829bc131ef3a25c388c8277ee"
+  },
+  "components/__tests__/forms/ProfileForm.test.tsx": {
+    "mtime": 1773413040129.2766,
+    "hash": "ddf7d39193fc90ebc68b96433bd8be6a"
+  },
+  "components/__tests__/forms/WaterInfoForm.test.tsx": {
+    "mtime": 1773412783397.7449,
+    "hash": "849ece00c07ce424e96c74980c3835e5"
+  },
+  "components/__tests__/forms/WaterIngredientsForm.test.tsx": {
+    "mtime": 1780234282120.203,
+    "hash": "26f1700b6a90d854bc059901a82aadaa"
+  },
+  "components/__tests__/forms/WaterVolumeSelector.test.tsx": {
+    "mtime": 1773413760355.9502,
+    "hash": "8a7d7952f78a8aaa574ab1cdba8ac467"
+  },
+  "components/__tests__/lists/FoodEntriesList.test.tsx": {
+    "mtime": 1780240454393.556,
+    "hash": "3d78c0deca4889560c9a501902114acf"
+  },
+  "components/__tests__/lists/RecentActivities.test.tsx": {
+    "mtime": 1777059732284.7483,
+    "hash": "6e3d378e28fcd3232d44ef4ae990742d"
+  },
+  "components/__tests__/lists/WaterEntriesList.test.tsx": {
+    "mtime": 1780240466986.8154,
+    "hash": "507f50e3f39cdb65792ac49f648672cd"
+  },
+  "components/__tests__/modals/CategoryModal.test.tsx": {
+    "mtime": 1761318478888.4497,
+    "hash": "e556a6ec7c19d22fa643daee5197cc7c"
+  },
+  "components/__tests__/modals/DatePickerModal.test.tsx": {
+    "mtime": 1761318478888.4287,
+    "hash": "f6d48fccd9c52e8d448d35b42ab07a73"
+  },
+  "components/__tests__/modals/TimePickerModal.test.tsx": {
+    "mtime": 1761318478888.4683,
+    "hash": "880fd6e0442c81b2638ebd73f070f74c"
+  },
+  "components/__tests__/screens/FoodIntake.test.tsx": {
+    "mtime": 1780232344385.145,
+    "hash": "bb12dd85cb4df972721e58a86b83495b"
+  },
+  "components/__tests__/screens/HomeScreen.test.tsx": {
+    "mtime": 1777059814596.82,
+    "hash": "72d4e38aa728923d5c62b1ac83f898fe"
+  },
+  "components/navigation/TabBarIcon.tsx": {
+    "mtime": 1751643389702.606,
+    "hash": "08c9d25ee3cf13a73b23a313fbdde454"
+  },
+  "constants/Colors.ts": {
+    "mtime": 499162500000,
+    "hash": "1ffa5f7bbd94a54a3e4bbfd97fe53fa5"
+  },
+  "hooks/AuthContext.tsx": {
+    "mtime": 1777057940425.4553,
+    "hash": "fae110c4e866724c4788d370928419e3"
+  },
+  "hooks/TrackingContext.tsx": {
+    "mtime": 1780239850340.4165,
+    "hash": "adf3c8ef23722b451bf115b6408a3989"
+  },
+  "hooks/__tests__/TrackingContext.test.tsx": {
+    "mtime": 1774716132237.0479,
+    "hash": "ef4ab125ec37c5a7117d30a2df4970a4"
+  },
+  "hooks/__tests__/useWaterEntryForm.test.tsx": {
+    "mtime": 1761317710425.7075,
+    "hash": "3e9ee7f96f174cbabe836d7c98a6de71"
+  },
+  "hooks/useBowelEntryForm.ts": {
+    "mtime": 1780225789734.4504,
+    "hash": "de5601879febfbbac5bcc50f720d8bd7"
+  },
+  "hooks/useColorScheme.ts": {
+    "mtime": 499162500000,
+    "hash": "6f3444fcb9c7013a839a7832be518831"
+  },
+  "hooks/useColorScheme.web.ts": {
+    "mtime": 499162500000,
+    "hash": "114ae1ab68038f77c94c9353ba8f706f"
+  },
+  "hooks/useFoodEntryForm.ts": {
+    "mtime": 1780243456954.1018,
+    "hash": "34b45d53df0ae2e7eb53a95889da32c8"
+  },
+  "hooks/useSignedPhotoUrl.ts": {
+    "mtime": 1774735029582.002,
+    "hash": "878db4ea45f25664a159d77c81513dac"
+  },
+  "hooks/useThemeColor.ts": {
+    "mtime": 1721321248523.2036,
+    "hash": "e0a0860130e276a42ca53eeb94242ef3"
+  },
+  "hooks/useWaterEntryForm.ts": {
+    "mtime": 1780240061378.4456,
+    "hash": "f2e1821792301564586457b795c936ff"
+  },
+  "jest.setup.ts": {
+    "mtime": 1788637958421.8687,
+    "hash": "6c96b200a105d97587b3217f3bbeae3e"
+  },
+  "lib/supabase.ts": {
+    "mtime": 1774715316756.2969,
+    "hash": "b9f1f4647dfa38dd05259539b61f753a"
+  },
+  "lib/trackingService.ts": {
+    "mtime": 1788637939111.7014,
+    "hash": "6de9541f610cd66e8b6177a7c52879f6"
+  },
+  "scripts/reset-project.js": {
+    "mtime": 499162500000,
+    "hash": "acdaad20b4588006ef2644e24d57b4c4"
+  },
+  "styles/auth.styles.ts": {
+    "mtime": 1774715377835.3342,
+    "hash": "955913480bd3b17602972bd123fbf07f"
+  },
+  "styles/bowel.styles.ts": {
+    "mtime": 1777061259512.7415,
+    "hash": "a152d7b3c7470c758f82718f8aebd866"
+  },
+  "styles/food.styles.ts": {
+    "mtime": 1780241592540.086,
+    "hash": "bc2fb063848d045127d9f02e24b5c85e"
+  },
+  "styles/index.styles.ts": {
+    "mtime": 1773403126968.878,
+    "hash": "e5aca54bae45234a518ce90883561cd0"
+  },
+  "styles/layout.styles.ts": {
+    "mtime": 1761321694228.7188,
+    "hash": "3c896e304671a71c7bf9b64e97b05d1b"
+  },
+  "styles/profile.styles.ts": {
+    "mtime": 1773412963685.454,
+    "hash": "53f03504de575b47eba2ccf1887eae19"
+  },
+  "styles/progressChart.styles.ts": {
+    "mtime": 1761579259137.7515,
+    "hash": "5da9e5067646f9e2880e03470dd70ac1"
+  },
+  "styles/water.styles.ts": {
+    "mtime": 1773413728388.9438,
+    "hash": "900a548fa14538272851cdbb7f73086d"
+  },
+  "supabase/migrations/001_initial_schema.sql": {
+    "mtime": 1774722184232.5156,
+    "hash": "e534bbb9b6709bd1c186df87d8aa1374"
+  },
+  "supabase/migrations/002_bowel_entries.sql": {
+    "mtime": 1777060169883.116,
+    "hash": "5c414824c78925d32e1c431cc8c7e8a4"
+  },
+  "supabase/migrations/003_bowel_photos.sql": {
+    "mtime": 1780226265391.713,
+    "hash": "31126e2d41537d47d650be8d76b535c3"
+  },
+  "supabase/migrations/004_user_photos_bucket.sql": {
+    "mtime": 1777062475697.9934,
+    "hash": "240af184eb6b48aeaa8bfe540129b46a"
+  },
+  "types/tracking.ts": {
+    "mtime": 1788637919156.6252,
+    "hash": "5cccc7711813df950833b31891efafbb"
+  },
+  "utils/__tests__/dateUtils.test.ts": {
+    "mtime": 1788640906866.5664,
+    "hash": "d0983fa3834a974be2d18e708a1724c6"
+  },
+  "utils/__tests__/photoEncryption.test.ts": {
+    "mtime": 1774735370849.7437,
+    "hash": "28b6de6f0fdf7f02a3512ac1ca19fda2"
+  },
+  "utils/__tests__/waterHelpers.test.ts": {
+    "mtime": 1780234315557.133,
+    "hash": "1c76d7793382552d638e75dca8af1da0"
+  },
+  "utils/dateUtils.ts": {
+    "mtime": 1788640906866.7964,
+    "hash": "7015f961193f020c97522133e1347718"
+  },
+  "utils/foodHelpers.ts": {
+    "mtime": 1780243374974.9592,
+    "hash": "e14e5e90c74308b99abcd833dfdeb7b2"
+  },
+  "utils/photoEncryption.ts": {
+    "mtime": 1780225757078.455,
+    "hash": "09174e362c5526bbf99370eb78176937"
+  },
+  "utils/waterHelpers.ts": {
+    "mtime": 1780234192918.7498,
+    "hash": "500e47352fe48f2e92bf85638edc5a46"
+  },
+  "AGENTS.md": {
+    "mtime": 1788641713269.0989,
+    "hash": "ce9a997816e8fdbf48d27d8452cdc96f"
+  },
+  "README.md": {
+    "mtime": 1788637647543.8103,
+    "hash": "4e3481ca3f76b82f667ad6e0b2ce1af3"
+  },
+  "docs/ARCHITECTURE.md": {
+    "mtime": 1788641679406.1313,
+    "hash": "92009998f0a2f970b8b06be0aee37e96"
+  },
+  "docs/README.md": {
+    "mtime": 1761579259138.0537,
+    "hash": "2b867f750ff5bb6a325c5d710d98b538"
+  },
+  "docs/TECHNICAL_DECISIONS.md": {
+    "mtime": 1788641602599.6584,
+    "hash": "82fcbac3ee4fc14a574a2bd0c4841c9d"
+  },
+  "android/app/src/main/res/drawable-hdpi/splashscreen_logo.png": {
+    "mtime": 1751708853296.8904,
+    "hash": "aa52e66f48d986e97ad852287a9e92fd"
+  },
+  "android/app/src/main/res/drawable-mdpi/splashscreen_logo.png": {
+    "mtime": 1751708853296.842,
+    "hash": "54606d6f318bcee5bf28bb565b3e521b"
+  },
+  "android/app/src/main/res/drawable-xhdpi/splashscreen_logo.png": {
+    "mtime": 1751708853370.871,
+    "hash": "48a5904cd6767d82efb9a6857fad7a60"
+  },
+  "android/app/src/main/res/drawable-xxhdpi/splashscreen_logo.png": {
+    "mtime": 1751708853371.1777,
+    "hash": "c3cd39808936f8333e6bfe38aaf8f206"
+  },
+  "android/app/src/main/res/drawable-xxxhdpi/splashscreen_logo.png": {
+    "mtime": 1751708853371.0103,
+    "hash": "efb9ef10ab84157613aa00d316e2dff0"
+  },
+  "android/app/src/main/res/mipmap-hdpi/ic_launcher.webp": {
+    "mtime": 1751708852772.8792,
+    "hash": "87aa5e96a11f838e653834ceee1650e2"
+  },
+  "android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.webp": {
+    "mtime": 1751708852775.8647,
+    "hash": "dd94500a123c317cc04b752525b51100"
+  },
+  "android/app/src/main/res/mipmap-hdpi/ic_launcher_round.webp": {
+    "mtime": 1751708852774.066,
+    "hash": "8974b366b19298a7bec1c8170fffdbd5"
+  },
+  "android/app/src/main/res/mipmap-mdpi/ic_launcher.webp": {
+    "mtime": 1751708852772.8557,
+    "hash": "abf907444acea51ad4b7718688ddac1c"
+  },
+  "android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.webp": {
+    "mtime": 1751708852775.8406,
+    "hash": "ec173ec107d738f66bbfdfd7811b6429"
+  },
+  "android/app/src/main/res/mipmap-mdpi/ic_launcher_round.webp": {
+    "mtime": 1751708852774.0034,
+    "hash": "93daee241095a5621f56b957cd41c90f"
+  },
+  "android/app/src/main/res/mipmap-xhdpi/ic_launcher.webp": {
+    "mtime": 1751708852772.987,
+    "hash": "3ab6eb13527be6d2962f20c2ef32d686"
+  },
+  "android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.webp": {
+    "mtime": 1751708852776.0051,
+    "hash": "d1ba1e248e5e7bb8f3526f8a27de170d"
+  },
+  "android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp": {
+    "mtime": 1751708852774.3108,
+    "hash": "86dddb19dfd2468abdaac7d2f36bd657"
+  },
+  "android/app/src/main/res/mipmap-xxhdpi/ic_launcher.webp": {
+    "mtime": 1751708852773.1208,
+    "hash": "173f57f7530b6cfd4ed8d76314fb8c06"
+  },
+  "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.webp": {
+    "mtime": 1751708852776.143,
+    "hash": "6d78d1353bcf5826d5a03242d7d600c1"
+  },
+  "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp": {
+    "mtime": 1751708852774.46,
+    "hash": "cf0fda75a86a109cba6c0b471f5ccdd0"
+  },
+  "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp": {
+    "mtime": 1751708852772.925,
+    "hash": "838162c7bde2e442f81a7762b5f9fce4"
+  },
+  "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.webp": {
+    "mtime": 1751708852776.1077,
+    "hash": "ff2258eeefb991c880562a64655b7750"
+  },
+  "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp": {
+    "mtime": 1751708852774.4758,
+    "hash": "3878b09beee4ace24d2a0938339c9b4a"
+  },
+  "assets/images/adaptive-icon.png": {
+    "mtime": 499162500000,
+    "hash": "97dae5a0e62ad8551d8a31897b425e63"
+  },
+  "assets/images/bristol-stool-chart.png": {
+    "mtime": 1777061053099.915,
+    "hash": "908542854eb548713e5346be23eead2f"
+  },
+  "assets/images/favicon.png": {
+    "mtime": 499162500000,
+    "hash": "4f1cb2cac2370cd5050681232e8575a8"
+  },
+  "assets/images/food-calendar.png": {
+    "mtime": 1721319381273.5703,
+    "hash": "5e7a919d81327bf0b2573988ca3ea937"
+  },
+  "assets/images/icon.png": {
+    "mtime": 499162500000,
+    "hash": "4e3f888fc8475f69fd5fa32f1ad5216a"
+  },
+  "assets/images/partial-react-logo.png": {
+    "mtime": 499162500000,
+    "hash": "8f14e478886737f3323a2ac79c833749"
+  },
+  "assets/images/react-logo.png": {
+    "mtime": 499162500000,
+    "hash": "695d5a1c6f29a689130f3aaa573aec6e"
+  },
+  "assets/images/react-logo@2x.png": {
+    "mtime": 499162500000,
+    "hash": "b507e7f2c91ebc8fe24dee79ccb3b600"
+  },
+  "assets/images/react-logo@3x.png": {
+    "mtime": 499162500000,
+    "hash": "8a4d0e5b845044e56e3b2df627d01cfd"
+  },
+  "assets/images/splash.png": {
+    "mtime": 499162500000,
+    "hash": "4dc203c1f48ad8b1e9734613e88be661"
+  },
+  "types/ingredient.ts": {
+    "mtime": 1780243305809.7188,
+    "hash": "3700df7a0b369163ee51c59b380f86ea"
+  },
+  "components/BarcodeScannerModal.tsx": {
+    "mtime": 1780234366219.8127,
+    "hash": "6ec2536fc09afbdc86bb7d396ce9829e"
+  },
+  "components/DailySummaryCard.tsx": {
+    "mtime": 1780232202001.1487,
+    "hash": "6304b2538c74c62f99da69443c4d33ae"
+  },
+  "components/EditFoodEntryModal.tsx": {
+    "mtime": 1780240132593.9749,
+    "hash": "d10eed4d4c935ccdb4b253b92da2accf"
+  },
+  "components/EditWaterEntryModal.tsx": {
+    "mtime": 1780240141567.6267,
+    "hash": "a3beb55b8f1ccc4fde768dd2701af5b3"
+  },
+  "components/FoodSearchInput.tsx": {
+    "mtime": 1780245547526.9114,
+    "hash": "af69694e4678ea00a87fea7551c9aadd"
+  },
+  "components/__tests__/forms/FoodSearchInput.test.tsx": {
+    "mtime": 1780232302649.0789,
+    "hash": "4b225673e8ce052871ba8a6496ed3034"
+  },
+  "components/__tests__/forms/openFoodFactsService.test.ts": {
+    "mtime": 1780232281962.525,
+    "hash": "89e79e499b5fbd4deaedf7c47fe8b354"
+  },
+  "components/__tests__/modals/EditFoodEntryModal.test.tsx": {
+    "mtime": 1780240245469.478,
+    "hash": "9d6e75cdf0f488b3cd88583980f6320b"
+  },
+  "components/__tests__/modals/EditWaterEntryModal.test.tsx": {
+    "mtime": 1780240248811.694,
+    "hash": "9640a9c50a973dadce2ad79acd627cb7"
+  },
+  "lib/geminiService.ts": {
+    "mtime": 1780243821894.9177,
+    "hash": "951955ca2abcd07ae3f3e73df9fcf90c"
+  },
+  "lib/openFoodFactsService.ts": {
+    "mtime": 1780243391916.0913,
+    "hash": "80c030437bab300f73fc41ca59f324c2"
+  },
+  "metro.config.js": {
+    "mtime": 1780229687125.6812,
+    "hash": "97c3dd89718a87050af6a7ec142fc08d"
+  },
+  "styles/stats.styles.ts": {
+    "mtime": 1788640906866.2295,
+    "hash": "e4e10561d6bd2f11bdc998a8a4fc8105"
+  },
+  "supabase/migrations/005_macros.sql": {
+    "mtime": 1780231960672.593,
+    "hash": "e45e6ddf8a90da6a59540ce477212eb0"
+  },
+  "supabase/migrations/006_fiber.sql": {
+    "mtime": 1780243526665.2473,
+    "hash": "6a6e7bc74bf5a196cc39711e24b55a19"
+  },
+  "supabase/migrations/007_calculated_macros.sql": {
+    "mtime": 1780245557200.431,
+    "hash": "bb249f1255db7daa9092b22a2680c134"
+  },
+  ".github/copilot-instructions.md": {
+    "mtime": 1780244709264.5867,
+    "hash": "4e3ade37e4725cf940eaabd892e8793a"
+  },
+  ".github/workflows/test.yml": {
+    "mtime": 1773402427023.2488,
+    "hash": "4eb19e47d7768b10fb7e1edf9a3d54aa"
+  },
+  ".opencode/skills/graphify/SKILL.md": {
+    "mtime": 1780225184636.9512,
+    "hash": "a087fcc09f30b7539253c255ec53d782"
+  },
+  "components/HealthReportGenerator.tsx": {
+    "mtime": 1788640906864.321,
+    "hash": "1dbf150974dabbaec4c71baa3108b6b3"
+  },
+  "components/HealthReportsList.tsx": {
+    "mtime": 1788640906864.6738,
+    "hash": "9706671c5f4d2061923e3780a520ac71"
+  },
+  "components/__tests__/forms/HealthReportGenerator.test.tsx": {
+    "mtime": 1788640906864.8428,
+    "hash": "044ec9c9bee7961fe0b128148a08f0bd"
+  },
+  "components/__tests__/lists/HealthReportsList.test.tsx": {
+    "mtime": 1788640906864.9963,
+    "hash": "176a24f8c38e6738a994dd9f7ef2941c"
+  },
+  "eslint.config.js": {
+    "mtime": 1788637647545.2854,
+    "hash": "b713dd66aa3ad59ed5098d7b9f8dc202"
+  },
+  "hooks/__tests__/useHealthReports.test.tsx": {
+    "mtime": 1788637991659.2817,
+    "hash": "71aeaef4a226565528a7d265126dbe98"
+  },
+  "hooks/useHealthReports.ts": {
+    "mtime": 1788637948255.117,
+    "hash": "6e288b41e881214fc035140c6f098863"
+  },
+  "lib/ingredientTags.ts": {
+    "mtime": 1788628973562.767,
+    "hash": "40524a6f682fca925514660a07206924"
+  },
+  "lib/insightsEngine.ts": {
+    "mtime": 1788637647545.6646,
+    "hash": "e651f3ce45900036454cbd372c31bdcf"
+  },
+  "supabase/functions/generate-health-report/db.ts": {
+    "mtime": 1788637647546.9993,
+    "hash": "9e1aceee3dadc52d56bf0dce83fd4cca"
+  },
+  "supabase/functions/generate-health-report/gemini.ts": {
+    "mtime": 1788637647547.8796,
+    "hash": "dc88f22804a7933bb32bcb4facdc0f0c"
+  },
+  "supabase/functions/generate-health-report/index.ts": {
+    "mtime": 1788637647548.25,
+    "hash": "a978195121626c27f3a467b32a49dc2d"
+  },
+  "supabase/migrations/008_reporting_indexes.sql": {
+    "mtime": 1788624449125.8044,
+    "hash": "93dd54f5de8db59170f988409786678b"
+  },
+  "supabase/migrations/009_health_reports.sql": {
+    "mtime": 1788624454743.5269,
+    "hash": "a78e02bec82054d4f5c143e4e5967ade"
+  },
+  "utils/__tests__/ingredientTags.test.ts": {
+    "mtime": 1788629128648.374,
+    "hash": "d53a09bb1085fc35b3731d8dee0bc44e"
+  },
+  "utils/__tests__/insightsEngine.test.ts": {
+    "mtime": 1788629172191.6077,
+    "hash": "54fd1c0be907104fcc2502ffe0173dcf"
+  }
+}

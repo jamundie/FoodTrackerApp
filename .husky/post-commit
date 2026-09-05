@@ -1,0 +1,11 @@
+# Keep the committed knowledge graph (.graphify/graph.json, GRAPH_REPORT.md,
+# manifest.json, scope.json) current with the code that was just committed.
+# Structural rebuild only (--no-description): no LLM backend is configured in
+# this repo, and node-description generation is not needed for the committed
+# artefacts. Semantic re-authoring (.graphify_semantic.json) is a separate,
+# judgment-based step — see .opencode/skills/graphify/SKILL.md.
+npx graphifyy@latest update . --scope all --no-description
+
+# Stage the refreshed portable artefacts so they ride along with the next
+# commit. Never auto-commits — respects the repo's no-surprise-commits rule.
+git add .graphify/graph.json .graphify/GRAPH_REPORT.md .graphify/manifest.json .graphify/scope.json 2>/dev/null || true
