@@ -8,9 +8,12 @@ import {
 } from 'react-native';
 import { Canvas, Rect, Line } from '@shopify/react-native-skia';
 import { useTracking } from '@/hooks/TrackingContext';
+import { useHealthReports } from '@/hooks/useHealthReports';
 import { BristolType } from '@/types/tracking';
 import { statsStyles as styles } from '@/styles/stats.styles';
 import { buildDateRange, aggregateDailyStats } from '@/lib/insightsEngine';
+import HealthReportGenerator from '@/components/HealthReportGenerator';
+import HealthReportsList from '@/components/HealthReportsList';
 
 type Period = 7 | 30;
 
@@ -128,6 +131,7 @@ function SectionCard({ title, children }: { title: string; children: React.React
 
 export default function StatsScreen() {
   const { data, userProfile } = useTracking();
+  const { reports, generating, generateReport } = useHealthReports();
   const { width: screenWidth } = useWindowDimensions();
   const [period, setPeriod] = useState<Period>(7);
 
@@ -282,6 +286,12 @@ export default function StatsScreen() {
           })}
         </SectionCard>
       )}
+
+      {/* Health reports — AI-generated correlation reports (#6) */}
+      <SectionCard title="Health Reports">
+        <HealthReportGenerator generating={generating} onGenerate={generateReport} />
+        <HealthReportsList reports={reports} />
+      </SectionCard>
 
       <View style={{ height: 32 }} />
     </ScrollView>
