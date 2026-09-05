@@ -147,7 +147,26 @@ IngredientFormData {
 - Styles live in `styles/stats.styles.ts`.
 - The screen never receives props — it is always context-driven. Do not add props to `StatsScreen`.
 
-### Health Reports Pattern
+### Health Report Pattern
+This is the repo's first Edge Function + cross-runtime shared module pair. Follow this shape for any future server-side compute (e.g. sleep/activity correlation work) rather than inventing a new one.
+
+**Edge Function call flow:**
+- Client → `trackingService.generateHealthReport(periodStart, periodEnd)` → `supabase.functions.invoke('generate-health-report', { body: { periodStart, periodEnd } })` — authenticated via the caller's session JWT, no service-role key
+- The function (`supabase/functions/generate-health-report`) is scaffolded with `@supabase/server`'s `withSupabase({ auth: 'user' })`, giving an RLS-scoped `ctx.supabase` client — never a service-role client — so the function can only ever see the calling user's own rows
+- Handler order: validate request → rate-limit check (`429` if ≥5 `health_reports` rows in the last 24h) → fetch `food_entries`/`water_entries`/`bowel_entries` for the period (2-day lookback buffer on food/water only, not bowel) → compute `summary_stats`/`correlations` via the shared modules below → send only that compact JSON to Gemini → insert into `health_reports` → return to caller
+- Secrets: read via `Deno.env.get('GEMINI_API_KEY')`, set with `supabase secrets set`, never `EXPO_PUBLIC_*`. Local dev secret lives in `supabase/functions/.env` (gitignored)
+- New Edge Functions are scaffolded with `supabase functions new <name> --auth user` and verified locally with `supabase functions serve --env-file supabase/functions/.env` against the local Postgres stack before merging (`supabase start` first)
+
+**`lib/insightsEngine.ts` / `lib/ingredientTags.ts` shared-module convention:**
+- Any logic that must run identically on both the client and an Edge Function (Deno) belongs in a plain, dependency-free `lib/*.ts` file — no React Native or Deno-specific APIs, unit-testable under plain Jest like `utils/foodHelpers.ts`
+- Relative imports in these files **must** use explicit `.ts` extensions (e.g. `from '../utils/dateUtils.ts'`) — Deno's module resolution does not infer extensions the way Metro/tsc's bundler mode does. This is the only special rule; everything else is normal TypeScript
+- `tsconfig.json` needs `allowImportingTsExtensions: true` for `tsc` to accept these files, and `supabase/functions` must stay in `tsconfig.json`'s `exclude` — that tree has its own Deno runtime, `npm:`/`jsr:` specifiers, and globals (`Deno.env`), type-checked separately by the Deno LSP, not `tsc`
+- Do not attempt Deno's `sloppy-imports` unstable flag as an alternative — it satisfies the Deno LSP locally but the Supabase Edge Runtime's module graph construction does not honour it, producing a boot-time `Module not found` error in `supabase functions serve`
+- The AI/report-computation boundary is a hard rule, not just this feature's convention: deterministic code computes all aggregates and correlation math; the LLM only ever receives the compact computed JSON to narrate, never raw entry rows
+
+**`useHealthReports` lazy-load-outside-`TrackingContext` pattern:** see "Standalone Data Hooks" above — this is the reference implementation of that pattern. Any new opt-in/infrequently-used data source should follow it rather than growing `TrackingContext`'s boot-time `Promise.all`.
+
+### Health Reports Pattern (UI)
 - Lives in a "Health Reports" `SectionCard` at the bottom of `app/(tabs)/stats.tsx`, not a separate screen/tab — confirmed placement decision for issue #6.
 - `StatsScreen` calls `useHealthReports()` directly and passes `reports`/`generating`/`generateReport` down; `HealthReportGenerator` and `HealthReportsList` are pure presentational components, no context access of their own.
 - `HealthReportGenerator` owns its own 7/30/90-day period selection state — this is a report-specific `ReportPeriod` type, deliberately separate from `StatsScreen`'s own `Period` (7/30) used for the charts above it. Do not merge the two.
@@ -290,7 +309,7 @@ Documentation must stay current as part of every feature or fix — **not as an 
 - **This file (`.github/copilot-instructions.md`)**: Add or revise the relevant section so the next feature automatically follows the same pattern.
 
 ### When a significant decision is made
-Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-017):
+Add a new TDR to **`docs/TECHNICAL_DECISIONS.md`** (next number is TDR-027):
 
 ```markdown
 ## TDR-XXX: [Title]

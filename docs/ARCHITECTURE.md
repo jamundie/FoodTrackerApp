@@ -23,7 +23,7 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 - **Local Component State**: For UI-specific state
 
 ### Backend & Persistence
-- **Supabase (Postgres)**: Cloud database — `food_entries`, `food_ingredients`, `water_entries`, `water_ingredients`, `bowel_entries`, `user_profiles`, `health_reports`
+- **Supabase (Postgres)**: Cloud database — `food_entries`, `food_ingredients`, `water_entries`, `water_ingredients`, `bowel_entries`, `user_profiles`, `health_reports` (see [Reporting](#reporting) for schema and indexes)
 - **Supabase Storage**: Private `user-photos` bucket; photos are AES-256-GCM encrypted on-device before upload — server holds only opaque ciphertext
 - **Supabase Auth**: Email/password authentication; session stored in device keychain via `expo-secure-store`
 - **Row Level Security (RLS)**: All tables scoped to `auth.uid() = user_id` — data isolation enforced at DB layer
@@ -171,24 +171,7 @@ components/
 4. `hooks/useSignedPhotoUrl.ts` calls `getDecryptedPhotoUri`: downloads ciphertext via signed URL, decrypts on-device, writes to a temp `file://` URI for `<Image>` to render
 5. Encryption key (`PHOTO_ENCRYPTION_KEY`) lives only in `expo-secure-store` — never leaves the device
 
-**Health reports:** `hooks/useHealthReports.ts` is a standalone hook (own `useState`/`useEffect`, not folded into `TrackingContext`) — reports are opt-in and infrequent, so eagerly loading them in the boot-time `Promise.all` would grow every app-start load for a feature most sessions won't touch. It fetches `fetchHealthReports(userId)` on mount and exposes `generateReport(periodStart, periodEnd)`, which calls `generateHealthReport` (invokes the `generate-health-report` Edge Function via `supabase.functions.invoke`) and prepends the result to local state on success. Consumed by the Stats tab's Health Reports section (`components/HealthReportGenerator.tsx` + `components/HealthReportsList.tsx`) — `useHealthReports` surfaces generation failures via `Alert.alert` itself, so the UI has no separate error state to render.
-
-### 4a. Health Report Generation (Edge Function)
-
-`supabase/functions/generate-health-report` — the app's first Supabase Edge Function (Deno runtime), introduced to fix the pre-existing security gap where the Gemini key was bundled client-side (`EXPO_PUBLIC_GEMINI_API_KEY`, see TDR-021) with no rate limiting.
-
-**Flow:**
-1. Client calls the function with `{ periodStart, periodEnd }` (`YYYY-MM-DD`), authenticated via the user's session JWT — no service-role key, RLS applies throughout
-2. Rate limit check: rejects with `429` if the caller already has ≥5 `health_reports` rows generated in the last 24h
-3. Fetches `food_entries`, `water_entries`, `bowel_entries` for the period, widened by a 2-day lookback buffer on food/water only (so a bowel entry near the period start can still see triggers just before it)
-4. Computes `summary_stats` and `correlations` via `lib/insightsEngine.ts` — the **same shared module** used by the Stats screen, imported by relative path into the Deno function (see below)
-5. Sends only that compact JSON (never raw entry logs) to Gemini (`gemini-2.5-flash`, thinking disabled to avoid output truncation) with a report-writing prompt hard-coding the "not medical advice" and correlation-≠-causation framing
-6. A code-level backstop (`ensureBloodCallout`) appends a doctor recommendation if the model's own text somehow omits it despite `hasBlood === true` in the period's data — the mandatory safety call-out never depends solely on prompt compliance
-7. Inserts the result into `health_reports` and returns it to the caller
-
-**Sharing `lib/insightsEngine.ts` and `lib/ingredientTags.ts` with Deno:** both files use explicit `.ts` extensions on their relative imports (`allowImportingTsExtensions` in `tsconfig.json`), since Deno's module resolution — unlike Metro/tsc's bundler mode — does not infer extensions. This lets the Edge Function import them unmodified with **zero logic duplication** between client and server. `supabase/functions` is excluded from the root `tsconfig.json` — it has its own Deno runtime, module specifiers (`npm:`/`jsr:`), and globals (`Deno.env`), and is type-checked separately by the Deno LSP / `supabase functions serve`, not `tsc`.
-
-**Secrets:** the Gemini key is stored as an Edge Function secret (`GEMINI_API_KEY`, via `supabase secrets set`), never `EXPO_PUBLIC_*`. Local dev reads it from `supabase/functions/.env` (gitignored).
+**Health reports:** `hooks/useHealthReports.ts` is a standalone hook (own `useState`/`useEffect`, not folded into `TrackingContext`) — reports are opt-in and infrequent, so eagerly loading them in the boot-time `Promise.all` would grow every app-start load for a feature most sessions won't touch. It fetches `fetchHealthReports(userId)` on mount and exposes `generateReport(periodStart, periodEnd)`, which calls `generateHealthReport` (invokes the `generate-health-report` Edge Function via `supabase.functions.invoke`) and prepends the result to local state on success. Consumed by the Stats tab's Health Reports section (`components/HealthReportGenerator.tsx` + `components/HealthReportsList.tsx`) — `useHealthReports` surfaces generation failures via `Alert.alert` itself, so the UI has no separate error state to render. Full generation flow and schema: see [Reporting](#reporting) below.
 
 ### 5. Styling Architecture
 ```
@@ -222,6 +205,53 @@ types/
 - Interface definitions for all data structures
 - Typed navigation parameters
 - Generic hooks for reusability
+
+## Reporting
+
+AI-generated health correlation reports (e.g. "does loose stools correlate with dairy intake?") — the first backend compute layer in the app (see TDR-026). Raw entry logs are never sent to the LLM; a deterministic stats/correlation layer runs first, and only its compact JSON output is sent to Gemini for narration.
+
+### `supabase/functions/generate-health-report` (Edge Function)
+
+The app's first Supabase Edge Function (Deno runtime), introduced to fix the pre-existing security gap where the Gemini key was bundled client-side (`EXPO_PUBLIC_GEMINI_API_KEY`, see TDR-021) with no rate limiting.
+
+**Flow:**
+1. Client calls the function with `{ periodStart, periodEnd }` (`YYYY-MM-DD`), authenticated via the user's session JWT — no service-role key, RLS applies throughout
+2. Rate limit check: rejects with `429` if the caller already has ≥5 `health_reports` rows generated in the last 24h
+3. Fetches `food_entries`, `water_entries`, `bowel_entries` for the period, widened by a 2-day lookback buffer on food/water only (so a bowel entry near the period start can still see triggers just before it)
+4. Computes `summary_stats` and `correlations` via `lib/insightsEngine.ts` — the **same shared module** used by the Stats screen, imported by relative path into the Deno function (see below)
+5. Sends only that compact JSON (never raw entry logs) to Gemini (`gemini-2.5-flash`, thinking disabled to avoid output truncation) with a report-writing prompt hard-coding the "not medical advice" and correlation-≠-causation framing
+6. A code-level backstop (`ensureBloodCallout`) appends a doctor recommendation if the model's own text somehow omits it despite `hasBlood === true` in the period's data — the mandatory safety call-out never depends solely on prompt compliance
+7. Inserts the result into `health_reports` and returns it to the caller
+
+**Secrets:** the Gemini key is stored as an Edge Function secret (`GEMINI_API_KEY`, via `supabase secrets set`), never `EXPO_PUBLIC_*`. Local dev reads it from `supabase/functions/.env` (gitignored).
+
+### `lib/insightsEngine.ts` + `lib/ingredientTags.ts` (shared modules)
+
+Plain, dependency-free TypeScript — no React Native or Deno-specific APIs — so both files are unit-testable under plain Jest (like `utils/foodHelpers.ts`) and importable unmodified by both the client (Stats screen) and the Deno Edge Function.
+
+- **`lib/insightsEngine.ts`**: daily aggregation (calories, water, macro averages — the same shapes previously computed inline in `app/(tabs)/stats.tsx`, now extracted so the Stats screen and the report engine share one implementation) plus the correlation/lift-ratio math that compares outcome rates in a trigger's lookback window against baseline.
+- **`lib/ingredientTags.ts`**: a static, hand-maintained ingredient → trigger-tag lookup (`tagIngredient(name)`) using name-substring regex matching (e.g. `milk|cheese|yog(h)?urt` → `dairy`). Ten tags covered (`dairy`, `gluten`, `caffeine`, `alcohol`, `spicy`, `fried`, `high_fat`, `high_fodmap`, `artificial_sweetener`, `citrus`). No DB schema change or backfill — tags are derived on the fly at report-generation time.
+
+**Sharing with Deno:** both files use explicit `.ts` extensions on their relative imports (`allowImportingTsExtensions` in `tsconfig.json`), since Deno's module resolution — unlike Metro/tsc's bundler mode — does not infer extensions. This lets the Edge Function import them unmodified with **zero logic duplication** between client and server. `supabase/functions` is excluded from the root `tsconfig.json` — it has its own Deno runtime, module specifiers (`npm:`/`jsr:`), and globals (`Deno.env`), and is type-checked separately by the Deno LSP / `supabase functions serve`, not `tsc`.
+
+### `health_reports` table
+
+Added in migration `009_health_reports.sql`. Stores generated reports as immutable snapshots — RLS policies cover select/insert/delete only (no update), matching the `bowel_entries` precedent (reports are never edited after generation).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `uuid` | Primary key |
+| `user_id` | `uuid` | FK to `auth.users`, cascade delete |
+| `period_start` / `period_end` | `date` | The report's date range |
+| `generated_at` | `timestamptz` | Defaults to `now()` |
+| `summary_stats` | `jsonb` | Deterministic aggregates from `insightsEngine.ts` — the app's first `jsonb` columns |
+| `correlations` | `jsonb` | Lift-ratio correlation results, keyed on a generic `entry_type` (not food/water/bowel-specific) so sleep/activity tracking can feed the same engine later without a second migration |
+| `ai_report_text` | `text` | Gemini's generated narrative |
+| `model` | `text` | Model identifier used (`gemini-2.5-flash`) |
+
+Index: `idx_health_reports_user_period` on `(user_id, period_start desc)` — supports the newest-first history query in `fetchHealthReports`.
+
+**Reporting indexes** (migration `008_reporting_indexes.sql`): prior to this feature, no indexes existed beyond implicit PKs on `food_entries`, `water_entries`, or `bowel_entries` — every fetch in `trackingService.ts` pulled the full unfiltered history per user. Added `idx_food_entries_user_timestamp`, `idx_water_entries_user_timestamp`, and `idx_bowel_entries_user_timestamp` (each `(user_id, timestamp desc)`) to support the Edge Function's server-side, date-range queries.
 
 ## Performance Considerations
 
@@ -268,7 +298,6 @@ types/
 - Push notifications (future enhancement)
 
 ### Future Enhancements:
-- AI-driven photo analysis → auto-populate estimated ingredients from meal photo
 - Social features
 - Advanced analytics
 - OAuth providers (Google/Apple) — layerable on top of existing AuthContext
@@ -315,7 +344,7 @@ types/
 - Sleep tracking not started (no tab, no types, no DB table; "Coming Soon" card on Home only)
 - Stress tracking not started (no screen, no types, no DB table)
 - 2500 kcal reference line in `ProgressChart` is hardcoded — not yet wired to `userProfile.dailyCalorieGoal`
-- Stats screen aggregates all data client-side (no date-range DB queries) — fine for personal use; may need pagination if entry counts grow large
+- Stats-tab charts still read the full in-memory history from `TrackingContext` and aggregate client-side — fine for personal use; may need pagination if entry counts grow large. Health reports no longer share this limitation: `generate-health-report` runs server-side date-range queries against the new reporting indexes (migration `008_reporting_indexes.sql`), so report generation cost doesn't grow with total history size
 - Photo encryption key tied to device install — reinstalling the app permanently loses access to previously uploaded photos
 - No offline support — app requires network for data operations
 - CI uses Node 18 but `.nvmrc` pins Node 20 — align before changing CI
