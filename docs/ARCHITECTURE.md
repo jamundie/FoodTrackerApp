@@ -122,6 +122,8 @@ components/
 ├── BowelEntryForm.tsx    # Bristol type, urgency, pain, blood toggle, notes
 ├── BowelEntriesList.tsx  # Rendered list of past bowel entries
 ├── ProfileForm.tsx       # User profile form (name, age, weight, height, goals, default glass)
+├── HealthReportGenerator.tsx # Period picker (7/30/90d) + generate button/loading, Stats tab
+├── HealthReportsList.tsx      # Past health reports newest-first, AI text + correlations, Stats tab
 ├── Themed*/              # Design system components
 └── __tests__/            # Component tests
 ```
@@ -169,7 +171,7 @@ components/
 4. `hooks/useSignedPhotoUrl.ts` calls `getDecryptedPhotoUri`: downloads ciphertext via signed URL, decrypts on-device, writes to a temp `file://` URI for `<Image>` to render
 5. Encryption key (`PHOTO_ENCRYPTION_KEY`) lives only in `expo-secure-store` — never leaves the device
 
-**Health reports:** `hooks/useHealthReports.ts` is a standalone hook (own `useState`/`useEffect`, not folded into `TrackingContext`) — reports are opt-in and infrequent, so eagerly loading them in the boot-time `Promise.all` would grow every app-start load for a feature most sessions won't touch. It fetches `fetchHealthReports(userId)` on mount and exposes `generateReport(periodStart, periodEnd)`, which calls `generateHealthReport` (invokes the `generate-health-report` Edge Function via `supabase.functions.invoke`) and prepends the result to local state on success.
+**Health reports:** `hooks/useHealthReports.ts` is a standalone hook (own `useState`/`useEffect`, not folded into `TrackingContext`) — reports are opt-in and infrequent, so eagerly loading them in the boot-time `Promise.all` would grow every app-start load for a feature most sessions won't touch. It fetches `fetchHealthReports(userId)` on mount and exposes `generateReport(periodStart, periodEnd)`, which calls `generateHealthReport` (invokes the `generate-health-report` Edge Function via `supabase.functions.invoke`) and prepends the result to local state on success. Consumed by the Stats tab's Health Reports section (`components/HealthReportGenerator.tsx` + `components/HealthReportsList.tsx`) — `useHealthReports` surfaces generation failures via `Alert.alert` itself, so the UI has no separate error state to render.
 
 ### 4a. Health Report Generation (Edge Function)
 
@@ -291,24 +293,23 @@ types/
 | User profile | Complete | Display name, age, weight, height, water goal, glass size, nutrition goals — Supabase-persisted |
 | Auth | Complete | Email/password, session in device keychain |
 | Bowel movement tracking | Complete | Bristol scale 1–7 (optional on false alarm), false alarm flag, urgency, pain level 0–10, blood flag, notes — Supabase-persisted via `bowel_entries` |
-| Health reports (Edge Function + client) | Backend + client integration complete, no UI yet | `supabase/functions/generate-health-report` computes deterministic stats/correlations via `lib/insightsEngine.ts`, sends only that compact payload to Gemini, and persists to `health_reports`. Client-side: `HealthReport` type, `trackingService.generateHealthReport`/`fetchHealthReports`, and the standalone `hooks/useHealthReports.ts` hook are wired up. No report-viewing UI yet — see Planned Feature Backlog |
+| Health reports (Edge Function + client + UI) | Complete | `supabase/functions/generate-health-report` computes deterministic stats/correlations via `lib/insightsEngine.ts`, sends only that compact payload to Gemini, and persists to `health_reports`. UI lives in a "Health Reports" section on the Stats tab (`app/(tabs)/stats.tsx`): `HealthReportGenerator` (7/30/90-day period picker + generate button, loading state) and `HealthReportsList` (past reports newest-first, AI text + correlation summaries, insufficient-data messaging when a report has no surfaced correlations) |
 
 | Home dashboard | Mostly real | `DailySummaryCard` + summary cards + 7-day chart use real data; 2500 kcal reference line in `ProgressChart` is still hardcoded |
 
 ### Stubbed / Not Started
 | Feature | Status | Notes |
 |---|---|---|
-| Stats tab | Implemented | See `app/(tabs)/stats.tsx` — 7/30-day Skia bar charts for calories and water, average macro bars, Bristol type distribution |
+| Stats tab | Implemented | See `app/(tabs)/stats.tsx` — 7/30-day Skia bar charts for calories and water, average macro bars, Bristol type distribution, and a Health Reports section (generate + history) |
 | Sleep tracking | Not started | "Coming Soon" card on Home only; no tab, no types, no DB table |
 | Stress tracking | Not started | Same as sleep — card only |
 | AI photo analysis (Gemini Vision) | Implemented | `lib/geminiService.ts` base64-encodes the photo and calls Gemini 2.5 Flash; results fan into ingredient rows via `applyNutritionToIngredient`; "Analyse Photo with AI" button in `MealInfoForm` |
 | Barcode scanning | Planned | `searchFoodByBarcode()` in `lib/openFoodFactsService.ts` is implemented; needs `expo-barcode-scanner` UI |
 
 ### Planned Feature Backlog (priority order)
-1. **Health reports UI** — Reports screen/tab consuming `hooks/useHealthReports.ts` to list past reports and trigger generation for a selected date range
-2. **Sleep tracking** — new tab, `SleepEntry` type (start/end times, quality rating, notes), DB table, service functions, `TrackingContext` additions
-3. **Stats — sleep/stress** — add sleep quality and stress trend charts to the Stats screen once those data sources exist
-4. **ProgressChart goal line** — wire the hardcoded 2500 kcal reference line in `ProgressChart` to `userProfile.dailyCalorieGoal`
+1. **Sleep tracking** — new tab, `SleepEntry` type (start/end times, quality rating, notes), DB table, service functions, `TrackingContext` additions
+2. **Stats — sleep/stress** — add sleep quality and stress trend charts to the Stats screen once those data sources exist
+3. **ProgressChart goal line** — wire the hardcoded 2500 kcal reference line in `ProgressChart` to `userProfile.dailyCalorieGoal`
 
 ## Known Limitations
 - Sleep tracking not started (no tab, no types, no DB table; "Coming Soon" card on Home only)

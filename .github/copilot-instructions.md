@@ -147,6 +147,15 @@ IngredientFormData {
 - Styles live in `styles/stats.styles.ts`.
 - The screen never receives props — it is always context-driven. Do not add props to `StatsScreen`.
 
+### Health Reports Pattern
+- Lives in a "Health Reports" `SectionCard` at the bottom of `app/(tabs)/stats.tsx`, not a separate screen/tab — confirmed placement decision for issue #6.
+- `StatsScreen` calls `useHealthReports()` directly and passes `reports`/`generating`/`generateReport` down; `HealthReportGenerator` and `HealthReportsList` are pure presentational components, no context access of their own.
+- `HealthReportGenerator` owns its own 7/30/90-day period selection state — this is a report-specific `ReportPeriod` type, deliberately separate from `StatsScreen`'s own `Period` (7/30) used for the charts above it. Do not merge the two.
+- `getPeriodDateRange(days)` in `utils/dateUtils.ts` converts a day count into the `{ periodStart, periodEnd }` YYYY-MM-DD strings `generateReport` expects.
+- `useHealthReports` already surfaces generation failures via `Alert.alert` and returns reports newest-first — `HealthReportsList` does no error handling or sorting of its own.
+- `HealthReport.correlations` is loosely typed (`Record<string, unknown>[]`, jsonb from the Edge Function) — `HealthReportsList` reads fields defensively and skips/falls back to the insufficient-data message for any malformed entry rather than throwing.
+- Empty/insufficient-data states are copy-first ("keep logging and try again"), following the `RecentActivities` placeholder-row precedent rather than the `WaterEntriesList` return-`null` precedent — reports should say plainly when there isn't enough data, never render nothing.
+
 ### Nutrition Goals
 - `UserProfile` carries `dailyCalorieGoal`, `dailyProteinGoal`, `dailyCarbGoal`, `dailyFatGoal` — all optional numbers.
 - These are set in `ProfileForm` and persisted via `upsertUserProfile` in `trackingService.ts`.
