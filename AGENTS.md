@@ -59,6 +59,8 @@ Fall back to reading full docs/source only when the graph doesn't answer the que
 
 **If a task introduces a new pattern or concept** (new hook category, new architectural pattern, new domain type) that the graph should know about semantically — not just structurally — update `.graphify/.graphify_semantic.json` per `.opencode/skills/graphify/SKILL.md`'s incremental workflow, then re-run `extract --semantic`, before closing the task. The post-commit hook only handles structural (AST-derived) freshness; semantic authoring is a judgment call the hook can't make.
 
+**Expected one-commit lag — do not "fix" it with a standalone commit.** After every commit, the hook restages `.graphify/graph.json`/`GRAPH_REPORT.md`/`scope.json` with `head` set to the commit that just landed — but that restaged file describes a commit that's already sealed, so `check-update`/`scope.json` will always show the graph one commit behind `HEAD` until something else is committed. This is expected and self-resolving: the staged delta rides along with whatever the next real commit is. Committing it on its own just advances `HEAD` again and reproduces the same one-commit lag immediately — it cannot converge that way, so don't try.
+
 ## Documentation Protocol
 
 Documentation must be kept current as part of every feature or fix. Apply these rules **before marking a task done** — scoped to files actually touched by the change, not a full-document review pass.

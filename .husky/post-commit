@@ -8,4 +8,11 @@ npx graphifyy@latest update . --scope all --no-description
 
 # Stage the refreshed portable artefacts so they ride along with the next
 # commit. Never auto-commits — respects the repo's no-surprise-commits rule.
+#
+# NOTE: the staged diff will always show scope.json/GRAPH_REPORT.md's "head"
+# one commit behind — that's expected (the hook runs after the commit is
+# sealed, so it can only describe the commit that just happened). Do NOT
+# create a standalone "refresh the graph" commit to close that gap; doing so
+# just advances HEAD again and reproduces the same one-commit lag immediately.
+# Let this staged delta ride along with whatever your next real commit is.
 git add .graphify/graph.json .graphify/GRAPH_REPORT.md .graphify/manifest.json .graphify/scope.json 2>/dev/null || true
