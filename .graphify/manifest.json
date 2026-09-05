@@ -376,8 +376,8 @@
     "hash": "500e47352fe48f2e92bf85638edc5a46"
   },
   "AGENTS.md": {
-    "mtime": 1788641713269.0989,
-    "hash": "ce9a997816e8fdbf48d27d8452cdc96f"
+    "mtime": 1788644643093.9106,
+    "hash": "bd440f61a5cf633b19f665511ccc6bf8"
   },
   "README.md": {
     "mtime": 1788637647543.8103,
@@ -388,12 +388,12 @@
     "hash": "92009998f0a2f970b8b06be0aee37e96"
   },
   "docs/README.md": {
-    "mtime": 1761579259138.0537,
-    "hash": "2b867f750ff5bb6a325c5d710d98b538"
+    "mtime": 1788644680722.556,
+    "hash": "24a9df721c6961f52fe54f442bf085bd"
   },
   "docs/TECHNICAL_DECISIONS.md": {
-    "mtime": 1788641602599.6584,
-    "hash": "82fcbac3ee4fc14a574a2bd0c4841c9d"
+    "mtime": 1788644627436.5254,
+    "hash": "84f1b519e9022cc14f93a57fd0955581"
   },
   "android/app/src/main/res/drawable-hdpi/splashscreen_logo.png": {
     "mtime": 1751708853296.8904,
@@ -658,5 +658,109 @@
   "utils/__tests__/insightsEngine.test.ts": {
     "mtime": 1788629172191.6077,
     "hash": "54fd1c0be907104fcc2502ffe0173dcf"
+  },
+  "docs/decisions/001-expo-router-over-react-navigation.md": {
+    "mtime": 1788644612487.7664,
+    "hash": "a2a270d6aebf5d261589f50922b89728"
+  },
+  "docs/decisions/002-react-context-api-for-state-management.md": {
+    "mtime": 1788644612487.8943,
+    "hash": "decddfd2fa2a9182b2ad7cf952b8aa2a"
+  },
+  "docs/decisions/003-react-native-skia-for-charts.md": {
+    "mtime": 1788644612487.968,
+    "hash": "e5d85edd1b0b109e69c0ef29169e262d"
+  },
+  "docs/decisions/004-typescript-strict-mode.md": {
+    "mtime": 1788644612488.0325,
+    "hash": "086c5a57ee677103a3b3412417659400"
+  },
+  "docs/decisions/005-native-builds-required.md": {
+    "mtime": 1788644612488.0955,
+    "hash": "f79fc95843b8c0847f7eed09e4138db3"
+  },
+  "docs/decisions/006-styles-directory-structure.md": {
+    "mtime": 1788644612488.1753,
+    "hash": "b9e4ae5a06ab4e759db2fb2854900be4"
+  },
+  "docs/decisions/007-split-date-time-picker-with-calendar-interface.md": {
+    "mtime": 1788644612488.248,
+    "hash": "4d4cf31276340d57a486f8d9641b6213"
+  },
+  "docs/decisions/008-meal-photo-feature-with-expo-image-picker.md": {
+    "mtime": 1788644612488.3174,
+    "hash": "c21b1a6a334377b8c9c4f5cd4973631f"
+  },
+  "docs/decisions/009-user-profile-tab-and-volume-preset-feature.md": {
+    "mtime": 1788644612488.3843,
+    "hash": "9b75bd95f184f0d89344c73fc1aa85ed"
+  },
+  "docs/decisions/010-supabase-for-cloud-persistence.md": {
+    "mtime": 1788644612488.4468,
+    "hash": "a45f57538859237689c8f8b91f63fbfa"
+  },
+  "docs/decisions/011-supabase-auth-expo-secure-store-for-session-persistence.md": {
+    "mtime": 1788644612488.5188,
+    "hash": "67fe1336244eadc6b5d29451280d5dd1"
+  },
+  "docs/decisions/012-client-side-aes-256-gcm-encryption-for-meal-photos.md": {
+    "mtime": 1788644612488.5928,
+    "hash": "89e2e953c4e0baa0fde62ad619d941a6"
+  },
+  "docs/decisions/013-bowel-movement-tracking-feature.md": {
+    "mtime": 1788644612488.6592,
+    "hash": "f220f1516005b4e613409a89c82e51d3"
+  },
+  "docs/decisions/014-sleep-data-integration-strategy-garmin-via-platform-health-apis.md": {
+    "mtime": 1788644612488.7688,
+    "hash": "e8560fa56629760fdf14480e6bef91fc"
+  },
+  "docs/decisions/015-generic-photo-infrastructure-user-photos-bucket-photoinput-component.md": {
+    "mtime": 1788644612488.841,
+    "hash": "0cfefb4ce0e519e57d7918f5cd83e850"
+  },
+  "docs/decisions/016-dedicated-types-ingredient-ts-module.md": {
+    "mtime": 1788644612488.9067,
+    "hash": "545b93b31451b6963671c8fbce54c679"
+  },
+  "docs/decisions/017-open-food-facts-api-integration-for-nutrition-lookup.md": {
+    "mtime": 1788644612488.9834,
+    "hash": "6fb5b6daf7b976e4eb132beeda2a10f3"
+  },
+  "docs/decisions/018-full-macro-tracking-protein-carbs-fat.md": {
+    "mtime": 1788644612489.1284,
+    "hash": "15152f38724c4fde7f03f22991595e74"
+  },
+  "docs/decisions/019-expo-camera-for-barcode-scanning.md": {
+    "mtime": 1788644612489.059,
+    "hash": "6b8f0ad00749b26cdb436182cf0560fe"
+  },
+  "docs/decisions/020-entry-history-with-full-crud-edit-and-delete.md": {
+    "mtime": 1788644612489.1975,
+    "hash": "edaf49b9cb74e26c6f2af1d90208f4aa"
+  },
+  "docs/decisions/021-gemini-vision-ai-photo-analysis.md": {
+    "mtime": 1788644612489.2651,
+    "hash": "1d351e7e3bbcd77dbfa72fe058b680ee"
+  },
+  "docs/decisions/022-stats-screen-implementation.md": {
+    "mtime": 1788644612489.486,
+    "hash": "9106fefc67529fc8a33fae113469bcee"
+  },
+  "docs/decisions/023-ci-driven-supabase-migrations.md": {
+    "mtime": 1788644612489.61,
+    "hash": "305b6caea6309070aeb3005146f41324"
+  },
+  "docs/decisions/024-generate-health-report-supabase-edge-function.md": {
+    "mtime": 1788644612489.8647,
+    "hash": "19aabd0957c33ac670eaf64260d45bd1"
+  },
+  "docs/decisions/025-health-report-ui-placement-stats-tab-section.md": {
+    "mtime": 1788644612489.9358,
+    "hash": "baaf66ee148313707d2266bcf4885714"
+  },
+  "docs/decisions/026-ai-health-report-generation-via-supabase-edge-function.md": {
+    "mtime": 1788644612490.0168,
+    "hash": "d4734f33a1e307b8927bb018e8b8ad76"
   }
 }

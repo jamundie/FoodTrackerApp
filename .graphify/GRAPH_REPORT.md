@@ -1,7 +1,7 @@
 # Graph Report - .  (2026-09-05)
 
 ## Corpus Check
-- 136 files · ~84,791 words
+- 162 files · ~85,578 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -14,11 +14,11 @@
 ## Input Scope
 - Requested: all
 - Resolved: all (source: cli)
-- Included files: 136 · Candidates: recursive
+- Included files: 162 · Candidates: recursive
 - Excluded: 0 untracked · 0 ignored · 0 sensitive · 0 missing committed
 
 ## Graph Freshness
-- Built from Git commit: `f5354cc`
+- Built from Git commit: `e8a6fe3`
 - Compare this hash to `git rev-parse HEAD` before trusting freshness-sensitive graph output.
 ## God Nodes (most connected - your core abstractions)
 1. `ThemedText()` - 19 edges
