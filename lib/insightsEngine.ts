@@ -10,9 +10,12 @@
  * The AI report generator must never receive raw entry logs: it only ever
  * sees the compact output of the functions below.
  */
-import { isSameDay } from '../utils/dateUtils';
-import { tagIngredient, IngredientTag } from './ingredientTags';
-import type { FoodEntry, WaterEntry, BowelEntry, BristolType } from '../types/tracking';
+// Explicit .ts extensions below are required for this file to load unmodified
+// under Deno (supabase/functions/generate-health-report) — Deno's module
+// resolution does not infer extensions the way Metro/tsc's bundler mode does.
+import { isSameDay } from '../utils/dateUtils.ts';
+import { tagIngredient, IngredientTag } from './ingredientTags.ts';
+import type { FoodEntry, WaterEntry, BowelEntry, BristolType } from '../types/tracking.ts';
 
 // ── Daily aggregation ─────────────────────────────────────────────────────────
 // Same shape previously computed inline in app/(tabs)/stats.tsx — extracted
