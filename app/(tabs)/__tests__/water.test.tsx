@@ -85,11 +85,11 @@ describe('Water Screen Integration', () => {
       // Expand the collapsible section
       fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
       
-      // Add an ingredient
+      // Opens the add-ingredient modal
       const addButton = getByTestId('add-water-ingredient-button');
       fireEvent.press(addButton);
       
-      expect(addButton).toBeTruthy();
+      expect(getByText('Add Ingredient')).toBeTruthy();
     });
   });
 
@@ -127,14 +127,17 @@ describe('Water Screen Integration', () => {
       const entryNameInput = getByPlaceholderText('e.g., Morning hydration, Post-workout drink');
       fireEvent.changeText(entryNameInput, 'Lemon Water');
       
-      // Expand ingredients section and add ingredient
+      // Expand ingredients section, open the add-ingredient modal, and save one
       fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
-      
+      fireEvent.press(getByTestId('add-water-ingredient-button'));
+
       const ingredientNameInput = getByPlaceholderText('e.g., Lemon juice, Protein powder');
       const amountInput = getByPlaceholderText('Amount');
       
       fireEvent.changeText(ingredientNameInput, 'Lemon juice');
       fireEvent.changeText(amountInput, '30');
+      fireEvent.press(getByTestId('add-ingredient-modal-save'));
+      fireEvent.press(getByTestId('add-ingredient-modal-done'));
       
       // Submit form
       const submitButton = getByTestId('submit-water-entry-button');
