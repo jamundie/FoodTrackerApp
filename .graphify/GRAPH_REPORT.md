@@ -18,7 +18,7 @@
 - Excluded: 0 untracked · 0 ignored · 0 sensitive · 0 missing committed
 
 ## Graph Freshness
-- Built from Git commit: `031fa99`
+- Built from Git commit: `3dd1bb8`
 - Compare this hash to `git rev-parse HEAD` before trusting freshness-sensitive graph output.
 ## God Nodes (most connected - your core abstractions)
 1. `ThemedText()` - 20 edges
