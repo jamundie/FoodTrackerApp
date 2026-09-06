@@ -1,4 +1,4 @@
-import { render, fireEvent, waitFor } from "@testing-library/react-native";
+import { render, fireEvent, waitFor, act } from "@testing-library/react-native";
 import React from "react";
 import FoodScreen from "../../../app/(tabs)/food";
 import { TrackingProvider } from "../../../hooks/TrackingContext";
@@ -20,6 +20,22 @@ describe("FoodScreen", () => {
     );
   };
 
+  /** Opens the Add Ingredient modal, fills name/amount/calories, saves, and taps Done. */
+  const addIngredientViaModal = (
+    screen: ReturnType<typeof renderFoodScreen>,
+    { name, amount, calories }: { name: string; amount: string; calories?: string }
+  ) => {
+    const { getByTestId, getByPlaceholderText } = screen;
+    fireEvent.press(getByTestId("add-ingredient-button"));
+    fireEvent.changeText(getByPlaceholderText("Search ingredient or product…"), name);
+    fireEvent.changeText(getByPlaceholderText("Amount"), amount);
+    if (calories !== undefined) {
+      fireEvent.changeText(getByPlaceholderText("Calories per 100g (optional)"), calories);
+    }
+    fireEvent.press(getByTestId("add-ingredient-modal-save"));
+    fireEvent.press(getByTestId("add-ingredient-modal-done"));
+  };
+
   describe("Initial Render", () => {
     it("renders the main form elements", () => {
       const { getByText, getByPlaceholderText } = renderFoodScreen();
@@ -33,16 +49,11 @@ describe("FoodScreen", () => {
       expect(getByText("Select a category")).toBeTruthy();
     });
 
-    it("renders initial ingredient form", () => {
-      const { getByText, getByPlaceholderText } = renderFoodScreen();
+    it("renders an empty ingredient list with just the add button", () => {
+      const { queryByText, getByTestId } = renderFoodScreen();
 
-      expect(getByText("Ingredient 1")).toBeTruthy();
-      expect(getByPlaceholderText("Search ingredient or product…")).toBeTruthy();
-      expect(getByPlaceholderText("Amount")).toBeTruthy();
-      expect(getByPlaceholderText("Calories per 100g (optional)")).toBeTruthy();
-      expect(getByText("g")).toBeTruthy();
-      expect(getByText("ml")).toBeTruthy();
-      expect(getByText("piece")).toBeTruthy();
+      expect(queryByText(/Unnamed ingredient/)).toBeNull();
+      expect(getByTestId("add-ingredient-button")).toBeTruthy();
     });
 
     it("renders action buttons", () => {
@@ -93,9 +104,12 @@ describe("FoodScreen", () => {
       fireEvent.press(calendarToggle);
     });
 
-    it("allows typing in ingredient fields", () => {
-      const { getByPlaceholderText } = renderFoodScreen();
-      
+    it("allows typing in the add-ingredient modal fields", () => {
+      const screen = renderFoodScreen();
+      const { getByTestId, getByPlaceholderText } = screen;
+
+      fireEvent.press(getByTestId("add-ingredient-button"));
+
       const ingredientNameInput = getByPlaceholderText("Search ingredient or product…");
       const amountInput = getByPlaceholderText("Amount");
       const caloriesInput = getByPlaceholderText("Calories per 100g (optional)");
@@ -162,46 +176,64 @@ describe("FoodScreen", () => {
   });
 
   describe("Ingredient Management", () => {
-    it("adds new ingredient when Add Ingredient button is pressed", () => {
-      const { getByText, getAllByText, getByTestId } = renderFoodScreen();
-      const addButton = getByTestId("add-ingredient-button");
+    it("adds an ingredient row via the modal", () => {
+      const screen = renderFoodScreen();
+      const { getByText } = screen;
 
-      fireEvent.press(addButton);
+      addIngredientViaModal(screen, { name: "Ground Beef", amount: "200" });
 
-      expect(getByText("Ingredient 1")).toBeTruthy();
-      expect(getByText("Ingredient 2")).toBeTruthy();
-      expect(getAllByText(/Ingredient \d+/).length).toBe(2);
+      expect(getByText("Ground Beef")).toBeTruthy();
+      expect(getByText("200 g")).toBeTruthy();
     });
 
-    it("removes ingredient when Remove button is pressed", () => {
-      const { getByText, queryByText, getByTestId, getAllByText } = renderFoodScreen();
-      const addButton = getByTestId("add-ingredient-button");
+    it("adds multiple ingredient rows back-to-back via Add Another", () => {
+      const screen = renderFoodScreen();
+      const { getByTestId, getByPlaceholderText, getByText } = screen;
 
-      // Add a second ingredient
-      fireEvent.press(addButton);
-      expect(getByText("Ingredient 2")).toBeTruthy();
+      fireEvent.press(getByTestId("add-ingredient-button"));
+      fireEvent.changeText(getByPlaceholderText("Search ingredient or product…"), "Ground Beef");
+      fireEvent.changeText(getByPlaceholderText("Amount"), "200");
+      fireEvent.press(getByTestId("add-ingredient-modal-save"));
 
-      // Remove the second ingredient - get all remove buttons and click the first one
-      const removeButtons = getAllByText("Remove");
-      fireEvent.press(removeButtons[0]);
+      fireEvent.press(getByTestId("add-ingredient-modal-add-another"));
+      fireEvent.changeText(getByPlaceholderText("Search ingredient or product…"), "Rice");
+      fireEvent.changeText(getByPlaceholderText("Amount"), "100");
+      fireEvent.press(getByTestId("add-ingredient-modal-save"));
+      fireEvent.press(getByTestId("add-ingredient-modal-done"));
 
-      expect(queryByText("Ingredient 2")).toBeNull();
-      expect(getByText("Ingredient 1")).toBeTruthy();
+      expect(getByText("Ground Beef")).toBeTruthy();
+      expect(getByText("Rice")).toBeTruthy();
     });
 
-    it("does not show remove button when only one ingredient exists", () => {
-      const { queryByText } = renderFoodScreen();
-      expect(queryByText("Remove")).toBeNull();
+    it("removes ingredient when Delete is confirmed", () => {
+      const screen = renderFoodScreen();
+      const { getByTestId, queryByText } = screen;
+
+      addIngredientViaModal(screen, { name: "Ground Beef", amount: "200" });
+      expect(screen.getByText("Ground Beef")).toBeTruthy();
+
+      fireEvent.press(getByTestId("delete-ingredient-0"));
+      const alertCall = (Alert.alert as jest.Mock).mock.calls[0];
+      act(() => {
+        alertCall[2].find((b: any) => b.text === "Delete").onPress();
+      });
+
+      expect(queryByText("Ground Beef")).toBeNull();
     });
 
-    it("changes unit selection for ingredients", () => {
-      const { getByText } = renderFoodScreen();
-      
-      // Initially 'g' should be selected (default)
+    it("does not render any ingredient rows when list is empty", () => {
+      const { queryByTestId } = renderFoodScreen();
+      expect(queryByTestId("edit-ingredient-0")).toBeNull();
+    });
+
+    it("changes unit selection within the add-ingredient modal", () => {
+      const { getByTestId, getByText } = renderFoodScreen();
+
+      fireEvent.press(getByTestId("add-ingredient-button"));
+
       const mlButton = getByText("ml");
       fireEvent.press(mlButton);
 
-      // ml should now be selected (test would need to check styling or state)
       expect(mlButton).toBeTruthy();
     });
   });
@@ -254,18 +286,14 @@ describe("FoodScreen", () => {
 
   describe("Successful Form Submission", () => {
     it("successfully submits a complete food entry", async () => {
-      const { getByText, getByPlaceholderText, getByTestId } = renderFoodScreen();
+      const screen = renderFoodScreen();
+      const { getByText, getByPlaceholderText, getByTestId } = screen;
       
       // Fill out the form
       const mealNameInput = getByPlaceholderText("e.g., Lasagne, Chicken Salad");
-      const ingredientNameInput = getByPlaceholderText("Search ingredient or product…");
-      const amountInput = getByPlaceholderText("Amount");
-      const caloriesInput = getByPlaceholderText("Calories per 100g (optional)");
-      
       fireEvent.changeText(mealNameInput, "Spaghetti Bolognese");
-      fireEvent.changeText(ingredientNameInput, "Ground Beef");
-      fireEvent.changeText(amountInput, "200");
-      fireEvent.changeText(caloriesInput, "250");
+
+      addIngredientViaModal(screen, { name: "Ground Beef", amount: "200", calories: "250" });
 
       // Select category
       const categoryButton = getByText("Select a category");
@@ -285,16 +313,14 @@ describe("FoodScreen", () => {
     });
 
     it("resets form after successful submission", async () => {
-      const { getByText, getByPlaceholderText, getByTestId } = renderFoodScreen();
+      const screen = renderFoodScreen();
+      const { getByText, getByPlaceholderText, getByTestId, queryByText } = screen;
       
       // Fill out and submit form
       const mealNameInput = getByPlaceholderText("e.g., Lasagne, Chicken Salad");
-      const ingredientNameInput = getByPlaceholderText("Search ingredient or product…");
-      const amountInput = getByPlaceholderText("Amount");
-      
       fireEvent.changeText(mealNameInput, "Test Meal");
-      fireEvent.changeText(ingredientNameInput, "Test Ingredient");
-      fireEvent.changeText(amountInput, "100");
+
+      addIngredientViaModal(screen, { name: "Test Ingredient", amount: "100" });
 
       // Select category
       const categoryButton = getByText("Select a category");
@@ -315,8 +341,7 @@ describe("FoodScreen", () => {
       // Check that form is reset
       await waitFor(() => {
         expect(mealNameInput.props.value).toBe("");
-        expect(ingredientNameInput.props.value).toBe("");
-        expect(amountInput.props.value).toBe("");
+        expect(queryByText("Test Ingredient")).toBeNull();
         expect(getByText("Select a category")).toBeTruthy();
       });
     });
@@ -324,16 +349,14 @@ describe("FoodScreen", () => {
 
   describe("Recent Entries Display", () => {
     it("shows recent entries section when entries exist", async () => {
-      const { getByText, getByPlaceholderText, getByTestId } = renderFoodScreen();
+      const screen = renderFoodScreen();
+      const { getByText, getByPlaceholderText, getByTestId } = screen;
       
       // Add a food entry first
       const mealNameInput = getByPlaceholderText("e.g., Lasagne, Chicken Salad");
-      const ingredientNameInput = getByPlaceholderText("Search ingredient or product…");
-      const amountInput = getByPlaceholderText("Amount");
-      
       fireEvent.changeText(mealNameInput, "Test Meal");
-      fireEvent.changeText(ingredientNameInput, "Test Ingredient");
-      fireEvent.changeText(amountInput, "100");
+
+      addIngredientViaModal(screen, { name: "Test Ingredient", amount: "100" });
 
       const categoryButton = getByText("Select a category");
       fireEvent.press(categoryButton);

@@ -2,7 +2,7 @@
 
 This directory tracks major technical decisions made during the development of the Food Tracker App. Each TDR is its own file — read only the ones relevant to your task rather than the whole set (use `graphify explain "TDR-XXX"` or `minimal-context` first to find the relevant entries; see `AGENTS.md`'s Graphify section).
 
-**Next number: TDR-027**
+**Next number: TDR-028**
 
 ## Template for new TDRs
 
@@ -58,3 +58,4 @@ This directory tracks major technical decisions made during the development of t
 | [TDR-024](./decisions/024-generate-health-report-supabase-edge-function.md) | `generate-health-report` Supabase Edge Function | 2026-09-05 | Accepted |
 | [TDR-025](./decisions/025-health-report-ui-placement-stats-tab-section.md) | Health Report UI Placement — Stats Tab Section | 2026-09-05 | Accepted |
 | [TDR-026](./decisions/026-ai-health-report-generation-via-supabase-edge-function.md) | AI Health Report Generation via Supabase Edge Function | 2026-09-05 | Accepted |
+| [TDR-027](./decisions/027-compact-ingredient-list-with-add-ingredient-modal.md) | Compact Ingredient List with AddIngredientModal | 2026-09-06 | Accepted |

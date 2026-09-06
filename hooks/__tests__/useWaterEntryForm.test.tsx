@@ -92,7 +92,7 @@ describe('useWaterEntryForm', () => {
     const { getByTestId } = renderWithProvider(<TestWaterFormComponent />);
     
     expect(getByTestId('entry-name').props.children).toBe('');
-    expect(getByTestId('ingredients-count').props.children).toBe(1);
+    expect(getByTestId('ingredients-count').props.children).toBe(0);
     expect(getByTestId('show-date-picker').props.children).toBe('false');
     expect(getByTestId('show-time-picker').props.children).toBe('false');
   });
@@ -130,21 +130,23 @@ describe('useWaterEntryForm', () => {
     
     fireEvent.press(getByTestId('add-ingredient-button'));
     
-    expect(getByTestId('ingredients-count').props.children).toBe(2);
+    expect(getByTestId('ingredients-count').props.children).toBe(1);
   });
 
   it('updates ingredients', () => {
     const { getByTestId } = renderWithProvider(<TestWaterFormComponent />);
     
+    fireEvent.press(getByTestId('add-ingredient-button'));
     fireEvent.press(getByTestId('update-ingredient-button'));
     
     expect(getByTestId('ingredient-0-name').props.children).toBe('Lemon');
   });
 
-  it('removes ingredients but keeps at least one', () => {
+  it('removes ingredients down to zero', () => {
     const { getByTestId } = renderWithProvider(<TestWaterFormComponent />);
     
-    // Add an ingredient first
+    // Add two ingredients
+    fireEvent.press(getByTestId('add-ingredient-button'));
     fireEvent.press(getByTestId('add-ingredient-button'));
     expect(getByTestId('ingredients-count').props.children).toBe(2);
     
@@ -152,9 +154,9 @@ describe('useWaterEntryForm', () => {
     fireEvent.press(getByTestId('remove-ingredient-button'));
     expect(getByTestId('ingredients-count').props.children).toBe(1);
     
-    // Try to remove the last ingredient - should not work
+    // Remove the last ingredient - list should reach zero
     fireEvent.press(getByTestId('remove-ingredient-button'));
-    expect(getByTestId('ingredients-count').props.children).toBe(1);
+    expect(getByTestId('ingredients-count').props.children).toBe(0);
   });
 
   it('controls date picker visibility', () => {
@@ -200,8 +202,9 @@ describe('useWaterEntryForm', () => {
   it('resets form after successful submission', async () => {
     const { getByTestId } = renderWithProvider(<TestWaterFormComponent />);
     
-    // Set entry name and add ingredient
+    // Set entry name and add ingredients
     fireEvent.press(getByTestId('update-name-button'));
+    fireEvent.press(getByTestId('add-ingredient-button'));
     fireEvent.press(getByTestId('update-ingredient-button'));
     fireEvent.press(getByTestId('add-ingredient-button'));
     
@@ -214,7 +217,7 @@ describe('useWaterEntryForm', () => {
     await waitFor(() => {
       // Form should be reset
       expect(getByTestId('entry-name').props.children).toBe('');
-      expect(getByTestId('ingredients-count').props.children).toBe(1);
+      expect(getByTestId('ingredients-count').props.children).toBe(0);
     });
   });
 });

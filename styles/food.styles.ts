@@ -414,4 +414,56 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
+
+  // Compact ingredient row (replaces the always-expanded ingredient card)
+  ingredientRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#eee',
+  },
+  ingredientRowInfo: {
+    flex: 1,
+    marginRight: 8,
+  },
+
+  // Macro pills — shown when an ingredient row was populated from a lookup
+  macroPills: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    marginTop: 6,
+    gap: 6,
+  },
+  pill: {
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  pillProtein: {
+    backgroundColor: '#D0E8FF',
+  },
+  pillCarbs: {
+    backgroundColor: '#FFF3CD',
+  },
+  pillFat: {
+    backgroundColor: '#FFE0C2',
+  },
+  pillText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#333',
+  },
+  sourceLabel: {
+    fontSize: 10,
+    color: '#999',
+    marginLeft: 2,
+    alignSelf: 'center',
+  },
 });

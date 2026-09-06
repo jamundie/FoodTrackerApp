@@ -53,9 +53,20 @@ This is a React Native food tracking app built with Expo Router, TypeScript, and
 - Use `useThemeColor` hook for custom themed components
 
 ### Modal Patterns
-- Modals follow naming convention: `*Modal.tsx` (e.g., `CategoryModal`, `DatePickerModal`)
+- Modals follow naming convention: `*Modal.tsx` (e.g., `CategoryModal`, `DatePickerModal`, `AddIngredientModal`)
 - Always include backdrop press handling and proper state management
 - Use consistent animation patterns across modals
+
+### Ingredient List + AddIngredientModal Pattern
+`IngredientForm.tsx` (food) and `WaterIngredientsForm.tsx` (water) render a **compact row list** — one row per ingredient (name + amount/unit), with Edit (pencil) and Trash icon actions reusing `entryActionButton`/`editButton`/`deleteButton` from `styles/food.styles.ts` (the same styles `FoodEntriesList`/`WaterEntriesList` use for whole-entry rows). Neither component renders the actual input fields inline anymore.
+
+- `components/AddIngredientModal.tsx` holds the single-ingredient form and is shared by both screens via a `mode: "food" | "water"` prop. `mode="food"` renders `FoodSearchInput` + a barcode scan icon (opens `BarcodeScannerModal`); `mode="water"` renders a plain `TextInput` for the name, no search/scan.
+- The modal owns a **local draft** (`useState<IngredientFormData>`) — nothing is written to the parent's `ingredients` array until Save. This gives Cancel a true discard.
+- **Add flow** (`initialData` absent): Save calls `onSave(draft)`, then shows an "Ingredient added" confirmation with "Add Another" (resets to a blank draft) / "Done" (closes) — letting several ingredients be added back-to-back without reopening the modal.
+- **Edit flow** (`initialData` present, from pressing the row's Edit icon): a single Save calls `onSave(draft)` and closes immediately — no add-another prompt.
+- Delete (Trash icon) shows an `Alert.alert("Delete ingredient?", ...)` confirmation before calling `onRemoveIngredient(index)` — same pattern as whole-entry delete in `FoodEntriesList`/`WaterEntriesList`.
+- `IngredientForm`/`WaterIngredientsForm` translate `onSave(draft)` into the existing hook calls via a `commitIngredientData` helper: for a new ingredient it calls `onAddIngredient()` then writes every defined field of the draft to the new index via `onUpdateIngredient`; for an edit it writes directly to the existing index. `onAddIngredient`/`onUpdateIngredient`/`onRemoveIngredient`/`onApplyNutrition` (food only) signatures are unchanged from the hooks — only how they're driven changed.
+- `ingredients` seeds as `[]` for new entries (not a single blank row) in both `useFoodEntryForm` and `useWaterEntryForm` — the compact list starts empty with just the "+ Add Ingredient" button. `removeIngredient` has no "keep at least one" guard; the list can reach zero, since `validateForm` already requires ≥1 valid ingredient at submit time.
 
 ### Form Component Architecture
 ```typescript
@@ -80,9 +91,9 @@ export type Ingredient = {
 
 ### Barcode Scanning Pattern
 - `BarcodeScannerModal` wraps `expo-camera`'s `CameraView` with a viewfinder overlay and handles camera permissions at runtime.
-- `IngredientForm` renders a `barcode-outline` icon button in each ingredient row header; pressing it opens `BarcodeScannerModal` targeted at that row index.
-- On a successful scan the modal calls `searchFoodByBarcode()` from `openFoodFactsService.ts`; the result is passed to `onResult` which calls `applyNutritionToIngredient(index, result)`.
-- The `scanning` boolean gate in the modal prevents duplicate scan events; it resets each time the modal opens.
+- `AddIngredientModal` (in `mode="food"`) renders a `barcode-outline` icon button next to the name field; pressing it opens `BarcodeScannerModal` targeted at the modal's current draft.
+- On a successful scan the modal calls `searchFoodByBarcode()` from `openFoodFactsService.ts`; the result is passed to `onResult`, which writes straight into the draft (same field-population logic as a search-result select — see Nutrition Lookup Pattern below). The draft is only committed to the parent ingredient array on Save.
+- The `scanning` boolean gate in `BarcodeScannerModal` prevents duplicate scan events; it resets each time the modal opens.
 - Do NOT add `expo-barcode-scanner` — it is deprecated; use `expo-camera` only.
 
 ### Water Entry Patterns
@@ -92,7 +103,7 @@ export type Ingredient = {
 
 ### Nutrition Lookup Pattern (Open Food Facts)
 
-The ingredient name field in the food form is a `FoodSearchInput` component — not a plain `TextInput`. It queries the Open Food Facts free API with a 350 ms debounce and shows a result dropdown.
+The ingredient name field inside `AddIngredientModal` (`mode="food"`) is a `FoodSearchInput` component — not a plain `TextInput`. It queries the Open Food Facts free API with a 350 ms debounce and shows a result dropdown.
 
 **Key types in `types/ingredient.ts`:**
 ```ts
@@ -126,8 +137,8 @@ IngredientFormData {
 
 **Rules:**
 - `FoodSearchResult` and `NutritionData` from `lib/openFoodFactsService.ts` are the shared contract; Gemini Vision (Option B) must produce the same shapes.
-- `useFoodEntryForm` exposes `applyNutritionToIngredient(index, result)` — this is the only way to write a lookup result into an ingredient row.
-- `IngredientForm` receives `onApplyNutrition` and passes it to `FoodSearchInput.onSelectResult`.
+- `useFoodEntryForm` exposes `applyNutritionToIngredient(index, result)` — this is the only way to write a lookup result into an ingredient row once the modal's draft is committed via `onSave`.
+- `AddIngredientModal` calls `FoodSearchInput.onSelectResult` directly against its local draft; the result only reaches `applyNutritionToIngredient` indirectly, via `IngredientForm`'s `commitIngredientData` writing the saved draft's fields (including `nutritionSource`) back through `onUpdateIngredient`.
 - Macro fields in `IngredientFormData` (`proteinPer100g`, `carbsPer100g`, `fatPer100g`) are strings for the form; `processIngredients()` parses them.
 - `calculateTotals()` in `foodHelpers.ts` returns `MacroTotals`; use it instead of the deprecated `calculateTotalCalories()`.
 - Ingredient name input placeholder is `"Search ingredient or product…"` — update tests accordingly.
@@ -222,7 +233,7 @@ npm run ios            # iOS build
 - **Test Organization**: Component tests must be organized into appropriate subfolders within `components/__tests__/`:
   - `forms/` - for form components (e.g., `IngredientForm`, `MealInfoForm`)
   - `lists/` - for list/display components (e.g., `FoodEntriesList`, `RecentActivities`)
-  - `modals/` - for modal components (e.g., `CategoryModal`, `DatePickerModal`)
+  - `modals/` - for modal components (e.g., `CategoryModal`, `DatePickerModal`, `AddIngredientModal`)
   - `screens/` - for screen-level components
   - Create new categorized folders as needed for other component types
   - **Never place component tests directly in `components/__tests__/` root** - always organize into subfolders

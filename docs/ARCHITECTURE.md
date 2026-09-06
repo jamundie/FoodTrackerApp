@@ -112,12 +112,13 @@ app/
 components/
 ├── MealInfoForm.tsx      # Meal metadata form (name, category, date/time, photo)
 ├── PhotoInput.tsx          # Generic photo picker/preview; supports camera + library; optional label/aspect/quality props
-├── IngredientForm.tsx    # Dynamic ingredient card list
+├── IngredientForm.tsx    # Compact ingredient row list (food) — edit/delete icons, "+ Add Ingredient" opens AddIngredientModal
+├── AddIngredientModal.tsx # Shared single-ingredient add/edit modal — `mode="food"` wires FoodSearchInput + BarcodeScannerModal, `mode="water"` is plain fields
 ├── CategoryModal.tsx     # Category selection modal
 ├── FoodEntriesList.tsx   # Rendered list of past food entries
 ├── WaterInfoForm.tsx     # Water entry metadata form (name, volume preset, date/time)
 ├── WaterVolumeSelector.tsx  # Modal dropdown for selecting drink-size preset
-├── WaterIngredientsForm.tsx # Water ingredient card list
+├── WaterIngredientsForm.tsx # Compact ingredient row list (water, inside a Collapsible) — same AddIngredientModal in `mode="water"`
 ├── WaterEntriesList.tsx  # Rendered list of past water entries
 ├── BowelEntryForm.tsx    # Bristol type, urgency, pain, blood toggle, notes
 ├── BowelEntriesList.tsx  # Rendered list of past bowel entries

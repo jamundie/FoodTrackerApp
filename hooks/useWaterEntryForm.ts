@@ -53,9 +53,7 @@ export const useWaterEntryForm = (initialEntry?: WaterEntry, onSuccess?: () => v
   const [showTimePicker, setShowTimePicker] = useState(false);
 
   const [ingredients, setIngredients] = useState<IngredientFormData[]>(
-    initialEntry && initialEntry.ingredients.length > 0
-      ? initialEntry.ingredients.map(ingredientToFormData)
-      : [{ name: '', amount: '', unit: 'ml', caloriesRef: '' }]
+    initialEntry ? initialEntry.ingredients.map(ingredientToFormData) : []
   );
 
   const [submitting, setSubmitting] = useState(false);
@@ -80,12 +78,7 @@ export const useWaterEntryForm = (initialEntry?: WaterEntry, onSuccess?: () => v
   }, []);
 
   const removeIngredient = useCallback((index: number) => {
-    setIngredients(prev => {
-      if (prev.length > 1) {
-        return prev.filter((_, i) => i !== index);
-      }
-      return prev;
-    });
+    setIngredients(prev => prev.filter((_, i) => i !== index));
   }, []);
 
   const handleDateSelect = useCallback((date: Date) => {
@@ -117,7 +110,7 @@ export const useWaterEntryForm = (initialEntry?: WaterEntry, onSuccess?: () => v
       selectedTime: { hours: new Date().getHours(), minutes: 0 },
     });
     setVolumePresetId(defaultPresetId);
-    setIngredients([{ name: '', amount: '', unit: 'ml', caloriesRef: '' }]);
+    setIngredients([]);
   }, [defaultPresetId]);
 
   const handleSubmit = useCallback(async () => {

@@ -1,7 +1,10 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
+import { Alert } from 'react-native';
 import WaterIngredientsForm from '../../WaterIngredientsForm';
 import { Unit, IngredientFormData } from '../../../types/ingredient';
+
+jest.spyOn(Alert, 'alert');
 
 const mockIngredients: IngredientFormData[] = [
   { name: 'Lemon juice', amount: '30', unit: 'ml' as Unit, caloriesRef: '22' },
@@ -14,130 +17,129 @@ const mockProps = {
   onRemoveIngredient: jest.fn(),
 };
 
+const openCollapsible = (getByText: any) =>
+  fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
+
 describe('WaterIngredientsForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders correctly within collapsible accordion', () => {
-    const { getByText, getByDisplayValue } = render(<WaterIngredientsForm {...mockProps} />);
-    
-    // Open the collapsible
-    fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
-    
+  it('renders the compact ingredient list within the collapsible accordion', () => {
+    const { getByText } = render(<WaterIngredientsForm {...mockProps} />);
+
+    openCollapsible(getByText);
+
     expect(getByText('Add Flavoring / Supplements (Optional)')).toBeTruthy();
-    expect(getByText('Ingredient 1')).toBeTruthy();
+    expect(getByText('Lemon juice')).toBeTruthy();
+    expect(getByText('30 ml')).toBeTruthy();
+  });
+
+  it('shows edit and delete icons for each ingredient row', () => {
+    const { getByText, getByTestId } = render(<WaterIngredientsForm {...mockProps} />);
+
+    openCollapsible(getByText);
+
+    expect(getByTestId('edit-water-ingredient-0')).toBeTruthy();
+    expect(getByTestId('delete-water-ingredient-0')).toBeTruthy();
+  });
+
+  it('opens the add-ingredient modal when "+ Add Ingredient" is pressed', () => {
+    const { getByText, getByTestId } = render(<WaterIngredientsForm {...mockProps} />);
+
+    openCollapsible(getByText);
+    fireEvent.press(getByTestId('add-water-ingredient-button'));
+
+    expect(getByText('Add Ingredient')).toBeTruthy();
+  });
+
+  it('uses the water-specific placeholder text in the modal', () => {
+    const { getByText, getByTestId, getByPlaceholderText } = render(
+      <WaterIngredientsForm {...mockProps} />
+    );
+
+    openCollapsible(getByText);
+    fireEvent.press(getByTestId('add-water-ingredient-button'));
+
+    expect(getByPlaceholderText('e.g., Lemon juice, Protein powder')).toBeTruthy();
+  });
+
+  it('calls onAddIngredient and writes fields when saving a new ingredient', () => {
+    const { getByText, getByTestId, getByPlaceholderText } = render(
+      <WaterIngredientsForm {...mockProps} />
+    );
+
+    openCollapsible(getByText);
+    fireEvent.press(getByTestId('add-water-ingredient-button'));
+
+    fireEvent.changeText(getByPlaceholderText('e.g., Lemon juice, Protein powder'), 'Lime juice');
+    fireEvent.changeText(getByPlaceholderText('Amount'), '50');
+    fireEvent.press(getByTestId('add-ingredient-modal-save'));
+
+    expect(mockProps.onAddIngredient).toHaveBeenCalledTimes(1);
+    expect(mockProps.onUpdateIngredient).toHaveBeenCalledWith(1, 'name', 'Lime juice');
+    expect(mockProps.onUpdateIngredient).toHaveBeenCalledWith(1, 'amount', '50');
+  });
+
+  it('opens the modal pre-filled when editing an existing ingredient', () => {
+    const { getByText, getByTestId, getByDisplayValue } = render(
+      <WaterIngredientsForm {...mockProps} />
+    );
+
+    openCollapsible(getByText);
+    fireEvent.press(getByTestId('edit-water-ingredient-0'));
+
     expect(getByDisplayValue('Lemon juice')).toBeTruthy();
     expect(getByDisplayValue('30')).toBeTruthy();
     expect(getByDisplayValue('22')).toBeTruthy();
   });
 
-  it('displays water-specific placeholder text', () => {
-    const emptyIngredients = [{ name: '', amount: '', unit: 'ml' as Unit, caloriesRef: '' }];
-    const { getByPlaceholderText, getByText } = render(
-      <WaterIngredientsForm {...mockProps} ingredients={emptyIngredients} />
+  it('updates the ingredient in place on Save when editing', () => {
+    const { getByText, getByTestId, getByDisplayValue } = render(
+      <WaterIngredientsForm {...mockProps} />
     );
-    
-    // Open the collapsible
-    fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
-    
-    expect(getByPlaceholderText('e.g., Lemon juice, Protein powder')).toBeTruthy();
-  });
 
-  it('calls onAddIngredient when add button is pressed', () => {
-    const { getByTestId, getByText } = render(<WaterIngredientsForm {...mockProps} />);
-    
-    // Open the collapsible
-    fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
-    
-    fireEvent.press(getByTestId('add-water-ingredient-button'));
-    
-    expect(mockProps.onAddIngredient).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls onUpdateIngredient when ingredient name is changed', () => {
-    const { getByDisplayValue, getByText } = render(<WaterIngredientsForm {...mockProps} />);
-    
-    // Open the collapsible
-    fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
-    
+    openCollapsible(getByText);
+    fireEvent.press(getByTestId('edit-water-ingredient-0'));
     fireEvent.changeText(getByDisplayValue('Lemon juice'), 'Lime juice');
-    
+    fireEvent.press(getByTestId('add-ingredient-modal-save'));
+
     expect(mockProps.onUpdateIngredient).toHaveBeenCalledWith(0, 'name', 'Lime juice');
   });
 
-  it('calls onUpdateIngredient when amount is changed', () => {
-    const { getByDisplayValue, getByText } = render(<WaterIngredientsForm {...mockProps} />);
-    
-    // Open the collapsible
-    fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
-    
-    fireEvent.changeText(getByDisplayValue('30'), '50');
-    
-    expect(mockProps.onUpdateIngredient).toHaveBeenCalledWith(0, 'amount', '50');
-  });
+  it('shows a delete confirmation Alert when the trash icon is pressed', () => {
+    const { getByText, getByTestId } = render(<WaterIngredientsForm {...mockProps} />);
 
-  it('calls onUpdateIngredient when unit is selected', () => {
-    const { getByText } = render(<WaterIngredientsForm {...mockProps} />);
-    
-    // Open the collapsible
-    fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
-    
-    fireEvent.press(getByText('g'));
-    
-    expect(mockProps.onUpdateIngredient).toHaveBeenCalledWith(0, 'unit', 'g');
-  });
+    openCollapsible(getByText);
+    fireEvent.press(getByTestId('delete-water-ingredient-0'));
 
-  it('calls onRemoveIngredient when remove button is pressed', () => {
-    const multipleIngredients = [
-      ...mockIngredients,
-      { name: 'Protein powder', amount: '25', unit: 'g' as Unit, caloriesRef: '380' },
-    ];
-    const { getByTestId, getByText } = render(
-      <WaterIngredientsForm {...mockProps} ingredients={multipleIngredients} />
+    expect(Alert.alert).toHaveBeenCalledWith(
+      'Delete ingredient?',
+      expect.stringContaining('Lemon juice'),
+      expect.any(Array)
     );
-    
-    // Open the collapsible
-    fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
-    
-    fireEvent.press(getByTestId('remove-water-ingredient-1'));
-    
-    expect(mockProps.onRemoveIngredient).toHaveBeenCalledWith(1);
   });
 
-  it('does not show remove button for single ingredient', () => {
-    const { queryByTestId, getByText } = render(<WaterIngredientsForm {...mockProps} />);
-    
-    // Open the collapsible
-    fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
-    
-    expect(queryByTestId('remove-water-ingredient-0')).toBeNull();
+  it('calls onRemoveIngredient after confirming delete', () => {
+    const { getByText, getByTestId } = render(<WaterIngredientsForm {...mockProps} />);
+
+    openCollapsible(getByText);
+    fireEvent.press(getByTestId('delete-water-ingredient-0'));
+
+    const alertCall = (Alert.alert as jest.Mock).mock.calls[0];
+    const deleteButton = alertCall[2].find((b: any) => b.text === 'Delete');
+    deleteButton.onPress();
+
+    expect(mockProps.onRemoveIngredient).toHaveBeenCalledWith(0);
   });
 
-  it('highlights selected unit button', () => {
-    const { getByText } = render(<WaterIngredientsForm {...mockProps} />);
-    
-    // Open the collapsible
-    fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
-    
-    // ml should be selected (as per mock data)
-    const mlButton = getByText('ml');
-    expect(mlButton).toBeTruthy();
-    
-    // The style testing would require additional setup for style assertions
-    // For now, we just verify the button exists and can be pressed
-    fireEvent.press(getByText('piece'));
-    expect(mockProps.onUpdateIngredient).toHaveBeenCalledWith(0, 'unit', 'piece');
-  });
+  it('does not render any ingredient rows when the list is empty', () => {
+    const { getByText, queryByTestId } = render(
+      <WaterIngredientsForm {...mockProps} ingredients={[]} />
+    );
 
-  it('handles calories per 100g input', () => {
-    const { getByDisplayValue, getByText } = render(<WaterIngredientsForm {...mockProps} />);
-    
-    // Open the collapsible
-    fireEvent.press(getByText('Add Flavoring / Supplements (Optional)'));
-    
-    fireEvent.changeText(getByDisplayValue('22'), '25');
-    
-    expect(mockProps.onUpdateIngredient).toHaveBeenCalledWith(0, 'caloriesRef', '25');
+    openCollapsible(getByText);
+
+    expect(queryByTestId('edit-water-ingredient-0')).toBeNull();
   });
 });

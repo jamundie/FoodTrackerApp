@@ -57,9 +57,7 @@ export const useFoodEntryForm = (initialEntry?: FoodEntry, onSuccess?: () => voi
   const [showTimePicker, setShowTimePicker] = useState(false);
   
   const [ingredients, setIngredients] = useState<IngredientFormData[]>(
-    initialEntry && initialEntry.ingredients.length > 0
-      ? initialEntry.ingredients.map(ingredientToFormData)
-      : [{ name: '', amount: '', unit: 'g', caloriesRef: '' }]
+    initialEntry ? initialEntry.ingredients.map(ingredientToFormData) : []
   );
 
   const [photoUri, setPhotoUri] = useState<string | undefined>(
@@ -158,12 +156,7 @@ export const useFoodEntryForm = (initialEntry?: FoodEntry, onSuccess?: () => voi
   }, []);
 
   const removeIngredient = useCallback((index: number) => {
-    setIngredients(prev => {
-      if (prev.length > 1) {
-        return prev.filter((_, i) => i !== index);
-      }
-      return prev;
-    });
+    setIngredients(prev => prev.filter((_, i) => i !== index));
   }, []);
 
   const handleCategorySelect = useCallback((selectedCategory: FoodCategory) => {
@@ -228,7 +221,7 @@ export const useFoodEntryForm = (initialEntry?: FoodEntry, onSuccess?: () => voi
       selectedTime: { hours: new Date().getHours(), minutes: 0 },
     });
     setShowCategoryDropdown(false);
-    setIngredients([{ name: "", amount: "", unit: "g", caloriesRef: "" }]);
+    setIngredients([]);
     setPhotoUri(undefined);
   }, []);
 

@@ -1,9 +1,11 @@
-import React from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, TouchableOpacity, Alert } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "./ThemedText";
-import { Unit, IngredientFormData } from "../types/ingredient";
+import { IngredientFormData } from "../types/ingredient";
 import { styles } from "../styles/food.styles";
 import { Collapsible } from "./Collapsible";
+import AddIngredientModal from "./AddIngredientModal";
 
 interface WaterIngredientsFormProps {
   ingredients: IngredientFormData[];
@@ -12,94 +14,104 @@ interface WaterIngredientsFormProps {
   onRemoveIngredient: (index: number) => void;
 }
 
+const INGREDIENT_FIELDS: (keyof IngredientFormData)[] = ["name", "amount", "unit", "caloriesRef"];
+
+function commitIngredientData(
+  data: IngredientFormData,
+  index: number,
+  onUpdateIngredient: (index: number, field: keyof IngredientFormData, value: string) => void,
+) {
+  INGREDIENT_FIELDS.forEach((field) => {
+    const value = data[field];
+    if (value !== undefined) onUpdateIngredient(index, field, value);
+  });
+}
+
 export default function WaterIngredientsForm({
   ingredients,
   onUpdateIngredient,
   onAddIngredient,
   onRemoveIngredient,
 }: WaterIngredientsFormProps) {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  const openAddModal = () => {
+    setEditingIndex(null);
+    setModalVisible(true);
+  };
+
+  const openEditModal = (index: number) => {
+    setEditingIndex(index);
+    setModalVisible(true);
+  };
+
+  const handleSave = (data: IngredientFormData) => {
+    if (editingIndex !== null) {
+      commitIngredientData(data, editingIndex, onUpdateIngredient);
+    } else {
+      const newIndex = ingredients.length;
+      onAddIngredient();
+      commitIngredientData(data, newIndex, onUpdateIngredient);
+    }
+  };
+
+  const handleDelete = (index: number, name: string) => {
+    Alert.alert(
+      "Delete ingredient?",
+      name ? `Remove "${name}" from this entry?` : undefined,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: () => onRemoveIngredient(index) },
+      ]
+    );
+  };
+
   return (
     <Collapsible title="Add Flavoring / Supplements (Optional)">
       <View style={styles.ingredientsSection}>
         {ingredients.map((ingredient, index) => (
-          <View key={index} style={styles.ingredientCard}>
-            <View style={styles.ingredientHeader}>
-              <ThemedText type="default">Ingredient {index + 1}</ThemedText>
-              {ingredients.length > 1 && (
-                <TouchableOpacity
-                  style={styles.removeButton}
-                  onPress={() => onRemoveIngredient(index)}
-                >
-                  <Text style={styles.removeButtonText} testID={`remove-water-ingredient-${index}`}>Remove</Text>
-                </TouchableOpacity>
-              )}
+          <View key={index} style={styles.ingredientRow}>
+            <View style={styles.ingredientRowInfo}>
+              <ThemedText type="default">{ingredient.name || "Unnamed ingredient"}</ThemedText>
+              <ThemedText type="default" style={styles.hint}>
+                {ingredient.amount} {ingredient.unit}
+              </ThemedText>
             </View>
-
-            <TextInput
-              style={styles.input}
-              value={ingredient.name}
-              onChangeText={(value) => onUpdateIngredient(index, "name", value)}
-              placeholder="e.g., Lemon juice, Protein powder"
-              placeholderTextColor="#999"
-            />
-
-            <View style={styles.row}>
-              <View style={styles.amountInput}>
-                <TextInput
-                  style={styles.input}
-                  value={ingredient.amount}
-                  onChangeText={(value) => onUpdateIngredient(index, "amount", value)}
-                  placeholder="Amount"
-                  placeholderTextColor="#999"
-                  keyboardType="numeric"
-                />
-              </View>
-
-              <View style={styles.unitPicker}>
-                {(["g", "ml", "piece"] as Unit[]).map((unit) => (
-                  <TouchableOpacity
-                    key={unit}
-                    style={[
-                      styles.unitButton,
-                      ingredient.unit === unit && styles.unitButtonSelected,
-                    ]}
-                    onPress={() => onUpdateIngredient(index, "unit", unit)}
-                  >
-                    <Text
-                      style={[
-                        styles.unitButtonText,
-                        ingredient.unit === unit && styles.unitButtonTextSelected,
-                      ]}
-                    >
-                      {unit}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+            <View style={styles.entryActions}>
+              <TouchableOpacity
+                style={[styles.entryActionButton, styles.editButton]}
+                onPress={() => openEditModal(index)}
+                testID={`edit-water-ingredient-${index}`}
+              >
+                <Ionicons name="pencil" size={16} color="#007AFF" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.entryActionButton, styles.deleteButton]}
+                onPress={() => handleDelete(index, ingredient.name)}
+                testID={`delete-water-ingredient-${index}`}
+              >
+                <Ionicons name="trash" size={16} color="#ff4444" />
+              </TouchableOpacity>
             </View>
-
-            <TextInput
-              style={styles.input}
-              value={ingredient.caloriesRef}
-              onChangeText={(value) => onUpdateIngredient(index, "caloriesRef", value)}
-              placeholder={
-                ingredient.unit === "piece"
-                  ? "Calories per piece (optional)"
-                  : "Calories per 100g (optional)"
-              }
-              placeholderTextColor="#999"
-              keyboardType="numeric"
-            />
           </View>
         ))}
 
         <TouchableOpacity
           style={styles.addIngredientButton}
-          onPress={onAddIngredient}
+          onPress={openAddModal}
           testID="add-water-ingredient-button"
         >
-          <Text style={styles.addIngredientButtonText}>+ Add Another Ingredient</Text>
+          <ThemedText style={styles.addIngredientButtonText}>+ Add Ingredient</ThemedText>
         </TouchableOpacity>
+
+        <AddIngredientModal
+          visible={modalVisible}
+          mode="water"
+          initialData={editingIndex !== null ? ingredients[editingIndex] : null}
+          onSave={handleSave}
+          onClose={() => setModalVisible(false)}
+        />
       </View>
     </Collapsible>
   );
