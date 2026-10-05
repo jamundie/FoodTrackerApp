@@ -104,9 +104,9 @@ This creates the `food_entries`, `water_entries`, and `user_profiles` tables, en
 
 Migrations pushed to `main` are applied automatically to the production Supabase project via `.github/workflows/supabase-migrations.yml` (using the Supabase CLI's `db push`) — manual SQL Editor runs are only needed for local/first-time setup. See that workflow file for the required repo secrets.
 
-### 3a. Edge Functions (health reports)
+### 3a. Edge Functions (health reports, meal photo analysis)
 
-`supabase/functions/generate-health-report` requires the Supabase CLI and Docker (for local testing via `supabase functions serve`). It reads the Gemini key from an **Edge Function secret**, not `EXPO_PUBLIC_GEMINI_API_KEY`:
+`supabase/functions/generate-health-report` and `supabase/functions/analyse-meal-photo` require the Supabase CLI and Docker (for local testing via `supabase functions serve`). It reads the Gemini key from an **Edge Function secret**, not `EXPO_PUBLIC_GEMINI_API_KEY`:
 
 ```bash
 # Local dev — create supabase/functions/.env (gitignored) with:

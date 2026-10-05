@@ -162,6 +162,7 @@ IngredientFormData {
 This is the repo's first Edge Function + cross-runtime shared module pair. Follow this shape for any future server-side compute (e.g. sleep/activity correlation work) rather than inventing a new one.
 
 **Edge Function call flow:**
+- `analyse-meal-photo` (TDR-028) follows the same conventions: `withSupabase({ auth: 'user' })`, shared `GEMINI_API_KEY` secret, errors returned as `{ error }` JSON inside a try/catch. Client side: `geminiService.analyseMealPhoto` → `trackingService.analyseMealPhotoRemote`. Never read Gemini keys via `EXPO_PUBLIC_*`; surface function errors with `extractFunctionErrorMessage`
 - Client → `trackingService.generateHealthReport(periodStart, periodEnd)` → `supabase.functions.invoke('generate-health-report', { body: { periodStart, periodEnd } })` — authenticated via the caller's session JWT, no service-role key
 - The function (`supabase/functions/generate-health-report`) is scaffolded with `@supabase/server`'s `withSupabase({ auth: 'user' })`, giving an RLS-scoped `ctx.supabase` client — never a service-role client — so the function can only ever see the calling user's own rows
 - Handler order: validate request → rate-limit check (`429` if ≥5 `health_reports` rows in the last 24h) → fetch `food_entries`/`water_entries`/`bowel_entries` for the period (2-day lookback buffer on food/water only, not bowel) → compute `summary_stats`/`correlations` via the shared modules below → send only that compact JSON to Gemini → insert into `health_reports` → return to caller

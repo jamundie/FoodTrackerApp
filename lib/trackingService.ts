@@ -261,8 +261,42 @@ export async function generateHealthReport(periodStart: string, periodEnd: strin
   const { data, error } = await supabase.functions.invoke('generate-health-report', {
     body: { periodStart, periodEnd },
   });
-  if (error) throw new Error(`generateHealthReport failed: ${error.message}`);
+  if (error) throw new Error(`generateHealthReport failed: ${await extractFunctionErrorMessage(error)}`);
   return mapHealthReportRow(data.report);
+}
+
+export type DetectedIngredient = {
+  name: string;
+  estimatedWeightG: number;
+  caloriesPer100g: number;
+  proteinPer100g: number;
+  carbsPer100g: number;
+  fatPer100g: number;
+  fiberPer100g: number;
+};
+
+/** Invokes the analyse-meal-photo Edge Function (Gemini key stays server-side). */
+export async function analyseMealPhotoRemote(imageBase64: string, mimeType: string): Promise<DetectedIngredient[]> {
+  const { data, error } = await supabase.functions.invoke('analyse-meal-photo', {
+    body: { imageBase64, mimeType },
+  });
+  if (error) throw new Error(await extractFunctionErrorMessage(error));
+  return data.ingredients ?? [];
+}
+
+// FunctionsHttpError.message is always the generic "non-2xx" text; the real reason is in the response body (error.context).
+async function extractFunctionErrorMessage(error: { message: string; context?: unknown }): Promise<string> {
+  const res = error.context as Response | undefined;
+  if (!res || typeof res.status !== 'number') return error.message;
+  try {
+    const body = await res.json();
+    // Our handler returns { error }; @supabase/server auth failures return { message }
+    if (typeof body?.error === 'string') return body.error;
+    if (typeof body?.message === 'string') return body.message;
+  } catch {
+    // Body wasn't JSON (e.g. gateway 404/401 text) — fall through to status
+  }
+  return `${error.message} (HTTP ${res.status})`;
 }
 
 export async function fetchHealthReports(userId: string): Promise<HealthReport[]> {

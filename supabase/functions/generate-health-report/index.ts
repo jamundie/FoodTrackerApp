@@ -69,83 +69,90 @@ export default {
       return jsonError("periodStart must be on or before periodEnd", 400);
     }
 
-    const userId = ctx.userClaims!.id;
-    const supabase = ctx.supabase; // RLS-scoped to the caller — no service-role key
+    // Uncaught throws (Gemini/DB failures) would otherwise surface as an opaque non-JSON 500
+    try {
+      const userId = ctx.userClaims!.id;
+      const supabase = ctx.supabase; // RLS-scoped to the caller — no service-role key
 
-    // ── Rate limit ─────────────────────────────────────────────────────────
-    const recentCount = await countRecentReports(supabase, userId, RATE_LIMIT_WINDOW_HOURS);
-    if (recentCount >= RATE_LIMIT_MAX_REPORTS) {
-      return jsonError(
-        `Rate limit exceeded: max ${RATE_LIMIT_MAX_REPORTS} reports per ${RATE_LIMIT_WINDOW_HOURS}h`,
-        429,
-      );
+      // ── Rate limit ─────────────────────────────────────────────────────────
+      const recentCount = await countRecentReports(supabase, userId, RATE_LIMIT_WINDOW_HOURS);
+      if (recentCount >= RATE_LIMIT_MAX_REPORTS) {
+        return jsonError(
+          `Rate limit exceeded: max ${RATE_LIMIT_MAX_REPORTS} reports per ${RATE_LIMIT_WINDOW_HOURS}h`,
+          429,
+        );
+      }
+
+      // ── Fetch entries ────────────────────────────────────────────────────────
+      // Food/water widened by the lookback buffer so a bowel entry near the period
+      // start can still see triggers just before it; bowel entries themselves are
+      // scoped strictly to the reported period (they are the outcome events).
+      const bufferedStart = new Date(periodStartDate);
+      bufferedStart.setUTCDate(bufferedStart.getUTCDate() - LOOKBACK_BUFFER_DAYS);
+      const periodEndOfDay = new Date(periodEndDate);
+      periodEndOfDay.setUTCHours(23, 59, 59, 999);
+
+      const [foodEntries, waterEntries, bowelEntries] = await Promise.all([
+        fetchFoodEntries(supabase, { startISO: bufferedStart.toISOString(), endISO: periodEndOfDay.toISOString() }),
+        fetchWaterEntries(supabase, { startISO: bufferedStart.toISOString(), endISO: periodEndOfDay.toISOString() }),
+        fetchBowelEntries(supabase, { startISO: periodStartDate.toISOString(), endISO: periodEndOfDay.toISOString() }),
+      ]);
+
+      // ── Deterministic stats/correlation layer (never raw entries to the LLM) ──
+      const periodDays = Math.round((periodEndDate.getTime() - periodStartDate.getTime()) / 86_400_000) + 1;
+      const dates = buildDateRange(periodDays, periodEndDate);
+
+      const daily = aggregateDailyStats(dates, {
+        foodEntries: foodEntries as any,
+        waterEntries: waterEntries as any,
+        bowelEntries,
+      });
+
+      const exposures = extractTriggerExposures(foodEntries as any, waterEntries as any);
+      const correlations = toSerializableCorrelations(computeCorrelations(bowelEntries, exposures));
+
+      const summaryStats = {
+        periodStart,
+        periodEnd,
+        avgCalories: daily.avgCalories,
+        avgWater: daily.avgWater,
+        macroAvgs: daily.macroAvgs,
+        bowelEntryCount: bowelEntries.length,
+        bristolDist: daily.bristolDist,
+        avgBristol: daily.avgBristol,
+      };
+
+      const hasBlood = bowelEntries.some((e) => e.hasBlood === true);
+
+      // ── AI narrative ───────────────────────────────────────────────────────
+      const { text: rawText, model } = await generateReportText({ summaryStats, correlations }, hasBlood);
+      const aiReportText = ensureBloodCallout(rawText, hasBlood);
+
+      // ── Persist (immutable snapshot) ─────────────────────────────────────────
+      const { data: inserted, error: insertError } = await supabase
+        .from("health_reports")
+        .insert({
+          user_id: userId,
+          period_start: periodStart,
+          period_end: periodEnd,
+          summary_stats: summaryStats,
+          correlations,
+          ai_report_text: aiReportText,
+          model,
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        return jsonError(`Failed to save report: ${insertError.message}`, 500);
+      }
+
+      return Response.json({ report: inserted });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error("generate-health-report failed:", message);
+      return jsonError(message, 500);
     }
-
-    // ── Fetch entries ────────────────────────────────────────────────────────
-    // Food/water widened by the lookback buffer so a bowel entry near the period
-    // start can still see triggers just before it; bowel entries themselves are
-    // scoped strictly to the reported period (they are the outcome events).
-    const bufferedStart = new Date(periodStartDate);
-    bufferedStart.setUTCDate(bufferedStart.getUTCDate() - LOOKBACK_BUFFER_DAYS);
-    const periodEndOfDay = new Date(periodEndDate);
-    periodEndOfDay.setUTCHours(23, 59, 59, 999);
-
-    const [foodEntries, waterEntries, bowelEntries] = await Promise.all([
-      fetchFoodEntries(supabase, { startISO: bufferedStart.toISOString(), endISO: periodEndOfDay.toISOString() }),
-      fetchWaterEntries(supabase, { startISO: bufferedStart.toISOString(), endISO: periodEndOfDay.toISOString() }),
-      fetchBowelEntries(supabase, { startISO: periodStartDate.toISOString(), endISO: periodEndOfDay.toISOString() }),
-    ]);
-
-    // ── Deterministic stats/correlation layer (never raw entries to the LLM) ──
-    const periodDays = Math.round((periodEndDate.getTime() - periodStartDate.getTime()) / 86_400_000) + 1;
-    const dates = buildDateRange(periodDays, periodEndDate);
-
-    const daily = aggregateDailyStats(dates, {
-      foodEntries: foodEntries as any,
-      waterEntries: waterEntries as any,
-      bowelEntries,
-    });
-
-    const exposures = extractTriggerExposures(foodEntries as any, waterEntries as any);
-    const correlations = toSerializableCorrelations(computeCorrelations(bowelEntries, exposures));
-
-    const summaryStats = {
-      periodStart,
-      periodEnd,
-      avgCalories: daily.avgCalories,
-      avgWater: daily.avgWater,
-      macroAvgs: daily.macroAvgs,
-      bowelEntryCount: bowelEntries.length,
-      bristolDist: daily.bristolDist,
-      avgBristol: daily.avgBristol,
-    };
-
-    const hasBlood = bowelEntries.some((e) => e.hasBlood === true);
-
-    // ── AI narrative ───────────────────────────────────────────────────────
-    const { text: rawText, model } = await generateReportText({ summaryStats, correlations }, hasBlood);
-    const aiReportText = ensureBloodCallout(rawText, hasBlood);
-
-    // ── Persist (immutable snapshot) ─────────────────────────────────────────
-    const { data: inserted, error: insertError } = await supabase
-      .from("health_reports")
-      .insert({
-        user_id: userId,
-        period_start: periodStart,
-        period_end: periodEnd,
-        summary_stats: summaryStats,
-        correlations,
-        ai_report_text: aiReportText,
-        model,
-      })
-      .select()
-      .single();
-
-    if (insertError) {
-      return jsonError(`Failed to save report: ${insertError.message}`, 500);
-    }
-
-    return Response.json({ report: inserted });
   }),
 };
 

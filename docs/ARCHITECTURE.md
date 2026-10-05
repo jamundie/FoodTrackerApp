@@ -226,6 +226,12 @@ The app's first Supabase Edge Function (Deno runtime), introduced to fix the pre
 
 **Secrets:** the Gemini key is stored as an Edge Function secret (`GEMINI_API_KEY`, via `supabase secrets set`), never `EXPO_PUBLIC_*`. Local dev reads it from `supabase/functions/.env` (gitignored).
 
+### `supabase/functions/analyse-meal-photo` (Edge Function)
+
+Gemini Vision meal-photo analysis, moved server-side (TDR-028) so the key is not in the app bundle.
+
+**Flow:** client sends `{ imageBase64, mimeType }` with the user's session JWT → function validates MIME type (jpeg/png/webp/gif) and size (~10 MB base64 cap) → calls `gemini-2.5-flash` (thinking disabled) with the nutrition-analysis prompt → parses the JSON array → returns `{ ingredients }`. Errors are returned as `{ error }` JSON; the client surfaces them via `extractFunctionErrorMessage` in `lib/trackingService.ts`. Shares the `GEMINI_API_KEY` secret with `generate-health-report`.
+
 ### `lib/insightsEngine.ts` + `lib/ingredientTags.ts` (shared modules)
 
 Plain, dependency-free TypeScript — no React Native or Deno-specific APIs — so both files are unit-testable under plain Jest (like `utils/foodHelpers.ts`) and importable unmodified by both the client (Stats screen) and the Deno Edge Function.
@@ -333,7 +339,7 @@ Index: `idx_health_reports_user_period` on `(user_id, period_start desc)` — su
 | Stats tab | Implemented | See `app/(tabs)/stats.tsx` — 7/30-day Skia bar charts for calories and water, average macro bars, Bristol type distribution, and a Health Reports section (generate + history) |
 | Sleep tracking | Not started | "Coming Soon" card on Home only; no tab, no types, no DB table |
 | Stress tracking | Not started | Same as sleep — card only |
-| AI photo analysis (Gemini Vision) | Implemented | `lib/geminiService.ts` base64-encodes the photo and calls Gemini 2.5 Flash; results fan into ingredient rows via `applyNutritionToIngredient`; "Analyse Photo with AI" button in `MealInfoForm` |
+| AI photo analysis (Gemini Vision) | Implemented | `lib/geminiService.ts` base64-encodes the photo and invokes the `analyse-meal-photo` Edge Function (Gemini 2.5 Flash, server-side key, TDR-028); results fan into ingredient rows via `applyNutritionToIngredient`; "Analyse Photo with AI" button in `MealInfoForm` |
 | Barcode scanning | Planned | `searchFoodByBarcode()` in `lib/openFoodFactsService.ts` is implemented; needs `expo-barcode-scanner` UI |
 
 ### Planned Feature Backlog (priority order)
