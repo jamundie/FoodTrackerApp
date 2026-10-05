@@ -223,6 +223,11 @@ export const statsStyles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
   },
+  exportErrorText: {
+    fontSize: 13,
+    color: '#dc2626',
+    marginTop: 8,
+  },
 
   // Health report history
   reportsHistory: {

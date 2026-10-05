@@ -15,6 +15,7 @@ Food Tracker App is a React Native application built with Expo, designed for tra
 - **@shopify/react-native-skia**: High-performance 2D graphics for charts
 - **@expo/vector-icons**: Icon library
 - **expo-image-picker**: Camera and photo library access for meal photos
+- **xlsx (SheetJS)** + **expo-sharing**: Multi-tab `.xlsx` data export, delivered via the native share sheet (TDR-029)
 - **React Native StyleSheet**: Styling with performance optimizations
 
 ### State Management
@@ -125,6 +126,7 @@ components/
 ├── ProfileForm.tsx       # User profile form (name, age, weight, height, goals, default glass)
 ├── HealthReportGenerator.tsx # Period picker (7/30/90d) + generate button/loading, Stats tab
 ├── HealthReportsList.tsx      # Past health reports newest-first, AI text + correlations, Stats tab
+├── DataExportCard.tsx         # Range picker (7d/30d/all) + Export to Excel button, Stats tab
 ├── Themed*/              # Design system components
 └── __tests__/            # Component tests
 ```
@@ -260,6 +262,20 @@ Index: `idx_health_reports_user_period` on `(user_id, period_start desc)` — su
 
 **Reporting indexes** (migration `008_reporting_indexes.sql`): prior to this feature, no indexes existed beyond implicit PKs on `food_entries`, `water_entries`, or `bowel_entries` — every fetch in `trackingService.ts` pulled the full unfiltered history per user. Added `idx_food_entries_user_timestamp`, `idx_water_entries_user_timestamp`, and `idx_bowel_entries_user_timestamp` (each `(user_id, timestamp desc)`) to support the Edge Function's server-side, date-range queries.
 
+## Data Export
+
+Users can export their data from the Stats tab's "Export Data" section as a single `.xlsx` workbook (TDR-029): range of last 7 days, last 30 days or all time, with tabs **Food**, **Water**, **Bowel**, **Daily Summary** and **Patterns**. There is no backend involvement: everything is built client-side from the in-memory `TrackingContext` data.
+
+| Layer | File | Responsibility |
+|---|---|---|
+| UI | `components/DataExportCard.tsx` | Range picker (`export-range-7d/30d/all`), export button, spinner, inline error |
+| Hook | `hooks/useDataExport.ts` | `exporting`/`error` state; resolves the range, builds sheets, calls `shareWorkbook` |
+| Pure builder | `lib/exportBuilder.ts` | `buildExportSheets(data, profile, range)` returns plain row arrays; no RN imports |
+| Native I/O | `utils/exportWorkbook.ts` | SheetJS workbook to base64, write to cache, `Sharing.shareAsync`, delete cache copy |
+| Range | `utils/dateUtils.ts` | `getExportRange(key, timestamps)` returns local day bounds |
+
+The Patterns tab reuses `computeCorrelations`/`extractTriggerExposures` from `lib/insightsEngine.ts` so numbers match the AI health report. Food and water entries up to 48 hours before the range start count as exposure but are not exported. Correlation rows with no adverse outcome after exposure are omitted and the rest sorted by lift. Infinite lift is written as the text `n/a (no baseline)`.
+
 ## Performance Considerations
 
 ### 1. React Native Skia for Charts
@@ -336,7 +352,7 @@ Index: `idx_health_reports_user_period` on `(user_id, period_start desc)` — su
 ### Stubbed / Not Started
 | Feature | Status | Notes |
 |---|---|---|
-| Stats tab | Implemented | See `app/(tabs)/stats.tsx` — 7/30-day Skia bar charts for calories and water, average macro bars, Bristol type distribution, and a Health Reports section (generate + history) |
+| Stats tab | Implemented | See `app/(tabs)/stats.tsx` — 7/30-day Skia bar charts for calories and water, average macro bars, Bristol type distribution, a Health Reports section (generate + history), and an Export Data section (multi-tab .xlsx, see [Data Export](#data-export)) |
 | Sleep tracking | Not started | "Coming Soon" card on Home only; no tab, no types, no DB table |
 | Stress tracking | Not started | Same as sleep — card only |
 | AI photo analysis (Gemini Vision) | Implemented | `lib/geminiService.ts` base64-encodes the photo and invokes the `analyse-meal-photo` Edge Function (Gemini 2.5 Flash, server-side key, TDR-028); results fan into ingredient rows via `applyNutritionToIngredient`; "Analyse Photo with AI" button in `MealInfoForm` |
@@ -351,6 +367,7 @@ Index: `idx_health_reports_user_period` on `(user_id, period_start desc)` — su
 - Sleep tracking not started (no tab, no types, no DB table; "Coming Soon" card on Home only)
 - Stress tracking not started (no screen, no types, no DB table)
 - 2500 kcal reference line in `ProgressChart` is hardcoded — not yet wired to `userProfile.dailyCalorieGoal`
+- Data export is mobile-only (`expo-sharing` is unsupported on web) and builds the whole workbook in memory on the JS thread; fine for personal-scale histories.
 - Stats-tab charts still read the full in-memory history from `TrackingContext` and aggregate client-side — fine for personal use; may need pagination if entry counts grow large. Health reports no longer share this limitation: `generate-health-report` runs server-side date-range queries against the new reporting indexes (migration `008_reporting_indexes.sql`), so report generation cost doesn't grow with total history size
 - Photo encryption key tied to device install — reinstalling the app permanently loses access to previously uploaded photos
 - No offline support — app requires network for data operations
@@ -369,6 +386,7 @@ Index: `idx_health_reports_user_period` on `(user_id, period_start desc)` — su
 | Native builds | Expo Go | Required for Skia + secure store |
 | Supabase | Firebase, AWS Amplify | SQL + RLS + Auth + Storage in one platform |
 | expo-secure-store | AsyncStorage | Keychain/Keystore encryption for session tokens |
+| xlsx (SheetJS) + expo-sharing | write-excel-file, zipped CSVs | Real multi-tab workbook; base64 output works with `expo-file-system` (RN cannot build binary Blobs) |
 
 ### File Organization Decisions
 

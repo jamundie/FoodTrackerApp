@@ -187,6 +187,13 @@ This is the repo's first Edge Function + cross-runtime shared module pair. Follo
 - `HealthReport.correlations` is loosely typed (`Record<string, unknown>[]`, jsonb from the Edge Function) — `HealthReportsList` reads fields defensively and skips/falls back to the insufficient-data message for any malformed entry rather than throwing.
 - Empty/insufficient-data states are copy-first ("keep logging and try again"), following the `RecentActivities` placeholder-row precedent rather than the `WaterEntriesList` return-`null` precedent — reports should say plainly when there isn't enough data, never render nothing.
 
+### Data Export Pattern
+- Export logic is split in three: `lib/exportBuilder.ts` is pure (plain row arrays, no RN/native imports, unit-tested under Jest); `utils/exportWorkbook.ts` is the only place that touches `xlsx`, `expo-file-system` and `expo-sharing`; `hooks/useDataExport.ts` holds `exporting`/`error` state. Keep new export sheets in the builder, not the UI.
+- The export reads from `useTracking().data` (already in memory), so it needs no `trackingService` function and no change to the global `trackingService` mock.
+- Ranges come from `getExportRange('7d' | '30d' | 'all', timestamps)` in `utils/dateUtils.ts` (local-midnight start, 23:59:59.999 end). Never write `Infinity`/`NaN` into a sheet cell; label it as text (see `formatLift`).
+- The cache file contains health data: always delete it after sharing (finally block).
+- `DataExportCard` is presentational over `useDataExport`; its test lives in `components/__tests__/forms/` and mocks the hook. `expo-sharing` is mocked globally in `jest.setup.ts`; `expo-file-system` is mocked locally in the test that needs it.
+
 ### Nutrition Goals
 - `UserProfile` carries `dailyCalorieGoal`, `dailyProteinGoal`, `dailyCarbGoal`, `dailyFatGoal` — all optional numbers.
 - These are set in `ProfileForm` and persisted via `upsertUserProfile` in `trackingService.ts`.

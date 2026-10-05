@@ -74,6 +74,12 @@ jest.mock('expo-image-picker', () => ({
   launchCameraAsync: jest.fn().mockResolvedValue({ canceled: true, assets: [] }),
 }));
 
+// Mock native sharing + file writes used by the data export (utils/exportWorkbook.ts)
+jest.mock('expo-sharing', () => ({
+  isAvailableAsync: jest.fn().mockResolvedValue(true),
+  shareAsync: jest.fn().mockResolvedValue(undefined),
+}));
+
 // Mock Ionicons to prevent async state updates in tests
 jest.mock('@expo/vector-icons/Ionicons', () => {
   const { Text } = require('react-native');

@@ -55,3 +55,37 @@ export const getPeriodDateRange = (days: number, referenceDate: Date = new Date(
   start.setDate(end.getDate() - (days - 1));
   return { periodStart: toDateOnly(start), periodEnd: toDateOnly(end) };
 };
+
+export type ExportRangeKey = '7d' | '30d' | 'all';
+
+export type ExportRange = {
+  key: ExportRangeKey;
+  start: Date; // local midnight of the first day
+  end: Date;   // local 23:59:59.999 of the last day
+};
+
+/** Resolves an export period to local day bounds; 'all' starts at the earliest timestamp (or today when none). */
+export const getExportRange = (
+  key: ExportRangeKey,
+  timestamps: string[],
+  referenceDate: Date = new Date(),
+): ExportRange => {
+  const end = new Date(referenceDate);
+  end.setHours(23, 59, 59, 999);
+
+  const start = new Date(referenceDate);
+  start.setHours(0, 0, 0, 0);
+
+  if (key === 'all') {
+    const earliest = timestamps.reduce<number>((min, ts) => {
+      const t = new Date(ts).getTime();
+      return Number.isNaN(t) ? min : Math.min(min, t);
+    }, start.getTime());
+    start.setTime(earliest);
+    start.setHours(0, 0, 0, 0);
+  } else {
+    start.setDate(start.getDate() - ((key === '7d' ? 7 : 30) - 1));
+  }
+
+  return { key, start, end };
+};

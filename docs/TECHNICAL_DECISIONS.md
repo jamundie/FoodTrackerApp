@@ -60,3 +60,4 @@ This directory tracks major technical decisions made during the development of t
 | [TDR-026](./decisions/026-ai-health-report-generation-via-supabase-edge-function.md) | AI Health Report Generation via Supabase Edge Function | 2026-09-05 | Accepted |
 | [TDR-027](./decisions/027-compact-ingredient-list-with-add-ingredient-modal.md) | Compact Ingredient List with AddIngredientModal | 2026-09-06 | Accepted |
 | [TDR-028](./decisions/028-meal-photo-analysis-via-supabase-edge-function.md) | Meal Photo Analysis via Supabase Edge Function | 2026-10-05 | Accepted |
+| [TDR-029](./decisions/029-xlsx-data-export.md) | Multi-Tab XLSX Data Export via Native Share Sheet | 2026-10-05 | Accepted |

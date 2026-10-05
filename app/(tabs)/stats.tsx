@@ -14,6 +14,7 @@ import { statsStyles as styles } from '@/styles/stats.styles';
 import { buildDateRange, aggregateDailyStats } from '@/lib/insightsEngine';
 import HealthReportGenerator from '@/components/HealthReportGenerator';
 import HealthReportsList from '@/components/HealthReportsList';
+import DataExportCard from '@/components/DataExportCard';
 
 type Period = 7 | 30;
 
@@ -291,6 +292,11 @@ export default function StatsScreen() {
       <SectionCard title="Health Reports">
         <HealthReportGenerator generating={generating} onGenerate={generateReport} />
         <HealthReportsList reports={reports} />
+      </SectionCard>
+
+      {/* Data export — multi-tab .xlsx via the native share sheet */}
+      <SectionCard title="Export Data">
+        <DataExportCard />
       </SectionCard>
 
       <View style={{ height: 32 }} />
