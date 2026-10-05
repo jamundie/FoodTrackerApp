@@ -288,8 +288,8 @@
     "hash": "b9f1f4647dfa38dd05259539b61f753a"
   },
   "lib/trackingService.ts": {
-    "mtime": 1788637939111.7014,
-    "hash": "6de9541f610cd66e8b6177a7c52879f6"
+    "mtime": 1791207750227.026,
+    "hash": "9a60cacb2d0c62db7c2091a8de5651e0"
   },
   "scripts/reset-project.js": {
     "mtime": 499162500000,
@@ -380,20 +380,20 @@
     "hash": "49447c30a39f3acbae5ad8ddc22d8559"
   },
   "README.md": {
-    "mtime": 1788637647543.8103,
-    "hash": "4e3481ca3f76b82f667ad6e0b2ce1af3"
+    "mtime": 1791206824117.2769,
+    "hash": "1e9215667d3a0f42b4b9e933a10536d9"
   },
   "docs/ARCHITECTURE.md": {
-    "mtime": 1788685055336.3125,
-    "hash": "5b05a898a5572696327b12532f7cf9bf"
+    "mtime": 1791206818292.8499,
+    "hash": "344befe94be5f18980aeacb76c678136"
   },
   "docs/README.md": {
     "mtime": 1788644680722.556,
     "hash": "24a9df721c6961f52fe54f442bf085bd"
   },
   "docs/TECHNICAL_DECISIONS.md": {
-    "mtime": 1788685091224.965,
-    "hash": "0acbce665a20a16c10c9f2943f69b2e8"
+    "mtime": 1791206818292.1035,
+    "hash": "b2fe7cfd7f57fde755849d06e6272fd5"
   },
   "android/app/src/main/res/drawable-hdpi/splashscreen_logo.png": {
     "mtime": 1751708853296.8904,
@@ -556,8 +556,8 @@
     "hash": "9640a9c50a973dadce2ad79acd627cb7"
   },
   "lib/geminiService.ts": {
-    "mtime": 1780243821894.9177,
-    "hash": "951955ca2abcd07ae3f3e73df9fcf90c"
+    "mtime": 1791206761023.9463,
+    "hash": "9c211d5713c3f3e208f6d5abdec8cd54"
   },
   "lib/openFoodFactsService.ts": {
     "mtime": 1780243391916.0913,
@@ -640,8 +640,8 @@
     "hash": "dc88f22804a7933bb32bcb4facdc0f0c"
   },
   "supabase/functions/generate-health-report/index.ts": {
-    "mtime": 1788637647548.25,
-    "hash": "a978195121626c27f3a467b32a49dc2d"
+    "mtime": 1791205974858.8042,
+    "hash": "7dea3ad8319dd94a965cc7645276d26e"
   },
   "supabase/migrations/008_reporting_indexes.sql": {
     "mtime": 1788624449125.8044,
@@ -774,5 +774,17 @@
   "docs/decisions/027-compact-ingredient-list-with-add-ingredient-modal.md": {
     "mtime": 1788685083255.9248,
     "hash": "241d653631a912863f32e7d09c06a230"
+  },
+  "supabase/functions/analyse-meal-photo/gemini.ts": {
+    "mtime": 1791206745072.9004,
+    "hash": "2d91e7d18ee7d042398698944752bcee"
+  },
+  "supabase/functions/analyse-meal-photo/index.ts": {
+    "mtime": 1791206748696.1091,
+    "hash": "c758e943ea299455da9019710a8bf7ac"
+  },
+  "docs/decisions/028-meal-photo-analysis-via-supabase-edge-function.md": {
+    "mtime": 1791206814358.676,
+    "hash": "3e22cfa1738e08d98591e5c9f1f49ca5"
   }
 }
