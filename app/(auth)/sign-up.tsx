@@ -12,6 +12,7 @@ import {
 import { router } from 'expo-router';
 import { useAuth } from '@/hooks/AuthContext';
 import { authStyles as s } from '@/styles/auth.styles';
+import { signUpErrorMessage } from '@/utils/authErrors';
 
 export default function SignUpScreen() {
   const { signUp } = useAuth();
@@ -43,7 +44,7 @@ export default function SignUpScreen() {
     const { error } = await signUp(email.trim(), password);
     setLoading(false);
     if (error) {
-      setError(error.message);
+      setError(signUpErrorMessage(error));
     } else {
       setSuccess(true);
     }
@@ -81,7 +82,7 @@ export default function SignUpScreen() {
 
         <View style={s.card}>
           <Text style={s.title}>Create account</Text>
-          <Text style={s.subtitle}>Free forever, no credit card needed</Text>
+          <Text style={s.subtitle}>Invite-only — contact the app owner for access</Text>
 
           {error && (
             <View style={s.errorBox}>
